@@ -1,0 +1,78 @@
+import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:amaan_tv/Features/Home/presentation/screens/home_screen.dart';
+import 'package:amaan_tv/Features/Home/presentation/screens/show_details_screen.dart';
+
+// Definition of AppRoutes as an Enum to support .routeName and strict typing
+enum AppRoutes {
+  home('home'),
+  showDetails('showDetails'),
+  categories('categories'),
+  soonRadio('soonRadio'),
+  reels('reels'),
+  showPlayer('showPlayer'), // Stub
+  notifications('notifications'),
+  // Missing routes added to satisfy compilation
+  radio('radio'),
+  soonStories('soonStories'),
+  search('search'),
+  parentSettingsSubscription('parentSettingsSubscription'),
+  homeChild('homeChild');
+
+  final String name;
+  const AppRoutes(this.name);
+  String get routeName => name;
+}
+
+final GlobalKey<NavigatorState> appNavigatorKey = GlobalKey<NavigatorState>();
+
+final GoRouter appRouter = GoRouter(
+  navigatorKey: appNavigatorKey,
+  initialLocation: '/home',
+  routes: [
+    GoRoute(
+      path: '/home',
+      name: AppRoutes.home.routeName,
+      builder: (context, state) => const HomeScreen(),
+    ),
+    GoRoute(
+      path: '/showDetails/:id',
+      name: AppRoutes.showDetails.routeName,
+      builder: (context, state) {
+        final id = state.pathParameters['id']!;
+        return ShowDetailsScreen(id: id);
+      },
+    ),
+    GoRoute(
+      path: '/categories',
+      name: AppRoutes.categories.routeName,
+      builder: (context, state) =>
+          const Scaffold(body: Center(child: Text("Categories"))),
+    ),
+    GoRoute(
+      path: '/soonRadio',
+      name: AppRoutes.soonRadio.routeName,
+      builder: (context, state) =>
+          const Scaffold(body: Center(child: Text("Radio Soon"))),
+    ),
+    GoRoute(
+      path: '/notifications',
+      name: AppRoutes.notifications.routeName,
+      builder: (context, state) =>
+          const Scaffold(body: Center(child: Text("Notifications"))),
+    ),
+    GoRoute(
+      path: '/reels',
+      name: AppRoutes.reels.routeName,
+      builder: (context, state) =>
+          const Scaffold(body: Center(child: Text("Reels"))),
+    ),
+    // Placeholder routes
+    GoRoute(
+      path: '/search',
+      name: AppRoutes.search.routeName,
+      builder: (context, state) =>
+          const Scaffold(body: Center(child: Text("Search"))),
+    ),
+  ],
+);
