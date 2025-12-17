@@ -1,6 +1,6 @@
 import 'package:amaan_tv/core/widget/app_toast.dart';
 import 'package:flutter/material.dart';
-import 'package:fluttertoast/fluttertoast.dart';
+import 'package:toastification/toastification.dart';
 import 'package:amaan_tv/core/utils/app_router.dart';
 import '../Themes/app_colors_new.dart';
 import '../Themes/app_text_styles_new.dart';
@@ -144,28 +144,29 @@ double calcReelsNum(int lenght) {
 }
 
 void showCustomToast({required BuildContext context, required String message}) {
-  final fToast = FToast();
-  fToast.init(context);
-
-  fToast.showToast(
-    child: Container(
-      padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 5.0),
-      decoration: BoxDecoration(
-        color: AppColorsNew.darkGrey3.withOpacity(0.9),
-        borderRadius: BorderRadius.circular(8.0),
-        border: Border.all(color: AppColorsNew.white, width: 0.5),
-      ),
-      child: Text(
-        message,
-        style: TextStyle(
-          color: Colors.white,
-          fontWeight: FontWeight.bold,
-          fontSize: 16,
-        ), // White text
+  toastification.show(
+    context: context,
+    title: Text(
+      message,
+      style: const TextStyle(
+        color: Colors.white,
+        fontWeight: FontWeight.bold,
+        fontSize: 16,
       ),
     ),
-    gravity: ToastGravity.TOP,
-    toastDuration: Duration(seconds: 2),
+    alignment: Alignment.topCenter,
+    autoCloseDuration: const Duration(seconds: 2),
+    style: ToastificationStyle.fillColored,
+    primaryColor: AppColorsNew.darkGrey3.withOpacity(0.9),
+    backgroundColor: AppColorsNew.darkGrey3.withOpacity(0.9),
+    foregroundColor: Colors.white,
+    showProgressBar: false,
+    closeButtonShowType: CloseButtonShowType.none,
+    borderSide: const BorderSide(color: AppColorsNew.white, width: 0.5),
+    borderRadius: BorderRadius.circular(8.0),
+    boxShadow: const [
+      BoxShadow(color: Colors.black26, blurRadius: 8, offset: Offset(0, 4)),
+    ],
   );
 }
 
