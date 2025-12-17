@@ -2,7 +2,6 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:amaan_tv/Clippers/layour_clipper.dart';
-import 'package:amaan_tv/core/Themes/app_colors_new.dart';
 import 'package:amaan_tv/Features/Home/provider/home_provider.dart';
 import 'package:provider/provider.dart';
 import 'banner/mobile_banner_view.dart';
@@ -12,10 +11,10 @@ class HomeBannerWidget extends StatefulWidget {
   const HomeBannerWidget({super.key});
 
   @override
-  _HomeBannerState createState() => _HomeBannerState();
+  HomeBannerState createState() => HomeBannerState();
 }
 
-class _HomeBannerState extends State<HomeBannerWidget> {
+class HomeBannerState extends State<HomeBannerWidget> {
   final PageController _controller = PageController();
   late Timer _timer;
   int _currentPage = 0;

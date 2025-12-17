@@ -100,9 +100,9 @@ class _ShowDetailsTabBarViewState extends State<ShowDetailsTabBarView> {
           isSliver: true,
           paginationMixin: context.read<ShowPromosProvider>(),
           loadInitialData: true,
-          itemBuilder: (context, index, promo) => promoWidget(model: promo),
+          itemBuilder: (context, index, promo) => PromoWidget(model: promo),
           loadingBuilder: (context, index) =>
-              Skeletonizer(child: promoWidget(model: ReelModel.dummy())),
+              Skeletonizer(child: PromoWidget(model: ReelModel.dummy())),
           emptyStateBuilder: (context) => SizedBox(
             height: 300.r,
             child: Center(

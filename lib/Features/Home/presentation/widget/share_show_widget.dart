@@ -122,10 +122,10 @@ void shareBottomSheet(BuildContext context, String showId) {
                                                                   .relation ==
                                                               'Daughter'
                                                           ? Assets
-                                                                .imagesGirl
+                                                                .images.girl
                                                                 .path
                                                           : Assets
-                                                                .imagesSonAvatar
+                                                                .images.sonAvatar
                                                                 .path,
                                                     ),
                                                   ),

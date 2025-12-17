@@ -10,7 +10,6 @@ import 'package:amaan_tv/core/Themes/app_text_styles_new.dart';
 import 'package:amaan_tv/Features/Home/data/models/home/show_details_model/data.dart';
 import 'package:amaan_tv/Features/favorite/presentation/widgets/favorite_icon_button.dart';
 import 'package:amaan_tv/Features/Home/presentation/widget/lock_widget.dart';
-import 'package:amaan_tv/core/helpers/extentions/context.dart';
 import 'package:amaan_tv/core/widget/cached%20network%20image/cached_network_image.dart';
 import 'package:amaan_tv/core/widget/custom_dialog.dart';
 import 'package:amaan_tv/core/widget/gradient_container.dart';
@@ -75,7 +74,7 @@ class _EpisodeWidgetState extends State<EpisodeWidget> {
                     return const CustomDialog(content: RepeatDialog());
                   },
                 ).then((value) {
-                  if (value != null) {
+                  if (value != null && context.mounted) {
                     context.pushNamed(
                       AppRoutes.showPlayer.routeName,
                       extra: {

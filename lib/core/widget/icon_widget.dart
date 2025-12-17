@@ -3,7 +3,6 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import 'package:amaan_tv/core/utils/packages/blurry_container.dart';
 import 'package:amaan_tv/core/widget/SVG_Image/svg_img.dart';
-import 'package:provider/provider.dart';
 
 import '../Themes/app_colors_new.dart';
 
@@ -41,10 +40,10 @@ class IconWidget extends StatelessWidget {
             child: BlurryContainer(
               padding: EdgeInsets.all(padding ?? 7.r),
               color: isBlack
-                  ? AppColorsNew.black2.withOpacity(.4)
+                  ? AppColorsNew.black2.withValues(alpha: .4)
                   : Theme.of(context).brightness == Brightness.dark
-                  ? AppColorsNew.white.withOpacity(.1)
-                  : AppColorsNew.white.withOpacity(0.5),
+                  ? AppColorsNew.white.withValues(alpha: .1)
+                  : AppColorsNew.white.withValues(alpha: 0.5),
               borderRadius: BorderRadius.circular(borderRadius ?? 10.r),
               child: SVGImage(
                 color: iconColor,

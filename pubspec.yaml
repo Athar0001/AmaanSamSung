@@ -121,3 +121,10 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package
+
+flutter_gen:
+  integrations:
+    image: true
+    flutter_svg: true
+    rive: true
+#    lottie: true

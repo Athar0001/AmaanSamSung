@@ -5,7 +5,6 @@ import 'dart:async';
 
 import 'package:amaan_tv/core/utils/app_localiztion.dart';
 import 'package:amaan_tv/core/widget/radio%20button/radio_button_multi_select_package.dart';
-import 'package:provider/provider.dart';
 
 class ReleaseCountdown extends StatefulWidget {
   const ReleaseCountdown({
@@ -129,7 +128,7 @@ class _ReleaseCountdownState extends State<ReleaseCountdown>
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.3),
+            color: Colors.black.withValues(alpha: 0.3),
             blurRadius: 16,
             offset: const Offset(0, 8),
           ),
@@ -158,7 +157,7 @@ class _ReleaseCountdownState extends State<ReleaseCountdown>
                     vertical: 6,
                   ),
                   decoration: BoxDecoration(
-                    color: widget.accentColor.withOpacity(0.2),
+                    color: widget.accentColor.withValues(alpha: 0.2),
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Row(

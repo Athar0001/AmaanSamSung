@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:developer';
 
 class AdvertisementModel {
   final String imageUrl;
@@ -14,7 +15,7 @@ class AdvertisementModel {
       try {
         meta = jsonDecode(json['data']['Meta']);
       } catch (e) {
-        print('Error parsing Meta json: $e');
+        log('Error parsing Meta json: $e');
       }
     }
 

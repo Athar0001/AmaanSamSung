@@ -12,6 +12,7 @@ class ReelsModel {
 
   factory ReelsModel.fromJson(Map<String, dynamic> json) =>
       _$ReelsModelFromJson(json);
+
   Map<String, dynamic> toJson() => _$ReelsModelToJson(this);
 }
 
@@ -39,6 +40,9 @@ class ReelModel implements SerializedObject {
 
   factory ReelModel.fromJson(Map<String, dynamic> json) =>
       _$ReelModelFromJson(json);
+
   factory ReelModel.dummy() => ReelModel(title: "Dummy");
+
+  @override
   Map<String, dynamic> toJson() => _$ReelModelToJson(this);
 }

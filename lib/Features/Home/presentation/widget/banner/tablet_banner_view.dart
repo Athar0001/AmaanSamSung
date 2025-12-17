@@ -115,7 +115,7 @@ class TabletBannerView extends StatelessWidget {
 
                     // Main poster container
                     Center(
-                      child: Container(
+                      child: SizedBox(
                         width: 375.r,
                         height: double.infinity,
                         child: Stack(

@@ -2,10 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_multi_select_items/flutter_multi_select_items.dart';
 import 'package:amaan_tv/core/Themes/app_colors_new.dart';
 import 'package:amaan_tv/core/Themes/app_text_styles_new.dart';
-import 'package:amaan_tv/core/Themes/app_text_styles_new.dart';
 
 import 'package:amaan_tv/core/widget/radio%20button/radio_button_multi_select_package.dart';
-import 'package:provider/provider.dart';
 
 class CheckBoxWidget extends StatefulWidget {
   const CheckBoxWidget({

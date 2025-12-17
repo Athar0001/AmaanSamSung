@@ -4,7 +4,6 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
 import 'package:amaan_tv/core/Themes/app_colors_new.dart';
 import 'package:amaan_tv/core/Themes/app_text_styles_new.dart';
-import 'package:provider/provider.dart';
 
 class RadioButtonMultiSelectPackage extends StatelessWidget {
   const RadioButtonMultiSelectPackage({
@@ -32,8 +31,8 @@ class RadioButtonMultiSelectPackage extends StatelessWidget {
               color: AppColorsNew.primary,
               border: Border.all(
                 color: isDarkMode
-                    ? AppColorsNew.white1.withOpacity(0.1)
-                    : AppColorsNew.black1.withOpacity(0.1),
+                    ? AppColorsNew.white1.withValues(alpha: 0.1)
+                    : AppColorsNew.black1.withValues(alpha: 0.1),
               ),
               borderRadius: BorderRadius.circular(12),
             ),
@@ -87,14 +86,14 @@ BoxDecoration containerDecoration(
     shape: shape ?? BoxShape.rectangle,
     borderRadius: borderRadius ?? BorderRadius.circular(12.r),
     color: isDarkMode
-        ? AppColorsNew.white1.withOpacity(0.05)
-        : AppColorsNew.white1.withOpacity(0.8),
+        ? AppColorsNew.white1.withValues(alpha: 0.05)
+        : AppColorsNew.white1.withValues(alpha: 0.8),
     border: Border.all(
       color:
           borderColor ??
           (isDarkMode
-              ? AppColorsNew.white1.withOpacity(0.1)
-              : AppColorsNew.black1.withOpacity(0.1)),
+              ? AppColorsNew.white1.withValues(alpha: 0.1)
+              : AppColorsNew.black1.withValues(alpha: 0.1)),
     ),
     boxShadow: boxShadow,
   );
@@ -108,12 +107,12 @@ BoxDecoration containerDecorationCircular(
   return BoxDecoration(
     shape: BoxShape.circle,
     color: isDarkMode
-        ? AppColorsNew.white1.withOpacity(0.05)
-        : AppColorsNew.white1.withOpacity(0.8),
+        ? AppColorsNew.white1.withValues(alpha: 0.05)
+        : AppColorsNew.white1.withValues(alpha: 0.8),
     border: Border.all(
       color: isDarkMode
-          ? AppColorsNew.white1.withOpacity(0.1)
-          : AppColorsNew.black1.withOpacity(0.1),
+          ? AppColorsNew.white1.withValues(alpha: 0.1)
+          : AppColorsNew.black1.withValues(alpha: 0.1),
     ),
     boxShadow: boxShadow,
   );

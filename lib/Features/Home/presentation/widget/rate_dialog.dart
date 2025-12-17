@@ -125,7 +125,9 @@ class _RateDialogState extends State<RateDialog> {
                           await widget.onTap.call(
                             widget.rateModel.copyWith(rate: videoRate?.rate),
                           );
-                          Navigator.pop(context);
+                          if (context.mounted) {
+                            Navigator.pop(context);
+                          }
                         } finally {
                           setState(() {
                             isLoading = false;

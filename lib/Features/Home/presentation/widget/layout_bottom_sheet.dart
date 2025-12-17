@@ -66,7 +66,7 @@ class LayoutBottomSheet extends StatelessWidget {
                     ) {
                       final isGameicon =
                           layoutProvider.items[index].activeIcon ==
-                          Assets.imagesGames.path;
+                          Assets.images.games.path;
                       return Expanded(
                         child: GestureDetector(
                           onTap: () {

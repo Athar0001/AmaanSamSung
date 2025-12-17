@@ -10,8 +10,8 @@ import 'package:amaan_tv/core/widget/radio%20button/radio_button_multi_select_pa
 import 'package:go_router/go_router.dart';
 import 'package:amaan_tv/core/utils/app_router.dart';
 
-class promoWidget extends StatelessWidget {
-  const promoWidget({
+class PromoWidget extends StatelessWidget {
+  const PromoWidget({
     required this.model, super.key,
   });
   final ReelModel model;

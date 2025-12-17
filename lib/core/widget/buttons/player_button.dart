@@ -32,8 +32,8 @@ class ShowButtonWidget extends StatelessWidget {
       child: widget.isLoading
           ? LoadingPlayIcon()
           : widget.model.isReleased
-          ? SVGImage(path: Assets.imagesPlay.path, color: AppColorsNew.white)
-          : SVGImage(path: Assets.imagesLock.path, color: AppColorsNew.white),
+          ? SVGImage(path: Assets.images.play.path, color: AppColorsNew.white)
+          : SVGImage(path: Assets.images.lock.path, color: AppColorsNew.white),
     );
   }
 }
@@ -70,9 +70,9 @@ class EpsButtonWidget extends StatelessWidget {
             LoadingPlayIcon()
           else
             widget.model.isReleased
-                ? SVGImage(path: Assets.imagesPlay.path)
+                ? SVGImage(path: Assets.images.play.path)
                 : SVGImage(
-                    path: Assets.imagesLock.path,
+                    path: Assets.images.lock.path,
                     color: AppColorsNew.white,
                   ),
         ],

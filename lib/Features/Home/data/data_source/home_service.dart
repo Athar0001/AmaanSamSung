@@ -241,7 +241,7 @@ class HomeService {
   Future<Either<Failure, ContinueWatchingModel>> getInCompletedShows({
     Module module = Module.video,
   }) async {
-    final userId = await UserNotifier.instance.userData?.userId;
+    final userId =  UserNotifier.instance.userData?.userId;
     //
     try {
       final response = await serverConstants.makeGetRequest(

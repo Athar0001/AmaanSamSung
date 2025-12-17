@@ -15,7 +15,7 @@ import 'package:skeletonizer/skeletonizer.dart';
 
 void showCommentsBottomSheet(BuildContext context, ReelProvider reelProvider,
     String reelId, VoidCallback onCommentClick) {
-  final _commentController = TextEditingController();
+  final commentController = TextEditingController();
 
   showModalBottomSheet(
     // backgroundColor: AppColorsNew.scaffoldDarkColor,
@@ -168,7 +168,7 @@ void showCommentsBottomSheet(BuildContext context, ReelProvider reelProvider,
                                     const SizedBox(width: 12),
                                     Expanded(
                                       child: TextField(
-                                        controller: _commentController,
+                                        controller: commentController,
                                         maxLines: 2,
                                         decoration: InputDecoration(
                                           hintText: AppLocalization
@@ -197,7 +197,7 @@ void showCommentsBottomSheet(BuildContext context, ReelProvider reelProvider,
                                           color: AppColorsNew.primary),
                                       onPressed: () {
                                         final newComment =
-                                            _commentController.text.trim();
+                                            commentController.text.trim();
 
                                         if (newComment.isNotEmpty) {
                                           reelProvider.makeCommentsReels(
@@ -206,7 +206,7 @@ void showCommentsBottomSheet(BuildContext context, ReelProvider reelProvider,
                                             reelId: reelId,
                                           ));
                                           onCommentClick();
-                                          _commentController.clear();
+                                          commentController.clear();
                                           FocusScope.of(context).unfocus();
                                         }
                                       },

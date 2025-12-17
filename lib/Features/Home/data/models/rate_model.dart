@@ -21,7 +21,7 @@ class RateModel extends SerializedObject {
     this.userId,
   });
 
-  RateModel.fromJson(json) {
+  RateModel.fromJson(Map<String, dynamic> json) {
     id = json['id'];
     rate = json['rate'];
     comment = json['comment'];
@@ -49,6 +49,7 @@ class RateModel extends SerializedObject {
         userId: userId ?? this.userId,
       );
 
+  @override
   Map<String, dynamic> toJson() {
     final map = <String, dynamic>{};
     map['id'] = id;
