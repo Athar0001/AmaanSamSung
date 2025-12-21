@@ -15,9 +15,13 @@ import 'package:amaan_tv/core/languages/app_localizations.dart';
 import 'package:toastification/toastification.dart';
 
 import 'core/Themes/styles.dart';
+import 'package:toastification/toastification.dart';
+import 'package:amaan_tv/core/injection/injection_imports.dart' as di;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  di.init();
+
   AppFlavor.flavor = Flavor.values.firstWhere(
     (flavor) => flavor.name == appFlavor,
     orElse: () => Flavor.dev,

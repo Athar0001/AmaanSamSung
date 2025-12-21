@@ -6,4 +6,5 @@ class FamilyProvider extends ChangeNotifier {
 
   void setLoadingIndex(int? index) {}
   Future<void> shareShow({dynamic model}) async {}
+  Future<void> getFamilyModel() async {}
 }

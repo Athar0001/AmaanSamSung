@@ -3,12 +3,17 @@ import 'package:amaan_tv/Features/Home/provider/bottom_bar_provider.dart';
 import 'package:amaan_tv/Features/Auth/provider/user_notifier.dart';
 import 'package:amaan_tv/Features/Home/provider/show_provider.dart';
 import 'package:amaan_tv/Features/family/provider/family_provider.dart';
+import 'package:amaan_tv/core/utils/api/api_service.dart';
+import 'package:amaan_tv/Features/Home/data/data_source/home_service.dart';
 
 final sl = GetIt.instance;
 
 void init() {
   sl.registerLazySingleton(() => UserNotifier.instance);
+  sl.registerLazySingleton(() => ApiService.getInstance());
+  sl.registerFactory(() => HomeService(sl(), sl()));
+
   sl.registerFactory(() => BottomBarProvider(sl()));
-  sl.registerFactory(() => ShowProvider());
+  sl.registerFactory(() => ShowProvider(sl(), sl()));
   sl.registerFactory(() => FamilyProvider());
 }
