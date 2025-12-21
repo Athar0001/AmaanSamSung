@@ -1,17 +1,27 @@
 import 'package:flutter/material.dart';
 
+// Custom clipper for bottom curve
 class BottomCurveClipper extends CustomClipper<Path> {
-  final double deepCurve;
 
-  const BottomCurveClipper({this.deepCurve = 0.0});
+  BottomCurveClipper({required this.deepCurve, super.reclip});
+  final double deepCurve;
 
   @override
   Path getClip(Size size) {
-    return Path();
+    final path = Path();
+    path.lineTo(0, size.height - deepCurve); // Start from bottom left
+
+    // Draw curve
+    path.quadraticBezierTo(
+      size.width / 2, size.height, // Control point
+      size.width, size.height - deepCurve, // End point
+    );
+
+    path.lineTo(size.width, 0); // Move to top right
+    path.close(); // Complete the path
+    return path;
   }
 
   @override
-  bool shouldReclip(covariant CustomClipper<Path> oldClipper) {
-    return false;
-  }
+  bool shouldReclip(covariant CustomClipper<Path> oldClipper) => true;
 }
