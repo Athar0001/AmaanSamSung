@@ -12,6 +12,9 @@ import 'package:amaan_tv/core/utils/app_localiztion.dart';
 import 'package:amaan_tv/core/utils/app_router.dart';
 import 'package:amaan_tv/core/utils/cash_services/cashe_helper.dart';
 import 'package:amaan_tv/core/languages/app_localizations.dart';
+import 'package:toastification/toastification.dart';
+
+import 'core/Themes/styles.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -58,27 +61,33 @@ class AmaanTVApp extends StatelessWidget {
                   ),
             ),
           ],
-          child: MaterialApp.router(
-            title: 'Amaan TV',
-            debugShowCheckedModeBanner: false,
-            // Localization Setup
-            supportedLocales: const [Locale('en'), Locale('ar')],
-            localizationsDelegates: const [
-              AppLocalizations.delegate,
-              GlobalMaterialLocalizations.delegate,
-              GlobalWidgetsLocalizations.delegate,
-              GlobalCupertinoLocalizations.delegate,
-            ],
-            locale: const Locale('ar'),
-            // Default to Arabic as per typical requirement, or en
-            builder: (context, widget) {
-              // Initialize AppLocalization helper
-              if (widget != null) {
-                AppLocalization.initialize(context);
-              }
-              return widget!;
-            },
-            routerConfig: appRouter,
+          child: ToastificationWrapper(
+            child: MaterialApp.router(
+              title: 'Amaan TV',
+              debugShowCheckedModeBanner: false,
+              // Localization Setup
+              supportedLocales: const [Locale('en'), Locale('ar')],
+              localizationsDelegates: const [
+                AppLocalizations.delegate,
+                GlobalMaterialLocalizations.delegate,
+                GlobalWidgetsLocalizations.delegate,
+                GlobalCupertinoLocalizations.delegate,
+              ],
+              locale: const Locale('ar'),
+              // Default to Arabic as per typical requirement, or en
+              builder: (context, widget) {
+                // Initialize AppLocalization helper
+                if (widget != null) {
+                  AppLocalization.initialize(context);
+                }
+                return widget!;
+              },
+              themeMode: ThemeMode.dark,
+              // themeMode: provider.themeMode,
+              theme: KidsAppTheme.instance.lightTheme(),
+              darkTheme: KidsAppTheme.instance.darkTheme(),
+              routerConfig: appRouter,
+            ),
           ),
         );
       },

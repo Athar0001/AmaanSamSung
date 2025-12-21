@@ -19,7 +19,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 version: 1.0.0+1
 
 environment:
-  sdk: ^3.10.4
+  sdk: ^3.6.0
 
 # Dependencies specify other packages that your package needs in order to work.
 # To automatically upgrade your package dependencies to the latest versions
@@ -38,7 +38,7 @@ dependencies:
   cupertino_icons: ^1.0.8
   flutter_screenutil: ^5.9.3
   provider: ^6.1.5+1
-  skeletonizer: ^2.1.0+1
+  skeletonizer: 2.1.0
   cached_network_image: ^3.4.1
   carousel_slider: ^5.1.1
   flutter_state_provider: ^0.0.1
@@ -55,7 +55,7 @@ dependencies:
   flutter_svg: ^2.0.10
   flutter_multi_select_items: ^0.4.3
   equatable: ^2.0.7
-  google_fonts: ^6.3.3
+  google_fonts: any
   country_picker: ^2.0.27
   loading_indicator: ^3.1.1
   flutter_clip_shadow: ^1.0.0
@@ -77,9 +77,11 @@ dev_dependencies:
   # activated in the `analysis_options.yaml` file located at the root of your
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
-  flutter_lints: ^6.0.0
-  json_serializable: ^6.11.3
-  build_runner: ^2.10.4
+  flutter_lints: any
+  json_serializable: any
+  build_runner: any
+  path_provider_tizen: ^2.2.1
+  sqflite_tizen: ^0.1.3
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
