@@ -5,12 +5,14 @@ import 'package:amaan_tv/Features/Home/presentation/widget/show_category_item.da
 import 'package:amaan_tv/Features/Home/provider/home_provider.dart';
 import 'package:amaan_tv/core/Themes/app_colors_new.dart';
 import 'package:amaan_tv/core/Themes/app_text_styles_new.dart';
+import 'package:amaan_tv/core/utils/app_router.dart';
 import 'package:amaan_tv/core/utils/enum.dart';
 import 'package:amaan_tv/core/widget/circle_progress_helper.dart';
 import 'package:amaan_tv/core/widget/scaffold_gradient_background.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 class CategoriesScreen extends StatefulWidget {
@@ -180,9 +182,11 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                   // If not, I'll assumme a standard named route '/show_details'.
                   // Actually, mobile uses GoRouter, so AppRoutes.showDetails.routeName might be just 'show_details'.
 
-                  Navigator.of(
-                    context,
-                  ).pushNamed('show_details', arguments: show.id);
+                  final id = show.id;
+                  context.pushNamed(
+                    AppRoutes.showDetails.routeName,
+                    pathParameters: {'id': id},
+                  );
                 },
                 child: Transform.scale(
                   scale: isFocused ? 1.05 : 1.0,
