@@ -4,6 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:amaan_tv/Features/Home/presentation/screens/home_screen.dart';
 import 'package:amaan_tv/Features/Home/presentation/screens/show_details_screen.dart';
+import 'package:amaan_tv/Features/search/presentation/screens/search_screen.dart';
+import 'package:provider/provider.dart';
+import 'package:amaan_tv/Features/search/provider/search_provider.dart';
+import 'package:amaan_tv/core/injection/injection_imports.dart' as di;
 
 // Definition of AppRoutes as an Enum to support .routeName and strict typing
 enum AppRoutes {
@@ -49,7 +53,7 @@ final GoRouter appRouter = GoRouter(
       path: '/categories',
       name: AppRoutes.categories.routeName,
       builder: (context, state) =>
-      CategoriesScreen(category: state.extra as Category),
+          CategoriesScreen(category: state.extra as Category),
     ),
     GoRoute(
       path: '/soonRadio',
@@ -73,8 +77,10 @@ final GoRouter appRouter = GoRouter(
     GoRoute(
       path: '/search',
       name: AppRoutes.search.routeName,
-      builder: (context, state) =>
-          const Scaffold(body: Center(child: Text("Search"))),
+      builder: (context, state) => ChangeNotifierProvider(
+        create: (_) => di.sl<SearchProvider>(),
+        child: SearchScreen(),
+      ),
     ),
   ],
 );

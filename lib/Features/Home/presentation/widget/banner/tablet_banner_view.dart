@@ -157,12 +157,25 @@ class TabletBannerView extends StatelessWidget {
           top: 0,
           end: 0,
           child: SafeArea(
-            child: IconWidget(
-              path: Assets.imagesNotification,
-              iconColor: AppColorsNew.white,
-              onTap: () {
-                context.pushNamed(AppRoutes.notifications.routeName);
-              },
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                IconWidget(
+                  path: Assets.imagesSearch,
+                  iconColor: AppColorsNew.white,
+                  onTap: () {
+                    context.pushNamed(AppRoutes.search.routeName);
+                  },
+                ),
+                10.horizontalSpace,
+                IconWidget(
+                  path: Assets.imagesNotification,
+                  iconColor: AppColorsNew.white,
+                  onTap: () {
+                    context.pushNamed(AppRoutes.notifications.routeName);
+                  },
+                ),
+              ],
             ),
           ),
         ),
