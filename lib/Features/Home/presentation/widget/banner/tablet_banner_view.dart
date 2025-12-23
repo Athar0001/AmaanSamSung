@@ -4,13 +4,9 @@ import 'package:go_router/go_router.dart';
 import 'package:amaan_tv/core/Themes/app_colors_new.dart';
 import 'package:amaan_tv/Features/Home/provider/home_provider.dart';
 import 'package:amaan_tv/core/utils/app_router.dart';
-import 'package:amaan_tv/core/utils/asset_manager.dart';
-import 'package:amaan_tv/core/widget/icon_widget.dart';
-import 'dart:ui';
-import 'banner_buttons.dart';
-import 'banner_info.dart';
-import 'banner_image.dart';
-import 'banner_page_indicator.dart';
+import 'package:amaan_tv/core/Themes/app_text_styles_new.dart';
+import 'package:amaan_tv/core/widget/cached%20network%20image/cached_network_image.dart';
+import 'package:amaan_tv/gen/assets.gen.dart';
 
 class TabletBannerView extends StatelessWidget {
   const TabletBannerView({
@@ -20,6 +16,7 @@ class TabletBannerView extends StatelessWidget {
     required this.provider,
     super.key,
   });
+
   final PageController controller;
   final int currentPage;
   final void Function(int) onPageChanged;
@@ -27,157 +24,378 @@ class TabletBannerView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final bannerData = currentPage == 0
+        ? null
+        : provider.bannerModel?.data?[currentPage - 1];
+
     return Stack(
       children: [
-        PageView(
+        // Background Banner Image with PageView
+        PageView.builder(
           controller: controller,
           onPageChanged: onPageChanged,
-          children: List.generate((provider.bannerModel?.data?.length ?? 0) + 1, (
-            index,
-          ) {
-            if (index == 0) {
-              return Padding(
-                padding: EdgeInsets.only(bottom: 35.r),
-                child: Stack(
-                  children: [
-                    // Cover image as background
-                    Positioned.fill(
-                      child: ImageFiltered(
-                        imageFilter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-                        child: Image.asset(
-                          Assets.imagesCoverImage,
-                          fit: BoxFit.fill,
-                        ),
+          physics: NeverScrollableScrollPhysics(), // Disable manual swiping
+          itemCount: (provider.bannerModel?.data?.length ?? 0) + 1,
+          itemBuilder: (context, index) {
+            final banner = index == 0
+                ? null
+                : provider.bannerModel?.data?[index - 1];
+
+            return Stack(
+              fit: StackFit.expand,
+              children: [
+                // Background image
+                if (index == 0)
+                  // First item shows cover image
+                  Image.asset(
+                    Assets.images.coverImageJpg.path,
+                    fit: BoxFit.contain,
+                  )
+                else if (banner?.show.bannerThumbnailImage?.url != null)
+                  CachedNetworkImageHelper(
+                    imageUrl: banner!.show.bannerThumbnailImage!.url!,
+                    fit: BoxFit.cover,
+                  )
+                else
+                  Container(
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: [Color(0xFF1a4d6d), Color(0xFF0d2438)],
                       ),
                     ),
-                    // Gradient overlay (optional, uncomment if you have a widget)
-                    // Positioned.fill(
-                    //   child: GradientHomePoster(borderRadius: 0),
-                    // ),
-                    // Main poster container (centered, like other banners)
-                    Center(
-                      child: Container(
-                        width: 375.r,
-                        height: double.infinity,
-                        child: Stack(
-                          children: [
-                            // Foreground cover image (optional, can be omitted if not needed)
-                            Image.asset(
-                              Assets.imagesCoverImage,
-                              fit: BoxFit.fill,
-                            ),
-                            // Notification icon
-                            // PositionedDirectional(
-                            //   top: 0,
-                            //   end: 0,
-                            //   child: SafeArea(
-                            //     child: IconWidget(
-                            //       path: Assets.imagesNotification,
-                            //       iconColor: AppColorsNew.white,
-                            //       onTap: () {
-                            //         AppNavigation.navigationPush(
-                            //           context,
-                            //           screen: NotificationsScreen(),
-                            //         );
-                            //       },
-                            //     ),
-                            //   ),
-                            // ),
-                            // You can add more overlays here if needed (e.g., title, buttons)
-                          ],
-                        ),
+                  ),
+
+                // Gradient overlay (only for non-first items or apply to all)
+                if (index != 0)
+                  Container(
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: [
+                          Colors.black.withOpacity(0.2),
+                          Colors.black.withOpacity(0.5),
+                          Colors.black.withOpacity(0.8),
+                        ],
+                        stops: [0.0, 0.6, 1.0],
                       ),
                     ),
-                  ],
-                ),
-              );
-            } else {
-              final banner = provider.bannerModel!.data![index - 1];
-              final imageUrl = banner.show.bannerThumbnailImage?.url;
-              final genres =
-                  banner.show.showGenres
-                      ?.map((showGenre) => showGenre.genre?.name)
-                      .where((name) => name != null)
-                      .join(' . ') ??
-                  banner.show.genres?.map((genre) => genre.name).join(' . ');
-              final releaseDate = DateTime.tryParse(
-                banner.show.releaseDate ?? '',
-              )!.year.toString();
-
-              return Padding(
-                padding: EdgeInsets.only(bottom: 35.r),
-                child: Stack(
-                  children: [
-                    // Blurred background image
-                    Positioned.fill(
-                      child: BannerImage(imageUrl: imageUrl, blurSigma: 10),
-                    ),
-
-                    // Main poster container
-                    Center(
-                      child: SizedBox(
-                        width: 375.r,
-                        height: double.infinity,
-                        child: Stack(
-                          children: [
-                            BannerImage(imageUrl: imageUrl, fit: BoxFit.fill),
-
-                            // Genre and year text
-                            Positioned(
-                              bottom: 110.r,
-                              left: 0,
-                              right: 0,
-                              child: Center(
-                                child: BannerInfo(
-                                  genres: genres,
-                                  releaseDate: releaseDate,
-                                ),
-                              ),
-                            ),
-                            // Buttons
-                            Positioned(
-                              bottom: 45.r,
-                              left: 0,
-                              right: 0,
-                              child: BannerButtons(show: banner.show),
-                            ),
-                            // Dots indicator
-                          ],
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              );
-            }
-          }),
+                  ),
+              ],
+            );
+          },
         ),
-        // Notification icon
-        PositionedDirectional(
-          top: 0,
-          end: 0,
-          child: SafeArea(
-            child: IconWidget(
-              path: Assets.imagesNotification,
-              iconColor: AppColorsNew.white,
-              onTap: () {
-                context.pushNamed(AppRoutes.notifications.routeName);
-              },
+
+        // Content overlay
+        if (bannerData != null)
+          Positioned(
+            right: 24.r,
+            left: 24.r,
+            top: 120.r,
+            bottom: 350.r,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Title
+                Text(
+                  bannerData.show.title,
+                  textAlign: TextAlign.right,
+                  style: AppTextStylesNew.style28BoldAlmarai.copyWith(
+                    color: AppColorsNew.white,
+                    fontSize: 32.r,
+                    height: 1.2,
+                  ),
+                ),
+                16.verticalSpace,
+
+                // Description
+                Text(
+                  bannerData.show.description ?? '',
+                  textAlign: TextAlign.right,
+                  maxLines: 3,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppTextStylesNew.style14RegularAlmarai.copyWith(
+                    color: AppColorsNew.white.withOpacity(0.9),
+                    fontSize: 15.r,
+                    height: 1.6,
+                  ),
+                ),
+              ],
             ),
           ),
-        ),
+
+        // Action Buttons
+        if (bannerData != null)
+          Positioned(
+            bottom: 260.r,
+            left: 0,
+            right: 0,
+            child: Padding(
+              padding: EdgeInsets.symmetric(horizontal: 24.w),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  // Watch Now button
+                  ElevatedButton(
+                    onPressed: () {
+                      context.pushNamed(
+                        AppRoutes.showDetails.routeName,
+                        extra: bannerData.show,
+                      );
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColorsNew.primary,
+                      foregroundColor: AppColorsNew.white,
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 20.w,
+                        vertical: 10.h,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(6.r),
+                      ),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(Icons.play_arrow, size: 18.r),
+                        6.horizontalSpace,
+                        Text(
+                          'شاهد الآن',
+                          style: AppTextStylesNew.style14BoldAlmarai.copyWith(
+                            color: AppColorsNew.white,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  12.horizontalSpace,
+
+                  // Info button
+                  _ActionButton(
+                    icon: Icons.info_outline,
+                    label: 'إعلان',
+                    onTap: () {},
+                  ),
+                  12.horizontalSpace,
+
+                  // Like button
+                  _ActionButton(icon: Icons.favorite_border, onTap: () {}),
+                ],
+              ),
+            ),
+          ),
+
+        // Thumbnails Carousel at bottom
+        if (provider.bannerModel?.data?.isNotEmpty ?? false)
+          Positioned(
+            bottom: 0,
+            left: 0,
+            right: 0,
+            height: 250.r,
+            child: Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    Colors.transparent,
+                    Colors.black.withOpacity(0.5),
+                    Colors.black.withOpacity(0.9),
+                  ],
+                ),
+              ),
+              child: ListView.builder(
+                scrollDirection: Axis.horizontal,
+
+                padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 10.h),
+                itemCount: provider.bannerModel!.data!.length,
+                itemBuilder: (context, index) {
+                  final show = provider.bannerModel!.data![index];
+                  final isSelected = currentPage == index + 1;
+                  return GestureDetector(
+                    onTap: () {
+                      controller.animateToPage(
+                        index + 1,
+                        duration: Duration(milliseconds: 300),
+                        curve: Curves.easeInOut,
+                      );
+                    },
+                    child: Container(
+                      width: 160.r,
+                      height: 300.r,
+                      margin: EdgeInsetsDirectional.only(start: 12.w),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(8.r),
+                        border: Border.all(
+                          color: isSelected
+                              ? AppColorsNew.primary
+                              : Colors.white.withOpacity(0.3),
+                          width: isSelected ? 3 : 1,
+                        ),
+                        boxShadow: isSelected
+                            ? [
+                                BoxShadow(
+                                  color: AppColorsNew.primary.withOpacity(0.5),
+                                  blurRadius: 8,
+                                  spreadRadius: 1,
+                                ),
+                              ]
+                            : null,
+                      ),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(6.r),
+                        child: show.show.thumbnailImage?.url != null
+                            ? CachedNetworkImageHelper(
+                                imageUrl: show.show.thumbnailImage!.url!,
+                                fit: BoxFit.cover,
+                                width: 180.r,
+                                height: 330.r,
+                                borderRadius: 0,
+                              )
+                            : Container(color: Colors.grey[800]),
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+          ),
+
+        // Header Bar
         Positioned(
-          bottom: 50.r,
+          top: 0,
           left: 0,
           right: 0,
-          child: Center(
-            child: BannerPageIndicator(
-              controller: controller,
-              count: (provider.bannerModel?.data?.length ?? 0) + 1,
+          child: SafeArea(
+            child: Container(
+              height: 60.h,
+              padding: EdgeInsets.symmetric(horizontal: 12.w),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [Colors.black.withOpacity(0.7), Colors.transparent],
+                ),
+              ),
+              child: Row(
+                children: [
+                  // Logo/App Name (Right side for RTL)
+                  50.horizontalSpace,
+
+                  // Tabs (Right side for RTL)
+                  _HeaderTab(title: 'الرئيسية', isSelected: true, onTap: () {}),
+                  _HeaderTab(title: 'مسلسلات', isSelected: false, onTap: () {}),
+
+                  // Spacer
+                  Spacer(),
+
+                  // Search Icon (Left side for RTL)
+                  Icon(Icons.search, color: AppColorsNew.white, size: 24.r),
+
+                  12.horizontalSpace,
+
+                  // Profile Icon (Left side for RTL)
+                  Container(
+                    width: 36.r,
+                    height: 36.r,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Colors.white.withOpacity(0.2),
+                    ),
+                    child: Icon(
+                      Icons.person,
+                      color: AppColorsNew.white,
+                      size: 20.r,
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ),
       ],
+    );
+  }
+}
+
+// Action Button Widget
+class _ActionButton extends StatelessWidget {
+  final IconData icon;
+  final String? label;
+  final VoidCallback onTap;
+
+  const _ActionButton({required this.icon, this.label, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onTap,
+      child: Container(
+        padding: EdgeInsets.symmetric(
+          horizontal: label != null ? 16.w : 12.w,
+          vertical: 10.h,
+        ),
+        decoration: BoxDecoration(
+          color: Colors.black.withOpacity(0.5),
+          borderRadius: BorderRadius.circular(8.r),
+          border: Border.all(
+            color: AppColorsNew.white.withOpacity(0.3),
+            width: 1,
+          ),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, color: AppColorsNew.white, size: 20.r),
+            if (label != null) ...[
+              8.horizontalSpace,
+              Text(
+                label!,
+                style: AppTextStylesNew.style14RegularAlmarai.copyWith(
+                  color: AppColorsNew.white,
+                ),
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// Header Tab Widget
+class _HeaderTab extends StatelessWidget {
+  final String title;
+  final bool isSelected;
+  final VoidCallback onTap;
+
+  const _HeaderTab({
+    required this.title,
+    required this.isSelected,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: EdgeInsets.symmetric(horizontal: 18.w, vertical: 8.h),
+        decoration: BoxDecoration(
+          color: isSelected ? AppColorsNew.primary : Colors.transparent,
+          borderRadius: BorderRadius.circular(20.r),
+        ),
+        child: Text(
+          title,
+          style: AppTextStylesNew.style14BoldAlmarai.copyWith(
+            color: AppColorsNew.white,
+            fontSize: isSelected ? 15.r : 14.r,
+          ),
+        ),
+      ),
     );
   }
 }

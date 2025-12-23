@@ -1,3 +1,4 @@
+import 'package:amaan_tv/core/Themes/styles.dart';
 import 'package:amaan_tv/flavors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -14,6 +15,11 @@ import 'package:amaan_tv/core/utils/cash_services/cashe_helper.dart';
 import 'package:amaan_tv/core/languages/app_localizations.dart';
 import 'package:toastification/toastification.dart';
 import 'package:amaan_tv/core/injection/injection_imports.dart' as di;
+
+const String appFlavor = String.fromEnvironment(
+  'appFlavor',
+  defaultValue: 'dev',
+);
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -83,6 +89,8 @@ class AmaanTVApp extends StatelessWidget {
                 }
                 return widget!;
               },
+              themeMode: ThemeMode.dark,
+              darkTheme: KidsAppTheme.instance.darkTheme(),
               routerConfig: appRouter,
             ),
           ),
