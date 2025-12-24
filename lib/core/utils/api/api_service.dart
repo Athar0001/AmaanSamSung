@@ -2,6 +2,7 @@ import 'dart:developer';
 import 'package:dio/dio.dart';
 import 'package:dio/io.dart';
 import 'package:flutter/foundation.dart';
+import 'package:pretty_dio_logger/pretty_dio_logger.dart';
 import 'package:amaan_tv/core/utils/api/end_point.dart';
 import 'package:amaan_tv/core/utils/cash_services/cashe_helper.dart';
 
@@ -18,7 +19,12 @@ class ApiService {
 
       if (kDebugMode) {
         dio.interceptors.add(
-          LogInterceptor(requestBody: true, responseBody: true),
+          PrettyDioLogger(
+            requestHeader: true,
+            requestBody: true,
+            responseHeader: true,
+            compact: false,
+          ),
         );
       }
 

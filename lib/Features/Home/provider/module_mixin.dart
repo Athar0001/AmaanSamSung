@@ -28,9 +28,7 @@ mixin APICalls on ChangeNotifier {
 
   bool get isLoadingMore => _isLoadingMore;
 
-  HomeCategoriesModel? _categoriesModel = HomeCategoriesModel.fromJson(
-    HomeDummy.categories,
-  );
+  HomeCategoriesModel? _categoriesModel;
 
   HomeCategoriesModel? get categoriesModel => _categoriesModel;
   AppState stateCategories = AppState.init;
@@ -96,6 +94,7 @@ mixin APICalls on ChangeNotifier {
   // Method to reset pagination when changing categories
   void _resetPagination() {
     _currentPage = 1;
+    _hasMoreData = true;
     _showsModel = null;
   }
 
@@ -164,8 +163,6 @@ mixin APICalls on ChangeNotifier {
           if (_showsModel != null && _showsModel!.data != null) {
             if (data.data != null && data.data!.isNotEmpty) {
               _showsModel!.data!.addAll(data.data!);
-            } else {
-              _hasMoreData = data.pagination!.hasNextPage!;
             }
           } else {
             _showsModel = data;
@@ -173,12 +170,18 @@ mixin APICalls on ChangeNotifier {
         } else {
           // First page load
           _showsModel = data;
-          _hasMoreData = data.pagination!.hasNextPage!;
+        }
+
+        // Always update hasMoreData from pagination
+        _hasMoreData = data.pagination?.hasNextPage ?? false;
+
+        // Only increment page if there's more data
+        if (_hasMoreData) {
+          _currentPage++;
         }
 
         stateShows = AppState.success;
         _isLoadingMore = false;
-        _currentPage++;
         notifyListeners();
       },
     );

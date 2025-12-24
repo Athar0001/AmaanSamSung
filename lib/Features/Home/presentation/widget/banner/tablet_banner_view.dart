@@ -93,7 +93,7 @@ class TabletBannerView extends StatelessWidget {
           Positioned(
             right: 24.r,
             left: 24.r,
-            top: 120.r,
+
             bottom: 350.r,
             child: Column(
               mainAxisAlignment: MainAxisAlignment.start,
@@ -143,6 +143,7 @@ class TabletBannerView extends StatelessWidget {
                     onPressed: () {
                       context.pushNamed(
                         AppRoutes.showDetails.routeName,
+                        pathParameters: {'id': bannerData.show.id},
                         extra: bannerData.show,
                       );
                     },
@@ -263,59 +264,6 @@ class TabletBannerView extends StatelessWidget {
               ),
             ),
           ),
-
-        // Header Bar
-        Positioned(
-          top: 0,
-          left: 0,
-          right: 0,
-          child: SafeArea(
-            child: Container(
-              height: 60.h,
-              padding: EdgeInsets.symmetric(horizontal: 12.w),
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [Colors.black.withOpacity(0.7), Colors.transparent],
-                ),
-              ),
-              child: Row(
-                children: [
-                  // Logo/App Name (Right side for RTL)
-                  50.horizontalSpace,
-
-                  // Tabs (Right side for RTL)
-                  _HeaderTab(title: 'الرئيسية', isSelected: true, onTap: () {}),
-                  _HeaderTab(title: 'مسلسلات', isSelected: false, onTap: () {}),
-
-                  // Spacer
-                  Spacer(),
-
-                  // Search Icon (Left side for RTL)
-                  Icon(Icons.search, color: AppColorsNew.white, size: 24.r),
-
-                  12.horizontalSpace,
-
-                  // Profile Icon (Left side for RTL)
-                  Container(
-                    width: 36.r,
-                    height: 36.r,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: Colors.white.withOpacity(0.2),
-                    ),
-                    child: Icon(
-                      Icons.person,
-                      color: AppColorsNew.white,
-                      size: 20.r,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
       ],
     );
   }
@@ -360,40 +308,6 @@ class _ActionButton extends StatelessWidget {
               ),
             ],
           ],
-        ),
-      ),
-    );
-  }
-}
-
-// Header Tab Widget
-class _HeaderTab extends StatelessWidget {
-  final String title;
-  final bool isSelected;
-  final VoidCallback onTap;
-
-  const _HeaderTab({
-    required this.title,
-    required this.isSelected,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: EdgeInsets.symmetric(horizontal: 18.w, vertical: 8.h),
-        decoration: BoxDecoration(
-          color: isSelected ? AppColorsNew.primary : Colors.transparent,
-          borderRadius: BorderRadius.circular(20.r),
-        ),
-        child: Text(
-          title,
-          style: AppTextStylesNew.style14BoldAlmarai.copyWith(
-            color: AppColorsNew.white,
-            fontSize: isSelected ? 15.r : 14.r,
-          ),
         ),
       ),
     );
