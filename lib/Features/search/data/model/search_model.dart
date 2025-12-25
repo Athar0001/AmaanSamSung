@@ -19,7 +19,7 @@ class SearchModel {
     if (json['data'] != null) {
       searchList = <SearchItem>[];
       json['data'].forEach((v) {
-        searchList!.add(new SearchItem.fromJson(v));
+        searchList!.add(SearchItem.fromJson(v));
       });
     }
     pagination = json['pagination'];

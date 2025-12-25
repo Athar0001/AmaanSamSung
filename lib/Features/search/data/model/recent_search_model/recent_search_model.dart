@@ -1,5 +1,4 @@
 class RecentSearchModel {
-
   RecentSearchModel({
     this.isSuccess,
     this.statusCode,
@@ -29,28 +28,22 @@ class RecentSearchModel {
   dynamic errorMessage;
 
   Map<String, dynamic> toJson() => {
-        'isSuccess': isSuccess,
-        'statusCode': statusCode,
-        'data': data?.map((e) => e.toJson()).toList(),
-        'pagination': pagination,
-        'error': error,
-        'errorMessage': errorMessage,
-      };
+    'isSuccess': isSuccess,
+    'statusCode': statusCode,
+    'data': data?.map((e) => e.toJson()).toList(),
+    'pagination': pagination,
+    'error': error,
+    'errorMessage': errorMessage,
+  };
 }
 
 class Datum {
-
   Datum({this.id, this.text});
 
-  factory Datum.fromJson(Map<String, dynamic> json) => Datum(
-        id: json['id'] as String?,
-        text: json['text'] as String?,
-      );
+  factory Datum.fromJson(Map<String, dynamic> json) =>
+      Datum(id: json['id'] as String?, text: json['text'] as String?);
   String? id;
   String? text;
 
-  Map<String, dynamic> toJson() => {
-        'id': id,
-        'text': text,
-      };
+  Map<String, dynamic> toJson() => {'id': id, 'text': text};
 }
