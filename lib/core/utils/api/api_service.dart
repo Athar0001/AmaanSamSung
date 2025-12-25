@@ -137,7 +137,7 @@ class ApiService {
 
     if (withToken == true && CacheHelper.currentUser != null) {
       _dio.options.headers['Authorization'] =
-          'Bearer ${CacheHelper.currentUser!.token}';
+          'Bearer ${"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1laWQiOiI1ZGQ5MjVhZC05ZDMzLTRmZTktYjVkNC1jNGMwZGJmODE4NTMiLCJ1bmlxdWVfbmFtZSI6ImFtYWFuZ2FuZGVyQGdtYWlsLmNvbSIsIlVzZXJUeXBlSWQiOiIxIiwiUGFyZW50SWQiOiIiLCJqdGkiOiI4NjA2ODM4My05MzYwLTQ0ZjYtYjViNi1mZTgxZDM4Njc3NjQiLCJub25jZSI6IjB5SjRWLzUxZU5NNVV4OCtmRmVOMnc9PSIsImh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vd3MvMjAwOC8wNi9pZGVudGl0eS9jbGFpbXMvc2VyaWFsbnVtYmVyIjoiMTgxQjdDMzMtQTRDQy00RjFGLTg5NkQtMjY0NTJCNzVFNkI2IiwibmFtZSI6Ik9tYXIgUmFtYWRhbiIsImh0dHA6Ly9zY2hlbWFzLnhtbHNvYXAub3JnL3dzLzIwMDUvMDUvaWRlbnRpdHkvY2xhaW1zL2VtYWlsYWRkcmVzcyI6ImFtYWFuZ2FuZGVyQGdtYWlsLmNvbSIsImh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vd3MvMjAwOC8wNi9pZGVudGl0eS9jbGFpbXMvcm9sZSI6IlVzZXIiLCJleHAiOjE3NjcyMDU4NjQsImlzcyI6IkFtYWFuIiwiYXVkIjoiQW1hYW5Vc2VycyJ9.slJ34U3J1RGBHDw27ATcXgG_lz2aRsCl4UW_s4ST8S8"}';
     } else {
       _dio.options.headers.removeWhere((key, value) => key == 'Authorization');
     }

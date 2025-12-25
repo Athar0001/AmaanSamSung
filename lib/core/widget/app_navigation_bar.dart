@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:amaan_tv/core/Themes/app_colors_new.dart';
 import 'package:amaan_tv/core/Themes/app_text_styles_new.dart';
+import 'package:amaan_tv/core/utils/app_router.dart';
+import 'package:go_router/go_router.dart';
 
 class AppNavigationBar extends StatefulWidget {
   const AppNavigationBar({
@@ -77,7 +79,7 @@ class _AppNavigationBarState extends State<AppNavigationBar> {
           // Search Icon (Left side for RTL)
           IconButton(
             onPressed: () {
-              // TODO: Implement search
+              context.pushNamed(AppRoutes.search.routeName);
             },
             icon: Icon(Icons.search, color: AppColorsNew.white, size: 24.r),
           ),
