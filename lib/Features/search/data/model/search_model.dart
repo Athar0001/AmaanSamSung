@@ -1,7 +1,7 @@
+import 'package:amaan_tv/Features/Home/data/models/sub_categories_model/image.dart';
 import 'package:amaan_tv/core/models/characters_model.dart';
 import 'package:amaan_tv/core/models/content_type.dart';
 import 'package:amaan_tv/core/models/favorite_model.dart';
-import 'package:amaan_tv/Features/Home/data/models/sub_categories_model/image.dart';
 
 class SearchModel {
   SearchModel({

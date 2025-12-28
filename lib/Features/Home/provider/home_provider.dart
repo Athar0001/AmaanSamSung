@@ -79,7 +79,7 @@ class HomeProvider extends ChangeNotifier with APICalls {
       // getLiveRadio(),
       getLatestReels(),
       getBannerProvider(),
-      if (userNotifier.userData != null) getContinueWatchingProvide(),
+      getContinueWatchingProvide(),
       getSuggestedData(),
     ]);
   }

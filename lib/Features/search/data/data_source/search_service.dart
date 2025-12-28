@@ -1,10 +1,10 @@
-import 'package:dartz/dartz.dart';
 import 'package:amaan_tv/Features/Auth/provider/user_notifier.dart';
-import 'package:amaan_tv/core/error/failure.dart';
 import 'package:amaan_tv/Features/search/data/model/recent_search_model/recent_search_model.dart';
-import 'package:amaan_tv/core/error/error_handler.dart';
-import 'package:amaan_tv/core/utils/api/api_service.dart';
-import 'package:amaan_tv/core/utils/api/end_point.dart';
+import 'package:amaan_tv/core/error/failure.dart';
+import 'package:dartz/dartz.dart';
+import '../../../../core/error/error_handler.dart';
+import '../../../../core/utils/api/api_service.dart';
+import '../../../../core/utils/api/end_point.dart';
 import '../model/search_model.dart';
 
 class SearchService {
@@ -52,11 +52,8 @@ class SearchService {
   Future<Either<Failure, SearchModel>> getSuggestedData() async {
     try {
       final response = await serverConstant.makeGetRequest(
-        EndPoint
-            .suggestedSearch, // Note: mobile used query: {'userId': userNotifier.userData!.userId} but TV might be different. Retaining logic.
-        query: {
-          'userId': userNotifier.userData?.id,
-        }, // userData.id is int in TV UserData?
+        EndPoint.suggestedSearch,
+        query: {'userId': userNotifier.userData!.userId},
       );
       return Right(SearchModel.fromJson(response.data));
     } catch (error) {

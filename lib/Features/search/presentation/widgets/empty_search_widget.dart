@@ -1,8 +1,9 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:amaan_tv/core/Themes/app_colors_new.dart';
 import 'package:amaan_tv/core/Themes/app_text_styles_new.dart';
-import 'package:amaan_tv/core/utils/app_localiztion.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import '../../../../gen/assets.gen.dart';
+import '../../../../core/utils/app_localiztion.dart';
 
 class EmptySearchWidget extends StatelessWidget {
   const EmptySearchWidget({required this.searchText, super.key});
@@ -24,9 +25,7 @@ class EmptySearchWidget extends StatelessWidget {
           ),
         ),
         32.verticalSpace,
-        Center(
-          child: Icon(Icons.search_off, size: 100, color: AppColorsNew.grey1),
-        ),
+        Center(child: Image.asset(Assets.images.emptySearch.path)),
         Text(
           AppLocalization.strings.dontBeSadWeCanFindIt,
           style: AppTextStylesNew.style20BoldAlmarai,

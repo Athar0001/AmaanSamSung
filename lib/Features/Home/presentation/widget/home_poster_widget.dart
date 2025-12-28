@@ -1,10 +1,8 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:amaan_tv/Clippers/layour_clipper.dart';
 import 'package:amaan_tv/Features/Home/provider/home_provider.dart';
 import 'package:provider/provider.dart';
-import 'banner/mobile_banner_view.dart';
 import 'banner/tablet_banner_view.dart';
 
 class HomeBannerWidget extends StatefulWidget {
@@ -28,18 +26,25 @@ class HomeBannerState extends State<HomeBannerWidget> {
   }
 
   void _startAutoSlide() {
-    _timer = Timer.periodic(const Duration(seconds: 6), (timer) {
+    _timer = Timer.periodic(const Duration(seconds: 10), (timer) {
       if (_controller.hasClients) {
         final provider = Provider.of<HomeProvider>(context, listen: false);
         final bannerLength = provider.bannerModel?.data?.length ?? 0;
-        if (_currentPage < bannerLength - 1) {
-          _currentPage++;
+        final totalPages = bannerLength + 1; // +1 for cover image at index 0
+
+        int nextPage;
+        if (_currentPage < totalPages - 1) {
+          nextPage = _currentPage + 1;
         } else {
-          _currentPage = 0;
+          nextPage = 0;
         }
 
+        print(
+          'Auto-slide: current=$_currentPage, total=$totalPages, next=$nextPage, bannerLength=$bannerLength',
+        );
+
         _controller.animateToPage(
-          _currentPage,
+          nextPage,
           duration: const Duration(milliseconds: 300),
           curve: Curves.easeInOut,
         );
@@ -56,39 +61,24 @@ class HomeBannerState extends State<HomeBannerWidget> {
 
   @override
   Widget build(BuildContext context) {
-    final isTablet = 1.sw > 600;
     return SizedBox(
-      height: 540.r,
-      child: ClipPath(
-        clipper: BottomCurveClipper(deepCurve: 70.r),
-        child: Container(
-          color: Colors.black,
-          height: 540.r,
-          child: Consumer<HomeProvider>(
-            builder: (context, provider, child) {
-              return isTablet
-                  ? TabletBannerView(
-                      controller: _controller,
-                      currentPage: _currentPage,
-                      onPageChanged: (index) {
-                        setState(() {
-                          _currentPage = index;
-                        });
-                      },
-                      provider: provider,
-                    )
-                  : MobileBannerView(
-                      controller: _controller,
-                      currentPage: _currentPage,
-                      onPageChanged: (index) {
-                        setState(() {
-                          _currentPage = index;
-                        });
-                      },
-                      provider: provider,
-                    );
-            },
-          ),
+      height: 600.r,
+      child: Container(
+        color: Colors.black,
+        height: 600.r,
+        child: Consumer<HomeProvider>(
+          builder: (context, provider, child) {
+            return TabletBannerView(
+              controller: _controller,
+              currentPage: _currentPage,
+              onPageChanged: (index) {
+                setState(() {
+                  _currentPage = index;
+                });
+              },
+              provider: provider,
+            );
+          },
         ),
       ),
     );

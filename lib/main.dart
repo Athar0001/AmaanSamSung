@@ -18,6 +18,11 @@ import 'core/Themes/styles.dart';
 import 'package:toastification/toastification.dart';
 import 'package:amaan_tv/core/injection/injection_imports.dart' as di;
 
+const String appFlavor = String.fromEnvironment(
+  'appFlavor',
+  defaultValue: 'dev',
+);
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   di.init();

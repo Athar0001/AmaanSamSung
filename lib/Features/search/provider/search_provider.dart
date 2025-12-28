@@ -1,11 +1,13 @@
-import 'package:flutter/material.dart';
+import 'package:amaan_tv/Features/Auth/provider/user_notifier.dart';
 import 'package:amaan_tv/Features/search/data/data_source/search_service.dart';
 import 'package:amaan_tv/Features/search/data/model/recent_search_model/recent_search_model.dart';
 import 'package:amaan_tv/Features/search/data/model/search_model.dart';
 import 'package:amaan_tv/core/utils/cash_services/cashe_helper.dart';
 import 'package:amaan_tv/core/utils/enum.dart';
-import 'package:amaan_tv/Features/Auth/provider/user_notifier.dart';
-import 'package:amaan_tv/core/widget/app_toast.dart';
+import 'package:flutter/material.dart';
+import '../../../core/widget/app_toast.dart';
+
+enum SearchState { init, loading, success, error }
 
 class SearchProvider extends ChangeNotifier {
   SearchProvider(this._searchService, this.userNotifier);
@@ -21,8 +23,10 @@ class SearchProvider extends ChangeNotifier {
     (await _searchService.searchData(searchText: searchText)).fold(
       (failure) {
         searchState = AppState.error;
+
         searchState.errorMsg(error: failure.message);
         notifyListeners();
+
         AppToast.show(failure.message);
       },
       (data) {
@@ -37,12 +41,12 @@ class SearchProvider extends ChangeNotifier {
   AppState stateRecentSearch = AppState.init;
   RecentSearchModel? _recentSearchModel;
 
-  RecentSearchModel? get recentSearchModel => _recentSearchModel;
+  RecentSearchModel get recentSearchModel => _recentSearchModel!;
 
   Future recentSearch() async {
     stateRecentSearch = AppState.loading;
     notifyListeners();
-    userNotifier.userData != null
+    CacheHelper.currentUser != null
         ? (await _searchService.recentSearch()).fold(
             (failure) {
               stateRecentSearch = AppState.error;
@@ -83,7 +87,7 @@ class SearchProvider extends ChangeNotifier {
   //////////////////////////////////////////////////////////////////////////////////
   SearchModel? _suggestedSearchModel;
 
-  SearchModel? get suggestedSearchModel => _suggestedSearchModel;
+  SearchModel get suggestedSearchModel => _suggestedSearchModel!;
   AppState suggestedSearchState = AppState.init;
 
   Future getSuggestedData() async {

@@ -1,16 +1,14 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:amaan_tv/core/models/content_type.dart';
 import 'package:amaan_tv/Features/Home/presentation/widget/lock_widget.dart';
 import 'package:amaan_tv/Features/favorite/presentation/widgets/favorite_icon_button.dart';
-import 'package:go_router/go_router.dart';
-import 'package:amaan_tv/core/utils/app_router.dart';
 import 'package:amaan_tv/core/utils/grid_config.dart';
 import 'package:amaan_tv/core/widget/cached%20network%20image/cached_network_image.dart';
 import 'package:amaan_tv/core/widget/gradient_container.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:go_router/go_router.dart';
 import '../../../../core/Themes/app_colors_new.dart';
+import '../../../../core/models/content_type.dart';
 import '../../data/model/search_model.dart';
-// Removed unused strings.dart import
 
 class SearchItemWidget extends StatefulWidget {
   const SearchItemWidget({required this.searchModel, super.key});
@@ -27,8 +25,10 @@ class _SearchItemWidgetState extends State<SearchItemWidget> {
     return GridView.builder(
       itemCount: widget.searchModel.searchList!.length,
       shrinkWrap: true,
+      // Allows GridView to size itself based on content
       physics: const NeverScrollableScrollPhysics(),
-      padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 10.h),
+      // Enables scrolling within the GridView
+      padding: GridConfig.getDefaultPadding(),
       gridDelegate: GridConfig.getDefaultGridDelegate(),
       itemBuilder: (context, index) {
         final item = widget.searchModel.searchList![index];
@@ -39,38 +39,22 @@ class _SearchItemWidgetState extends State<SearchItemWidget> {
             switch (contentType) {
               case ContentType.character:
                 {
-                  // Fallback to showDetails until character details route is confirmed/added
-                  context.pushNamed(
-                    AppRoutes.showDetails.name,
-                    pathParameters: {'id': id},
-                  );
+                  context.pushNamed('character', extra: item.toCharacterData);
                 }
-                break;
 
               case ContentType.show:
                 {
-                  context.pushNamed(
-                    AppRoutes.showDetails.name,
-                    pathParameters: {'id': id},
-                  );
+                  context.pushNamed('showDetails', pathParameters: {'id': id});
                 }
-                break;
-
               case ContentType.audio:
-                {
-                  // Fallback to radio or relevant route
-                  context.pushNamed(AppRoutes.soonRadio.name);
-                }
-                break;
-
+                {}
               case ContentType.episode:
                 {
                   context.pushNamed(
-                    AppRoutes.showDetails.name,
-                    pathParameters: {'id': item.showId ?? ''},
+                    'showDetails',
+                    pathParameters: {'id': item.showId!},
                   );
                 }
-                break;
             }
           },
           child: Stack(
