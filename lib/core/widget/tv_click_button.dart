@@ -4,9 +4,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 class TvClickButton extends StatelessWidget {
-  const TvClickButton({super.key, required this.child, required this.onTap});
+  const TvClickButton(
+      {super.key, this.child, this.builder, required this.onTap})
+      : assert(child != null || builder != null),
+        assert(child == null || builder == null);
 
-  final Widget child;
+  final Widget? child;
+  final Widget Function(BuildContext context, bool hasFocus)? builder;
   final Function() onTap;
 
   @override
@@ -21,16 +25,17 @@ class TvClickButton extends StatelessWidget {
       return KeyEventResult.ignored;
     }, child: Builder(
       builder: (context) {
-        final focused = Focus.of(context).hasFocus;
+        final hasFocus = Focus.of(context).hasFocus;
         return GestureDetector(
           onTap: () {
             onTap();
           },
-          child: DecoratedBox(
-            decoration: containerDecoration(context,
-                borderColor: focused ? AppColorsNew.white : null),
-            child: child,
-          ),
+          child: builder?.call(context, hasFocus) ??
+              DecoratedBox(
+                decoration: containerDecoration(context,
+                    borderColor: hasFocus ? AppColorsNew.white : null),
+                child: child,
+              ),
         );
       },
     ));
