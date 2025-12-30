@@ -62,10 +62,10 @@ class HomeBannerState extends State<HomeBannerWidget> {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 600.r,
+      height: 400,
       child: Container(
-        color: Colors.black,
-        height: 600.r,
+        color: Colors.transparent,
+        height: 400,
         child: Consumer<HomeProvider>(
           builder: (context, provider, child) {
             return TabletBannerView(

@@ -3,6 +3,8 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:amaan_tv/core/Themes/app_colors_new.dart';
 import 'package:amaan_tv/core/Themes/app_text_styles_new.dart';
 
+import '../widget/transation_builder.dart';
+
 final class KidsAppTheme {
 
   // Private constructor for the singleton
@@ -18,6 +20,12 @@ final class KidsAppTheme {
   ThemeData lightTheme() {
     return ThemeData(
       useMaterial3: true,
+      pageTransitionsTheme: const PageTransitionsTheme(
+        builders: {
+          TargetPlatform.android: NoTransitionsBuilder(),
+          TargetPlatform.iOS: NoTransitionsBuilder(),
+        },
+      ),
       colorScheme: ColorScheme.light(
           primary: AppColorsNew.primary,
           error: AppColorsNew.red2),
@@ -98,6 +106,12 @@ final class KidsAppTheme {
   ThemeData darkTheme() {
     return ThemeData(
       useMaterial3: true,
+      pageTransitionsTheme: const PageTransitionsTheme(
+        builders: {
+          TargetPlatform.android: NoTransitionsBuilder(),
+          TargetPlatform.iOS: NoTransitionsBuilder(),
+        },
+      ),
       primaryColor: AppColorsNew.primary,
       primaryColorLight: AppColorsNew.darkBlue2,
       colorScheme: ColorScheme.dark(

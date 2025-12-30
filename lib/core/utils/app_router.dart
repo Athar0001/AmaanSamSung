@@ -1,6 +1,7 @@
 import 'package:amaan_tv/Features/Home/data/models/home_categories_model/categories.dart';
 import 'package:amaan_tv/Features/Home/presentation/screens/categories_screen.dart';
 import 'package:amaan_tv/Features/search/presentation/screens/search_screen.dart';
+import 'package:amaan_tv/core/utils/route_extra_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:amaan_tv/Features/Home/presentation/screens/home_screen.dart';
@@ -8,6 +9,9 @@ import 'package:amaan_tv/Features/Home/presentation/screens/show_details_screen.
 import 'package:provider/provider.dart';
 import 'package:amaan_tv/Features/search/provider/search_provider.dart';
 import 'package:amaan_tv/core/injection/injection_imports.dart' as di;
+
+import '../../Features/Home/data/models/home/show_details_model/data.dart';
+import '../../Features/Home/presentation/screens/show_player.dart';
 
 // Definition of AppRoutes as an Enum to support .routeName and strict typing
 enum AppRoutes {
@@ -82,5 +86,51 @@ final GoRouter appRouter = GoRouter(
         child: SearchScreen(),
       ),
     ),
+
+    GoRoute(
+      path: '/show-player',
+      name: AppRoutes.showPlayer.routeName,
+      pageBuilder: (context, state) {
+        final url = RouteExtraHelper.getString(state.extra, 'url');
+        final videoId = RouteExtraHelper.getString(state.extra, 'videoId');
+        final show = RouteExtraHelper.getValue<Details>(state.extra, 'show');
+        final repeatTimes =
+        RouteExtraHelper.getNullableInt(state.extra, 'repeatTimes');
+        final episodeId =
+        RouteExtraHelper.getNullableString(state.extra, 'episodeId');
+        final closingDuration =
+        RouteExtraHelper.getNullableInt(state.extra, 'closingDuration');
+        final fromMinute =
+        RouteExtraHelper.getNullableString(state.extra, 'fromMinute');
+        final episodesModel =
+        RouteExtraHelper.getValue<List<Details>>(state.extra, 'episodesModel');
+        final showRate =
+        RouteExtraHelper.getBool(state.extra, 'showRate', true);
+
+        if (show != null && url.isNotEmpty && videoId.isNotEmpty) {
+          return NoTransitionPage(
+            child: ShowPlayerScreen(
+              url: url,
+              show: show,
+              videoId: videoId,
+              repeatTimes: repeatTimes,
+              episodeId: episodeId,
+              closingDuration: closingDuration,
+              fromMinute: fromMinute,
+              episodesModel: episodesModel,
+              showRate: showRate,
+            ),
+          );
+        }
+
+        // even error cases must return a Page
+        return const NoTransitionPage(
+          child: Scaffold(
+            body: Center(child: Text('Invalid parameters')),
+          ),
+        );
+      },
+    ),
+
   ],
 );

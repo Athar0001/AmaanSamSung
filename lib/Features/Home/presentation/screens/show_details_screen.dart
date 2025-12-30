@@ -16,12 +16,21 @@ import 'package:amaan_tv/core/utils/enum.dart';
 import 'package:amaan_tv/core/widget/app_state_builder.dart';
 import 'package:amaan_tv/core/widget/circle_progress_helper.dart';
 import 'package:amaan_tv/core/widget/scaffold_gradient_background.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:amaan_tv/core/models/characters_model.dart';
 import 'package:amaan_tv/core/utils/app_router.dart';
 import 'package:amaan_tv/Features/Home/provider/show_videos_provider.dart';
 import 'package:amaan_tv/core/utils/widget_sliver_extension.dart';
 import 'package:amaan_tv/core/utils/api/api_service.dart';
+
+import '../../../../core/widget/app_toast.dart';
+import '../../../../core/widget/custom_dialog.dart';
+import '../../../subscription/presentation/dialogs/request_subscription_dialog.dart';
+import '../../functions.dart';
+import '../../provider/time_provider.dart';
+import '../widget/no_video_dialog.dart';
+import '../widget/repeat_dialog.dart';
 
 class ShowDetailsScreen extends StatefulWidget {
   const ShowDetailsScreen({required this.id, super.key, this.fromMinute});
@@ -110,9 +119,69 @@ class _ShowDetailsScreenState extends State<ShowDetailsScreen> {
                       isLoading:
                           provider.stateGenerateVideoUrl == AppState.loading,
                       onTapShow: () {
-                        // Video playback logic to be handled later or adapted
-                        // For now just show a simple message or perform partial logic
-                        // Assuming similar logic to mobile but simplified for this task step
+                        print('dvsdvsdvsdvdsv');
+                        final isAllowed = checkIfVideoAllowed(
+                          isFree: showDetailsModel.isFree,
+                          isGuest: showDetailsModel.isGuest,
+                          context: context,
+                        );
+
+                        if (isAllowed != null) {
+                          AppToast.show(isAllowed);
+                          return;
+                        } else if (!context
+                            .read<TimeProvider>()
+                            .isValidToContinue) {
+                          AppToast.show(
+                            AppLocalization.strings.watchingNotAllowed,
+                          );
+                          return;
+                        } else if (provider.showVideo?.presignedUrl != null) {
+                          if (showDetailsModel.isRepeat) {
+                            showDialog<int>(
+                              context: context,
+                              builder: (context) {
+                                return CustomDialog(content: RepeatDialog());
+                              },
+                            ).then((value) {
+                              if (value != null)
+                                context.pushNamed(
+                                  AppRoutes.showPlayer.routeName,
+                                  extra: {
+                                    'show': showDetailsModel,
+                                    'url': provider.showVideo!.presignedUrl!,
+                                    'videoId': provider.videoId!,
+                                    'episodesModel':
+                                    provider.showsEpisodesModel?.data,
+                                    'fromMinute': widget.fromMinute,
+                                    'repeatTimes': value,
+                                  },
+                                );
+                            });
+                          } else {
+                            context.pushNamed(
+                              AppRoutes.showPlayer.routeName,
+                              extra: {
+                                'show': showDetailsModel,
+                                'url': provider.showVideo!.presignedUrl!,
+                                'videoId': provider.videoId!,
+                                'episodesModel':
+                                provider.showsEpisodesModel?.data,
+                                'fromMinute': widget.fromMinute,
+                              },
+                            );
+                          }
+                        } else if (provider.videoId == null) {
+                          showDialog<void>(
+                            context: context,
+                            builder: (context) {
+                              return CustomDialog(content: NoVideoDialog());
+                            },
+                          );
+                          return;
+                        } else {
+                          RequestSubscriptionsDialog.show(context);
+                        }
                       },
                     ),
                   ).sliver,

@@ -83,94 +83,109 @@ class _itemWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () {
-        final id = details.id;
-        context.pushNamed(
-          AppRoutes.showDetails.routeName,
-          pathParameters: {'id': id},
-        );
-      },
-      child: AspectRatio(
-        aspectRatio: 137 / 184,
-        child: Stack(
-          alignment: Alignment.bottomCenter,
-          clipBehavior: Clip.none,
-          children: [
-            ClipRRect(
-              borderRadius: BorderRadius.circular(12.r),
-              child: CachedNetworkImageHelper(
-                imageUrl: details.thumbnailImage?.url ?? '',
-                cacheKey: details.title,
-                height: double.infinity,
-                width: double.infinity,
-              ),
-            ),
-            if (checkIfVideoAllowed(
-                  isFree: details.isFree,
-                  isGuest: details.isGuest,
-                ) !=
-                null)
-              const LockWidget(),
-            Padding(
-              padding: EdgeInsets.all(1.r),
-              child: Align(
-                child: Container(
-                  decoration: BoxDecoration(
-                    border: Border.all(
-                      strokeAlign: BorderSide.strokeAlignOutside,
-                      width: 1.r,
-                      color: AppColorsNew.white1.withValues(alpha: 0.3),
-                    ),
-                    borderRadius: BorderRadius.circular(12.r),
-                    gradient: LinearGradient(
-                      colors: [
-                        AppColorsNew.black1.withValues(alpha: 0.7),
-                        AppColorsNew.black1.withValues(alpha: 0.0),
-                      ],
-                      stops: const [0.0, 0.5],
-                      begin: Alignment.bottomCenter,
-                      end: Alignment.topCenter,
-                    ),
-                  ),
+    return Focus(
+       child: Builder(
+         builder: (context) {
+           final focused = Focus.of(context).hasFocus;
+           return GestureDetector(
+            onTap: () {
+              final id = details.id;
+              context.pushNamed(
+                AppRoutes.showDetails.routeName,
+                pathParameters: {'id': id},
+              );
+            },
+            child: AspectRatio(
+              aspectRatio: 137 / 184,
+              child: Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(12.r),
+                  border: focused? Border.all(
+                    color: AppColorsNew.white
+                  ) : null
                 ),
-              ),
-            ),
-            if (isTopTenWidget)
-              Positioned(
-                bottom: -26.r,
-                right: -2.r, // Adjust for proper alignment
                 child: Stack(
-                  children: <Widget>[
-                    // Stroked text as border
-                    Text(
-                      (number).toString(),
-                      style: AppTextStylesNew.style32ExtraBoldAlmarai.copyWith(
-                        fontSize: 50.r, // Adjust size as needed
-                        foreground: Paint()
-                          ..style = PaintingStyle.stroke
-                          ..strokeWidth = 2.r
-                          ..color = Colors.white, // Border color
+                  alignment: Alignment.bottomCenter,
+                  clipBehavior: Clip.none,
+                  children: [
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(12.r),
+                      child: CachedNetworkImageHelper(
+                        imageUrl: details.thumbnailImage?.url ?? '',
+                        cacheKey: details.title,
+                        height: double.infinity,
+                        width: double.infinity,
                       ),
                     ),
-                    // Transparent inner text
-                    Text(
-                      (number).toString(),
-                      style: AppTextStylesNew.style32ExtraBoldAlmarai.copyWith(
-                        fontSize: 60.r,
-                        // Match size with border text
-                        color: Colors.transparent, // Transparent fill
+                    if (checkIfVideoAllowed(
+                          isFree: details.isFree,
+                          isGuest: details.isGuest,
+                        ) !=
+                        null)
+                      const LockWidget(),
+                    Padding(
+                      padding: EdgeInsets.all(1.r),
+                      child: Align(
+                        child: Container(
+                          decoration: BoxDecoration(
+                            border: Border.all(
+                              strokeAlign: BorderSide.strokeAlignOutside,
+                              width: 1.r,
+                              color: AppColorsNew.white1.withValues(alpha: 0.3),
+                            ),
+                            borderRadius: BorderRadius.circular(12.r),
+                            gradient: LinearGradient(
+                              colors: [
+                                AppColorsNew.black1.withValues(alpha: 0.7),
+                                AppColorsNew.black1.withValues(alpha: 0.0),
+                              ],
+                              stops: const [0.0, 0.5],
+                              begin: Alignment.bottomCenter,
+                              end: Alignment.topCenter,
+                            ),
+                          ),
+                        ),
                       ),
                     ),
+                    if (isTopTenWidget)
+                      Positioned(
+                        bottom: -26.r,
+                        right: -2.r, // Adjust for proper alignment
+                        child: Stack(
+                          children: <Widget>[
+                            // Stroked text as border
+                            Text(
+                              (number).toString(),
+                              style: AppTextStylesNew.style32ExtraBoldAlmarai.copyWith(
+                                fontSize: 50.r, // Adjust size as needed
+                                foreground: Paint()
+                                  ..style = PaintingStyle.stroke
+                                  ..strokeWidth = 2.r
+                                  ..color = Colors.white, // Border color
+                              ),
+                            ),
+                            // Transparent inner text
+                            Text(
+                              (number).toString(),
+                              style: AppTextStylesNew.style32ExtraBoldAlmarai.copyWith(
+                                fontSize: 60.r,
+                                // Match size with border text
+                                color: Colors.transparent, // Transparent fill
+                              ),
+                            ),
+                          ],
+                        ),
+                      )
+                    else
+                      const SizedBox(),
+                    Positioned(top: 0, left: 0, child: FavoriteIconButton(details)),
                   ],
                 ),
-              )
-            else
-              const SizedBox(),
-            Positioned(top: 0, left: 0, child: FavoriteIconButton(details)),
-          ],
-        ),
-      ),
+              ),
+            ),
+                 );
+         }
+       ),
     );
   }
 }

@@ -8,13 +8,21 @@ import 'package:amaan_tv/Features/family/provider/family_provider.dart';
 import 'package:amaan_tv/core/utils/api/api_service.dart';
 import 'package:amaan_tv/Features/Home/data/data_source/home_service.dart';
 
+import '../../Features/Home/provider/show_player_provider.dart';
+import '../../Features/Home/provider/time_provider.dart';
+
 final sl = GetIt.instance;
 
 void init() {
   sl.registerLazySingleton(() => UserNotifier.instance);
   sl.registerLazySingleton(() => ApiService.getInstance());
   sl.registerFactory(() => HomeService(sl(), sl()));
-
+  if (!GetIt.I.isRegistered<TimeProvider>()) {
+    sl.registerFactory(() => TimeProvider(homeService: sl()));
+  }
+  if (!GetIt.I.isRegistered<ShowPlayerProvider>()) {
+    sl.registerFactory(() => ShowPlayerProvider(homeService: sl()));
+  }
   sl.registerFactory(() => BottomBarProvider(sl()));
   sl.registerFactory(() => ShowProvider(sl(), sl()));
   sl.registerFactory(() => FamilyProvider());

@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:amaan_tv/Features/Home/presentation/widget/repeat_dialog.dart';
 import 'package:amaan_tv/Features/Home/provider/show_provider.dart';
@@ -38,149 +39,172 @@ class EpisodeWidget extends StatefulWidget {
 }
 
 class _EpisodeWidgetState extends State<EpisodeWidget> {
+
+  onTapShow(){
+    if (!widget.model.isReleased) {
+      AppToast.show(AppLocalization.strings.showNotReleasedYet);
+      return;
+    }
+    final isAllowed = checkIfVideoAllowed(
+      isFree: widget.model.isFree,
+      isGuest: widget.model.isGuest,
+      context: context,
+    );
+    if (isAllowed != null) {
+      AppToast.show(isAllowed);
+      return;
+    }
+    if (!context.read<TimeProvider>().isValidToContinue) {
+      AppToast.show(AppLocalization.strings.watchingNotAllowed);
+      return;
+    }
+    if (widget.model.presignedUrl != null) {
+      final mainVideo = widget.model.episodeVideos?.firstWhere(
+            (element) => element.videoTypeId == '1',
+        orElse: () => widget.model.episodeVideos!.first,
+      );
+
+      if (widget.model.isRepeat) {
+        showDialog<int>(
+          context: context,
+          builder: (context) {
+            return const CustomDialog(content: RepeatDialog());
+          },
+        ).then((value) {
+          if (value != null && context.mounted) {
+            context.pushNamed(
+              AppRoutes.showPlayer.routeName,
+              extra: {
+                'url': widget.model.presignedUrl ?? '',
+                'show': widget.model,
+                'episodeId': widget.model.id,
+                'episodesModel': widget.episodesModel,
+                'videoId': mainVideo?.id ?? '',
+                'repeatTimes': value,
+                'closingDuration':
+                mainVideo?.closingDuration ??
+                    widget.model.closingDuration,
+              },
+            );
+          }
+        });
+      } else {
+        context.pushNamed(
+          AppRoutes.showPlayer.routeName,
+          extra: {
+            'url': widget.model.presignedUrl ?? '',
+            'show': widget.model,
+            'episodeId': widget.model.id,
+            'episodesModel': widget.episodesModel,
+            'videoId': mainVideo?.id ?? '',
+            'closingDuration':
+            mainVideo?.closingDuration ??
+                widget.model.closingDuration,
+          },
+        );
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
-        return GestureDetector(
-          onTap: () {
-            if (!widget.model.isReleased) {
-              AppToast.show(AppLocalization.strings.showNotReleasedYet);
-              return;
+        return Focus(
+          onKeyEvent: (node, event) {
+            if (event is KeyDownEvent &&
+                (event.logicalKey == LogicalKeyboardKey.enter ||
+                    event.logicalKey == LogicalKeyboardKey.select)) {
+              onTapShow();
+              return KeyEventResult.handled;
             }
-            final isAllowed = checkIfVideoAllowed(
-              isFree: widget.model.isFree,
-              isGuest: widget.model.isGuest,
-              context: context,
-            );
-            if (isAllowed != null) {
-              AppToast.show(isAllowed);
-              return;
-            }
-            if (!context.read<TimeProvider>().isValidToContinue) {
-              AppToast.show(AppLocalization.strings.watchingNotAllowed);
-              return;
-            }
-            if (widget.model.presignedUrl != null) {
-              final mainVideo = widget.model.episodeVideos?.firstWhere(
-                (element) => element.videoTypeId == '1',
-                orElse: () => widget.model.episodeVideos!.first,
-              );
-
-              if (widget.model.isRepeat) {
-                showDialog<int>(
-                  context: context,
-                  builder: (context) {
-                    return const CustomDialog(content: RepeatDialog());
-                  },
-                ).then((value) {
-                  if (value != null && context.mounted) {
-                    context.pushNamed(
-                      AppRoutes.showPlayer.routeName,
-                      extra: {
-                        'url': widget.model.presignedUrl ?? '',
-                        'show': widget.model,
-                        'episodeId': widget.model.id,
-                        'episodesModel': widget.episodesModel,
-                        'videoId': mainVideo?.id ?? '',
-                        'repeatTimes': value,
-                        'closingDuration':
-                            mainVideo?.closingDuration ??
-                            widget.model.closingDuration,
-                      },
-                    );
-                  }
-                });
-              } else {
-                context.pushNamed(
-                  AppRoutes.showPlayer.routeName,
-                  extra: {
-                    'url': widget.model.presignedUrl ?? '',
-                    'show': widget.model,
-                    'episodeId': widget.model.id,
-                    'episodesModel': widget.episodesModel,
-                    'videoId': mainVideo?.id ?? '',
-                    'closingDuration':
-                        mainVideo?.closingDuration ??
-                        widget.model.closingDuration,
-                  },
-                );
-              }
-            }
+            return KeyEventResult.ignored;
           },
-          child: DecoratedBox(
-            decoration: containerDecoration(context),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(
-                  child: Stack(
-                    alignment: AlignmentDirectional.center,
+           child: Builder(
+             builder: (context) {
+               final focused = Focus.of(context).hasFocus;
+               return GestureDetector(
+                onTap: () {
+                  onTapShow();
+                },
+                child: DecoratedBox(
+                  decoration: containerDecoration(context,
+                  borderColor: focused? AppColorsNew.white : null
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(12.r),
-                        child: CachedNetworkImageHelper(
-                          width: double.infinity,
-                          height: double.infinity,
-                          imageUrl: widget.model.thumbnailImage?.url,
-                        ),
-                      ),
-                      GradientHomePoster(
-                        height: double.infinity,
-                        borderRadius: 0,
-                      ),
-                      if (widget.model.isReleased == false &&
-                          widget.model.releaseDateTime != null)
-                        Align(
-                          child: CountdownWidget(
-                            releaseDateTime: widget.model.releaseDateTime,
-                          ),
-                        )
-                      else if (checkIfVideoAllowed(
-                            isFree: widget.model.isFree,
-                            isGuest: widget.model.isGuest,
-                          ) !=
-                          null)
-                        Align(child: LockWidget()),
-                      PositionedDirectional(
-                        start: 0,
-                        bottom: 0,
-                        width: constraints.maxWidth,
-                        child: Padding(
-                          padding: EdgeInsets.all(16.r),
-                          child: Text(
-                            widget.model.title,
-                            textAlign: TextAlign.start,
-                            style: AppTextStylesNew.style14RegularAlmarai
-                                .copyWith(
-                                  color: AppColorsNew.white,
-                                  fontWeight: FontWeight.w800,
+                      Expanded(
+                        child: Stack(
+                          alignment: AlignmentDirectional.center,
+                          children: [
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(12.r),
+                              child: CachedNetworkImageHelper(
+                                width: double.infinity,
+                                height: double.infinity,
+                                imageUrl: widget.model.thumbnailImage?.url,
+                              ),
+                            ),
+                            GradientHomePoster(
+                              height: double.infinity,
+                              borderRadius: 0,
+                            ),
+                            if (widget.model.isReleased == false &&
+                                widget.model.releaseDateTime != null)
+                              Align(
+                                child: CountdownWidget(
+                                  releaseDateTime: widget.model.releaseDateTime,
                                 ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
+                              )
+                            else if (checkIfVideoAllowed(
+                                  isFree: widget.model.isFree,
+                                  isGuest: widget.model.isGuest,
+                                ) !=
+                                null)
+                              Align(child: LockWidget()),
+                            PositionedDirectional(
+                              start: 0,
+                              bottom: 0,
+                              width: constraints.maxWidth,
+                              child: Padding(
+                                padding: EdgeInsets.all(16.r),
+                                child: Text(
+                                  widget.model.title,
+                                  textAlign: TextAlign.start,
+                                  style: AppTextStylesNew.style14RegularAlmarai
+                                      .copyWith(
+                                        color: AppColorsNew.white,
+                                        fontWeight: FontWeight.w800,
+                                      ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                            ),
+                            PositionedDirectional(
+                              end: 0,
+                              top: 0,
+                              child: FavoriteIconButton(widget.model),
+                            ),
+                          ],
                         ),
                       ),
-                      PositionedDirectional(
-                        end: 0,
-                        top: 0,
-                        child: FavoriteIconButton(widget.model),
+                      Padding(
+                        padding: EdgeInsets.all(16.r),
+                        child: Text(
+                          widget.model.description ?? 'no description',
+                          style: AppTextStylesNew.style12RegularAlmarai,
+                          maxLines: 3,
+                          overflow: TextOverflow.ellipsis,
+                        ),
                       ),
                     ],
                   ),
                 ),
-                Padding(
-                  padding: EdgeInsets.all(16.r),
-                  child: Text(
-                    widget.model.description ?? 'no description',
-                    style: AppTextStylesNew.style12RegularAlmarai,
-                    maxLines: 3,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-              ],
-            ),
-          ),
+                         );
+             }
+           ),
         );
       },
     );

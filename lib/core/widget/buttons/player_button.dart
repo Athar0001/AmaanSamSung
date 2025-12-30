@@ -9,9 +9,10 @@ import 'package:amaan_tv/core/widget/SVG_Image/svg_img.dart';
 import 'package:loading_indicator/loading_indicator.dart';
 
 class ShowButtonWidget extends StatelessWidget {
-  const ShowButtonWidget({required this.widget, super.key});
+  const ShowButtonWidget({required this.widget,required this.hasFocus, super.key});
 
   final ShowSeriesPoster widget;
+  final bool hasFocus;
 
   @override
   Widget build(BuildContext context) {
@@ -22,7 +23,9 @@ class ShowButtonWidget extends StatelessWidget {
       decoration: BoxDecoration(
         shape: BoxShape.circle,
         border: Border.all(
-          color: Theme.of(context).scaffoldBackgroundColor,
+          color: hasFocus
+              ? AppColorsNew.primary
+              : Theme.of(context).scaffoldBackgroundColor,
           width: 6.r,
         ),
         gradient: const LinearGradient(
@@ -32,8 +35,10 @@ class ShowButtonWidget extends StatelessWidget {
       child: widget.isLoading
           ? LoadingPlayIcon()
           : widget.model.isReleased
-          ? SVGImage(path: Assets.images.play.path, color: AppColorsNew.white)
-          : SVGImage(path: Assets.images.lock.path, color: AppColorsNew.white),
+          ? SVGImage(
+          path: Assets.images.play.path, color: AppColorsNew.white)
+          : SVGImage(
+          path: Assets.images.lock.path, color: AppColorsNew.white),
     );
   }
 }

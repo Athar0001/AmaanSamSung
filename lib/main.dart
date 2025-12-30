@@ -14,6 +14,8 @@ import 'package:amaan_tv/core/utils/cash_services/cashe_helper.dart';
 import 'package:amaan_tv/core/languages/app_localizations.dart';
 import 'package:toastification/toastification.dart';
 
+import 'Features/Home/provider/show_player_provider.dart';
+import 'Features/Home/provider/time_provider.dart';
 import 'core/Themes/styles.dart';
 import 'package:toastification/toastification.dart';
 import 'package:amaan_tv/core/injection/injection_imports.dart' as di;
@@ -53,6 +55,8 @@ class AmaanTVApp extends StatelessWidget {
           providers: [
             ChangeNotifierProvider(create: (_) => UserNotifier.instance),
             Provider<ApiService>(create: (_) => ApiService.getInstance()),
+            ChangeNotifierProvider(create: (_) => di.sl<TimeProvider>()),
+            ChangeNotifierProvider(create: (_) => di.sl<ShowPlayerProvider>()),
             ChangeNotifierProxyProvider2<
               ApiService,
               UserNotifier,

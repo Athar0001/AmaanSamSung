@@ -1,4 +1,7 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:amaan_tv/core/Themes/app_colors_new.dart';
@@ -42,19 +45,53 @@ class TabletBannerView extends StatelessWidget {
                 : provider.bannerModel?.data?[index - 1];
 
             return Stack(
-              fit: StackFit.expand,
+
               children: [
-                // Background image
+
                 if (index == 0)
-                  // First item shows cover image
-                  Image.asset(
-                    Assets.images.coverImageJpg.path,
-                    fit: BoxFit.contain,
+                // First item shows cover image
+                  Center(
+                    child: Image.asset(
+                      Assets.images.coverImageJpg.path,
+                      fit: BoxFit.fill,
+                      width: 1.sw,
+                      height: 400,
+                    ),
                   )
                 else if (banner?.show.bannerThumbnailImage?.url != null)
                   CachedNetworkImageHelper(
                     imageUrl: banner!.show.bannerThumbnailImage!.url!,
-                    fit: BoxFit.cover,
+                    fit: BoxFit.fill,
+                    width: 1.sw,
+                    height: 400,
+                  ),
+                BackdropFilter(
+                  filter: ImageFilter.blur(
+                    sigmaX: 8,
+                    sigmaY: 8,
+                  ),
+                  child: Container(
+                    color: Colors.black.withOpacity(0),
+                  ),
+                ),
+
+                // Background image
+                if (index == 0)
+                  // First item shows cover image
+                  Center(
+                    child: Image.asset(
+                      Assets.images.coverImageJpg.path,
+                      fit: BoxFit.fill,
+                      width: 0.6.sw,
+                      height: 400,
+                    ),
+                  )
+                else if (banner?.show.bannerThumbnailImage?.url != null)
+                  CachedNetworkImageHelper(
+                    imageUrl: banner!.show.bannerThumbnailImage!.url!,
+                    fit: BoxFit.fill,
+                    width: 0.6.sw,
+                    height: 400,
                   )
                 else
                   Container(
@@ -93,8 +130,8 @@ class TabletBannerView extends StatelessWidget {
           Positioned(
             right: 24.r,
             left: 24.r,
+            bottom: 80,
 
-            bottom: 350.r,
             child: Column(
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -112,15 +149,18 @@ class TabletBannerView extends StatelessWidget {
                 16.verticalSpace,
 
                 // Description
-                Text(
-                  bannerData.show.description ?? '',
-                  textAlign: TextAlign.right,
-                  maxLines: 3,
-                  overflow: TextOverflow.ellipsis,
-                  style: AppTextStylesNew.style14RegularAlmarai.copyWith(
-                    color: AppColorsNew.white.withOpacity(0.9),
-                    fontSize: 15.r,
-                    height: 1.6,
+                Container(
+                  width: 0.6.sw,
+                  child: Text(
+                    bannerData.show.description ?? '',
+                    textAlign: TextAlign.right,
+                    maxLines: 3,
+                    overflow: TextOverflow.ellipsis,
+                    style: AppTextStylesNew.style14RegularAlmarai.copyWith(
+                      color: AppColorsNew.white.withOpacity(0.9),
+                      fontSize: 15.r,
+                      height: 1.6,
+                    ),
                   ),
                 ),
               ],
@@ -130,140 +170,163 @@ class TabletBannerView extends StatelessWidget {
         // Action Buttons
         if (bannerData != null)
           Positioned(
-            bottom: 260.r,
+            bottom: 30,
             left: 0,
             right: 0,
             child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: 24.w),
+              padding: EdgeInsets.symmetric(horizontal: 20.w),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
                   // Watch Now button
-                  ElevatedButton(
-                    onPressed: () {
-                      context.pushNamed(
-                        AppRoutes.showDetails.routeName,
-                        pathParameters: {'id': bannerData.show.id},
-                        extra: bannerData.show,
-                      );
+                  Focus(
+                    onKeyEvent: (node, event) {
+                      if (event is KeyDownEvent &&
+                          (event.logicalKey == LogicalKeyboardKey.enter ||
+                              event.logicalKey == LogicalKeyboardKey.select)) {
+                        context.pushNamed(
+                          AppRoutes.showDetails.routeName,
+                          pathParameters: {'id': bannerData.show.id},
+                          extra: bannerData.show,
+                        );
+                        return KeyEventResult.handled;
+                      }
+                      return KeyEventResult.ignored;
                     },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColorsNew.primary,
-                      foregroundColor: AppColorsNew.white,
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 20.w,
-                        vertical: 10.h,
-                      ),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(6.r),
-                      ),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(Icons.play_arrow, size: 18.r),
-                        6.horizontalSpace,
-                        Text(
-                          'شاهد الآن',
-                          style: AppTextStylesNew.style14BoldAlmarai.copyWith(
-                            color: AppColorsNew.white,
+                    child: Builder(
+                      builder: (context) {
+                        final focused = Focus.of(context).hasFocus;
+                        return ElevatedButton(
+                          onPressed: () {
+                            context.pushNamed(
+                              AppRoutes.showDetails.routeName,
+                              pathParameters: {'id': bannerData.show.id},
+                              extra: bannerData.show,
+                            );
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColorsNew.primary,
+                            foregroundColor: AppColorsNew.white,
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 20.w,
+                              vertical: 10.h,
+                            ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(6.r),
+                              side: focused
+                                  ? BorderSide(color: AppColorsNew.white, width: 2)
+                                  : BorderSide(),
+                            ),
                           ),
-                        ),
-                      ],
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(Icons.play_arrow, size: 18.r),
+                              6.horizontalSpace,
+                              Text(
+                                'شاهد الآن',
+                                style: AppTextStylesNew.style14BoldAlmarai.copyWith(
+                                  color: AppColorsNew.white,
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+                      }
                     ),
                   ),
                   12.horizontalSpace,
 
-                  // Info button
-                  _ActionButton(
-                    icon: Icons.info_outline,
-                    label: 'إعلان',
-                    onTap: () {},
-                  ),
-                  12.horizontalSpace,
+                  // // Info button
+                  // _ActionButton(
+                  //   icon: Icons.info_outline,
+                  //   label: 'إعلان',
+                  //   onTap: () {},
+                  // ),
+                  // 12.horizontalSpace,
 
                   // Like button
-                  _ActionButton(icon: Icons.favorite_border, onTap: () {}),
+                  // _ActionButton(icon: Icons.favorite_border, onTap: () {}),
                 ],
               ),
             ),
           ),
 
-        // Thumbnails Carousel at bottom
-        if (provider.bannerModel?.data?.isNotEmpty ?? false)
-          Positioned(
-            bottom: 0,
-            left: 0,
-            right: 0,
-            height: 250.r,
-            child: Container(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [
-                    Colors.transparent,
-                    Colors.black.withOpacity(0.5),
-                    Colors.black.withOpacity(0.9),
-                  ],
-                ),
-              ),
-              child: ListView.builder(
-                scrollDirection: Axis.horizontal,
-
-                padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 10.h),
-                itemCount: provider.bannerModel!.data!.length,
-                itemBuilder: (context, index) {
-                  final show = provider.bannerModel!.data![index];
-                  final isSelected = currentPage == index + 1;
-                  return GestureDetector(
-                    onTap: () {
-                      controller.animateToPage(
-                        index + 1,
-                        duration: Duration(milliseconds: 300),
-                        curve: Curves.easeInOut,
-                      );
-                    },
-                    child: Container(
-                      width: 160.r,
-                      height: 300.r,
-                      margin: EdgeInsetsDirectional.only(start: 12.w),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(8.r),
-                        border: Border.all(
-                          color: isSelected
-                              ? AppColorsNew.primary
-                              : Colors.white.withOpacity(0.3),
-                          width: isSelected ? 3 : 1,
-                        ),
-                        boxShadow: isSelected
-                            ? [
-                                BoxShadow(
-                                  color: AppColorsNew.primary.withOpacity(0.5),
-                                  blurRadius: 8,
-                                  spreadRadius: 1,
-                                ),
-                              ]
-                            : null,
-                      ),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(6.r),
-                        child: show.show.thumbnailImage?.url != null
-                            ? CachedNetworkImageHelper(
-                                imageUrl: show.show.thumbnailImage!.url!,
-                                fit: BoxFit.cover,
-                                width: 180.r,
-                                height: 330.r,
-                                borderRadius: 0,
-                              )
-                            : Container(color: Colors.grey[800]),
-                      ),
-                    ),
-                  );
-                },
-              ),
-            ),
-          ),
+        // // Thumbnails Carousel at bottom
+        // if (provider.bannerModel?.data?.isNotEmpty ?? false)
+        //   Positioned(
+        //     bottom: 0,
+        //     left: 0,
+        //     right: 0,
+        //     height: 250.r,
+        //     child: Container(
+        //       decoration: BoxDecoration(
+        //         gradient: LinearGradient(
+        //           begin: Alignment.topCenter,
+        //           end: Alignment.bottomCenter,
+        //           colors: [
+        //             Colors.transparent,
+        //             Colors.black.withOpacity(0.5),
+        //             Colors.black.withOpacity(0.9),
+        //           ],
+        //         ),
+        //       ),
+        //       child: ListView.builder(
+        //         scrollDirection: Axis.horizontal,
+        //
+        //         padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 10.h),
+        //         itemCount: provider.bannerModel!.data!.length,
+        //         itemBuilder: (context, index) {
+        //           final show = provider.bannerModel!.data![index];
+        //           final isSelected = currentPage == index + 1;
+        //           return GestureDetector(
+        //             onTap: () {
+        //               controller.animateToPage(
+        //                 index + 1,
+        //                 duration: Duration(milliseconds: 300),
+        //                 curve: Curves.easeInOut,
+        //               );
+        //             },
+        //             child: Container(
+        //               width: 160.r,
+        //               height: 300.r,
+        //               margin: EdgeInsetsDirectional.only(start: 12.w),
+        //               decoration: BoxDecoration(
+        //                 borderRadius: BorderRadius.circular(8.r),
+        //                 border: Border.all(
+        //                   color: isSelected
+        //                       ? AppColorsNew.primary
+        //                       : Colors.white.withOpacity(0.3),
+        //                   width: isSelected ? 3 : 1,
+        //                 ),
+        //                 boxShadow: isSelected
+        //                     ? [
+        //                         BoxShadow(
+        //                           color: AppColorsNew.primary.withOpacity(0.5),
+        //                           blurRadius: 8,
+        //                           spreadRadius: 1,
+        //                         ),
+        //                       ]
+        //                     : null,
+        //               ),
+        //               child: ClipRRect(
+        //                 borderRadius: BorderRadius.circular(6.r),
+        //                 child: show.show.thumbnailImage?.url != null
+        //                     ? CachedNetworkImageHelper(
+        //                         imageUrl: show.show.thumbnailImage!.url!,
+        //                         fit: BoxFit.cover,
+        //                         width: 180.r,
+        //                         height: 330.r,
+        //                         borderRadius: 0,
+        //                       )
+        //                     : Container(color: Colors.grey[800]),
+        //               ),
+        //             ),
+        //           );
+        //         },
+        //       ),
+        //     ),
+        //   ),
       ],
     );
   }

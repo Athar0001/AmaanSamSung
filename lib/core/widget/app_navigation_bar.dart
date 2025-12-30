@@ -1,4 +1,6 @@
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:amaan_tv/core/Themes/app_colors_new.dart';
 import 'package:amaan_tv/core/Themes/app_text_styles_new.dart';
@@ -116,28 +118,46 @@ class _HeaderTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: AnimatedContainer(
-        duration: Duration(milliseconds: 200),
-        margin: EdgeInsets.only(left: 8.w),
-        padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 8.h),
-        decoration: BoxDecoration(
-          color: isSelected ? AppColorsNew.primary : Colors.transparent,
-          borderRadius: BorderRadius.circular(20.r),
-          border: Border.all(
-            color: isSelected ? AppColorsNew.primary : Colors.transparent,
-            width: 1,
-          ),
-        ),
-        child: Text(
-          title,
-          style: AppTextStylesNew.style14BoldAlmarai.copyWith(
-            color: AppColorsNew.white,
-            fontSize: isSelected ? 15.r : 14.r,
-            fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-          ),
-        ),
+    return Focus(
+      onKeyEvent: (node, event) {
+        if (event is KeyDownEvent &&
+            (event.logicalKey == LogicalKeyboardKey.enter ||
+                event.logicalKey == LogicalKeyboardKey.select)) {
+          onTap.call();
+          return KeyEventResult.handled;
+        }
+        return KeyEventResult.ignored;
+      },
+      child: Builder(
+        builder: (context) {
+          final focused = Focus.of(context).hasFocus;
+          return GestureDetector(
+            onTap: onTap,
+            child: AnimatedContainer(
+              duration: Duration(milliseconds: 200),
+              margin: EdgeInsets.only(left: 8.w),
+              padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 8.h),
+              decoration: BoxDecoration(
+                color: isSelected ? AppColorsNew.primary : Colors.transparent,
+                borderRadius: BorderRadius.circular(20.r),
+                border: Border.all(
+                  color:
+                  focused? AppColorsNew.white :
+                  isSelected ? AppColorsNew.primary : Colors.transparent,
+                  width: 1,
+                ),
+              ),
+              child: Text(
+                title,
+                style: AppTextStylesNew.style14BoldAlmarai.copyWith(
+                  color: AppColorsNew.white,
+                  fontSize: isSelected ? 15.r : 14.r,
+                  fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+                ),
+              ),
+            ),
+          );
+        }
       ),
     );
   }

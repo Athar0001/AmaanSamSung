@@ -1,10 +1,6 @@
 {
-    // Use IntelliSense to learn about possible attributes.
-    // Hover to view descriptions of existing attributes.
-    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
-
         {
             "name": "AmaanSamSung",
             "request": "launch",
@@ -47,6 +43,13 @@
                 "--target",
                 "lib/main.dart"
             ]
+        },
+        {
+            "name": "flutter-tizen: Attach",
+            "request": "attach",
+            "type": "dart",
+            "cwd": "${workspaceFolder}",
+            "vmServiceUri": "http://127.0.0.1:59186/34MB-NLKSeU=/"
         }
     ]
 }

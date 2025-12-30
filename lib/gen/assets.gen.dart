@@ -12,7 +12,27 @@
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_svg/flutter_svg.dart' as _svg;
+
 import 'package:vector_graphics/vector_graphics.dart' as _vg;
+
+class $AssetsIconsGen {
+  const $AssetsIconsGen();
+
+  /// File path: assets/icons/next.svg
+  SvgGenImage get next => const SvgGenImage('assets/icons/next.svg');
+
+  /// File path: assets/icons/pause.svg
+  SvgGenImage get pause => const SvgGenImage('assets/icons/pause.svg');
+
+  /// File path: assets/icons/play.svg
+  SvgGenImage get play => const SvgGenImage('assets/icons/play.svg');
+
+  /// File path: assets/icons/previous.svg
+  SvgGenImage get previous => const SvgGenImage('assets/icons/previous.svg');
+
+  /// List of all assets
+  List<SvgGenImage> get values => [next, pause, play, previous];
+}
 
 class $AssetsImagesGen {
   const $AssetsImagesGen();
@@ -91,8 +111,9 @@ class $AssetsImagesGen {
   /// File path: assets/images/award3.svg
   SvgGenImage get award3 => const SvgGenImage('assets/images/award3.svg');
 
-  /// File path: assets/images/awardLottie.json
-  String get awardLottie => 'assets/images/awardLottie.json';
+  // /// File path: assets/images/awardLottie.json
+  // LottieGenImage get awardLottie =>
+  //     const LottieGenImage('assets/images/awardLottie.json');
 
   /// File path: assets/images/backward-10-seconds.svg
   SvgGenImage get backward10Seconds =>
@@ -688,7 +709,7 @@ class $AssetsImagesGen {
     award1,
     award2,
     award3,
-    awardLottie,
+    // awardLottie,
     backward10Seconds,
     bear,
     biApple,
@@ -855,19 +876,38 @@ class $AssetsImagesGen {
   ];
 }
 
+class $AssetsVideosGen {
+  const $AssetsVideosGen();
+
+  /// File path: assets/videos/radio.mp4
+  String get radio => 'assets/videos/radio.mp4';
+
+  /// File path: assets/videos/stories.mp4
+  String get stories => 'assets/videos/stories.mp4';
+
+  /// List of all assets
+  List<String> get values => [radio, stories];
+}
+
 class Assets {
   const Assets._();
 
+  static const $AssetsIconsGen icons = $AssetsIconsGen();
   static const $AssetsImagesGen images = $AssetsImagesGen();
+  static const $AssetsVideosGen videos = $AssetsVideosGen();
+  static const String shorebird = 'shorebird.yaml';
+
+  /// List of all assets
+  static List<String> get values => [shorebird];
 }
 
 class AssetGenImage {
   const AssetGenImage(
-    this._assetName, {
-    this.size,
-    this.flavors = const {},
-    this.animation,
-  });
+      this._assetName, {
+        this.size,
+        this.flavors = const {},
+        this.animation,
+      });
 
   final String _assetName;
 
@@ -951,10 +991,10 @@ class AssetGenImageAnimation {
 
 class SvgGenImage {
   const SvgGenImage(this._assetName, {this.size, this.flavors = const {}})
-    : _isVecFormat = false;
+      : _isVecFormat = false;
 
   const SvgGenImage.vec(this._assetName, {this.size, this.flavors = const {}})
-    : _isVecFormat = true;
+      : _isVecFormat = true;
 
   final String _assetName;
   final Size? size;
@@ -1011,7 +1051,7 @@ class SvgGenImage {
       semanticsLabel: semanticsLabel,
       excludeFromSemantics: excludeFromSemantics,
       colorFilter:
-          colorFilter ??
+      colorFilter ??
           (color == null ? null : ColorFilter.mode(color, colorBlendMode)),
       clipBehavior: clipBehavior,
       cacheColorFilter: cacheColorFilter,
@@ -1022,3 +1062,4 @@ class SvgGenImage {
 
   String get keyName => _assetName;
 }
+
