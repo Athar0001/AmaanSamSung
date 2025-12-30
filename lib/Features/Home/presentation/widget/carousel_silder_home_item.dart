@@ -1,4 +1,5 @@
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:amaan_tv/core/widget/tv_click_button.dart';
 import 'package:flutter/foundation.dart' hide Category;
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -55,7 +56,7 @@ class _CarouselSilderHomeItemsState extends State<CarouselSilderHomeItems> {
           itemCount: widget.categories?.length ?? 0,
           itemBuilder: (context, index, _) {
             final category = widget.categories?[index];
-            return GestureDetector(
+            return TvClickButton(
               onTap: () {
                 if (category == null) {
                   context.pushNamed(AppRoutes.soonRadio.routeName);
@@ -90,17 +91,15 @@ class _CarouselSilderHomeItemsState extends State<CarouselSilderHomeItems> {
                                       textStyle: AppTextStylesNew
                                           .style12RegularAlmarai
                                           .copyWith(
-                                            fontSize: isTablet ? 16.r : 12.r,
-                                          ),
+                                        fontSize: isTablet ? 16.r : 12.r,
+                                      ),
                                       child: BlackAndWhiteWidget(
                                         isNoColors: true,
                                         child: CachedNetworkImageHelper(
                                           height: double.infinity,
                                           width: double.infinity,
-                                          imageUrl: widget
-                                              .categories?[index]
-                                              .backgroundImage
-                                              ?.url,
+                                          imageUrl: widget.categories?[index]
+                                              .backgroundImage?.url,
                                         ),
                                       ),
                                     )
@@ -109,10 +108,8 @@ class _CarouselSilderHomeItemsState extends State<CarouselSilderHomeItems> {
                                       child: CachedNetworkImageHelper(
                                         height: double.infinity,
                                         width: double.infinity,
-                                        imageUrl: widget
-                                            .categories?[index]
-                                            .backgroundImage
-                                            ?.url,
+                                        imageUrl: widget.categories?[index]
+                                            .backgroundImage?.url,
                                       ),
                                     ),
                             ),
@@ -165,8 +162,8 @@ class _CarouselSilderHomeItemsState extends State<CarouselSilderHomeItems> {
           Positioned(
             left: 0,
             top: 0,
-            child: GestureDetector(
-              behavior: HitTestBehavior.translucent,
+            child: TvClickButton(
+              onTap: () {},
               child: Container(
                 height: 140.r,
                 width: 100.r,

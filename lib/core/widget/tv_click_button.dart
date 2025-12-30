@@ -5,39 +5,51 @@ import 'package:flutter/services.dart';
 
 class TvClickButton extends StatelessWidget {
   const TvClickButton(
-      {super.key, this.child, this.builder, required this.onTap})
+      {super.key,
+      this.child,
+      this.builder,
+      required this.onTap,
+      this.onFocusChange,
+      this.behavior,
+      })
       : assert(child != null || builder != null),
         assert(child == null || builder == null);
 
   final Widget? child;
   final Widget Function(BuildContext context, bool hasFocus)? builder;
   final Function() onTap;
+  final HitTestBehavior? behavior;
+  final ValueChanged<bool>? onFocusChange;
 
   @override
   Widget build(BuildContext context) {
-    return Focus(onKeyEvent: (node, event) {
-      if (event is KeyDownEvent &&
-          (event.logicalKey == LogicalKeyboardKey.enter ||
-              event.logicalKey == LogicalKeyboardKey.select)) {
-        onTap();
-        return KeyEventResult.handled;
-      }
-      return KeyEventResult.ignored;
-    }, child: Builder(
-      builder: (context) {
-        final hasFocus = Focus.of(context).hasFocus;
-        return GestureDetector(
-          onTap: () {
+    return Focus(
+        onFocusChange: onFocusChange,
+        onKeyEvent: (node, event) {
+          if (event is KeyDownEvent &&
+              (event.logicalKey == LogicalKeyboardKey.enter ||
+                  event.logicalKey == LogicalKeyboardKey.select)) {
             onTap();
+            return KeyEventResult.handled;
+          }
+          return KeyEventResult.ignored;
+        },
+        child: Builder(
+          builder: (context) {
+            final hasFocus = Focus.of(context).hasFocus;
+            return GestureDetector(
+              behavior: behavior,
+              onTap: () {
+                onTap();
+              },
+              child: builder?.call(context, hasFocus) ??
+                  DecoratedBox(
+                    decoration: containerDecoration(context,
+                        borderColor: hasFocus ? AppColorsNew.white : null),
+                    child: child,
+                  ),
+            );
           },
-          child: builder?.call(context, hasFocus) ??
-              DecoratedBox(
-                decoration: containerDecoration(context,
-                    borderColor: hasFocus ? AppColorsNew.white : null),
-                child: child,
-              ),
-        );
-      },
-    ));
+        ));
   }
 }

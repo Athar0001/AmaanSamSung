@@ -20,14 +20,10 @@ class BackButtonWidget<T> extends StatelessWidget {
     return IconContainer(
       isBlack: isBlack,
       result: result,
-      child: BackButton(
-        style: ButtonStyle(padding: WidgetStateProperty.all(EdgeInsets.zero)),
+      onTap: onPressed ?? () => context.pop(result),
+      child: Icon(
+        Icons.arrow_back,
         color: isBlack ? AppColorsNew.white : null,
-        onPressed:
-            onPressed ??
-            () {
-              context.pop(result);
-            },
       ),
     );
   }

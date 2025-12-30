@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:amaan_tv/core/widget/tv_click_button.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:amaan_tv/core/Themes/app_colors_new.dart';
 import 'package:amaan_tv/core/Themes/app_text_styles_new.dart';
@@ -114,7 +115,7 @@ void showCommentsBottomSheet(BuildContext context, ReelProvider reelProvider,
                                             ),
                                           ),
                                           const SizedBox(width: 12),
-                                          GestureDetector(
+                                          TvClickButton(
                                             onTap: () {
                                               reelProvider.likeReelComment(
                                                   reelProvider
@@ -192,10 +193,8 @@ void showCommentsBottomSheet(BuildContext context, ReelProvider reelProvider,
                                       ),
                                     ),
                                     SizedBox(width: 8.w),
-                                    IconButton(
-                                      icon: Icon(Icons.send,
-                                          color: AppColorsNew.primary),
-                                      onPressed: () {
+                                    TvClickButton(
+                                      onTap: () {
                                         final newComment =
                                             commentController.text.trim();
 
@@ -210,6 +209,11 @@ void showCommentsBottomSheet(BuildContext context, ReelProvider reelProvider,
                                           FocusScope.of(context).unfocus();
                                         }
                                       },
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(8.0),
+                                        child: Icon(Icons.send,
+                                            color: AppColorsNew.primary),
+                                      ),
                                     ),
                                   ],
                                 ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:amaan_tv/core/widget/tv_click_button.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:amaan_tv/core/Themes/app_colors_new.dart';
 import 'package:amaan_tv/Features/Home/data/models/home/related_model/related_model.dart';
@@ -43,7 +44,7 @@ class ShowWidget extends StatefulWidget {
 class _ShowWidgetWidgetState extends State<ShowWidget> {
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
+    return TvClickButton(
       onTap: () {
         final id = widget.show.id;
         context.pushNamed(

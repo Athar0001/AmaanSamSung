@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:amaan_tv/core/widget/tv_click_button.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../Themes/app_colors_new.dart';
@@ -21,9 +22,9 @@ class IconContainer<T> extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    return GestureDetector(
+    return TvClickButton(
       behavior: HitTestBehavior.translucent,
-      onTap: onTap,
+      onTap: onTap ?? () {},
       child: Padding(
         padding: EdgeInsets.all(8.r),
         child: ClipRRect(
@@ -36,8 +37,8 @@ class IconContainer<T> extends StatelessWidget {
               color: isBlack
                   ? AppColorsNew.blackColor.withOpacity(.4)
                   : isDark
-                  ? AppColorsNew.white.withOpacity(.1)
-                  : AppColorsNew.white.withOpacity(0.5),
+                      ? AppColorsNew.white.withOpacity(.1)
+                      : AppColorsNew.white.withOpacity(0.5),
               borderRadius: BorderRadius.circular(12.r),
               border: Border.all(
                 color: !isDark

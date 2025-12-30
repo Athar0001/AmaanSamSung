@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:amaan_tv/core/widget/tv_click_button.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:amaan_tv/core/Themes/app_text_styles_new.dart';
 import 'package:amaan_tv/generated/assets.dart';
@@ -51,10 +52,10 @@ void shareBottomSheet(BuildContext context, String showId) {
                                 AppLocalization.strings.shareWithYourFriends,
                                 style: AppTextStylesNew.style14RegularAlmarai
                                     .copyWith(
-                                      color: Theme.of(
-                                        context,
-                                      ).textTheme.labelSmall?.color,
-                                    ),
+                                  color: Theme.of(
+                                    context,
+                                  ).textTheme.labelSmall?.color,
+                                ),
                               ),
                             ],
                           ),
@@ -68,27 +69,24 @@ void shareBottomSheet(BuildContext context, String showId) {
                         child: GridView.builder(
                           gridDelegate:
                               SliverGridDelegateWithFixedCrossAxisCount(
-                                crossAxisSpacing: 10.w,
-                                mainAxisSpacing: 10.h,
-                                crossAxisCount: 4,
-                                childAspectRatio: 0.8,
-                              ),
+                            crossAxisSpacing: 10.w,
+                            mainAxisSpacing: 10.h,
+                            crossAxisCount: 4,
+                            childAspectRatio: 0.8,
+                          ),
                           itemCount:
                               provider.familyModel?.data?.noOfChildAccounts ??
-                              0,
+                                  0,
                           itemBuilder: (context, index) {
-                            return GestureDetector(
+                            return TvClickButton(
                               onTap: () async {
                                 provider.setLoadingIndex(
                                   index,
                                 ); // Set loading index
                                 await provider.shareShow(
                                   model: ShareParamModel(
-                                    childId: provider
-                                        .familyModel!
-                                        .data!
-                                        .children![index]
-                                        .id!,
+                                    childId: provider.familyModel!.data!
+                                        .children![index].id!,
                                     showId: showId,
                                   ),
                                 );
@@ -118,15 +116,14 @@ void shareBottomSheet(BuildContext context, String showId) {
                                                       provider
                                                                   .familyModel
                                                                   ?.data
-                                                                  ?.children![index]
+                                                                  ?.children![
+                                                                      index]
                                                                   .relation ==
                                                               'Daughter'
                                                           ? Assets
-                                                                .images.girl
-                                                                .path
-                                                          : Assets
-                                                                .images.sonAvatar
-                                                                .path,
+                                                              .images.girl.path
+                                                          : Assets.images
+                                                              .sonAvatar.path,
                                                     ),
                                                   ),
                                                 ),
@@ -136,10 +133,7 @@ void shareBottomSheet(BuildContext context, String showId) {
                                   ),
                                   10.verticalSpace,
                                   Text(
-                                    provider
-                                            .familyModel
-                                            ?.data
-                                            ?.children![index]
+                                    provider.familyModel?.data?.children![index]
                                             .fullName
                                             ?.split(' ')
                                             .first ??

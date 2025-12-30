@@ -1,4 +1,5 @@
 import 'package:amaan_tv/Features/Home/presentation/widget/lock_widget.dart';
+import 'package:amaan_tv/core/widget/tv_click_button.dart';
 import 'package:amaan_tv/Features/favorite/presentation/widgets/favorite_icon_button.dart';
 import 'package:amaan_tv/core/utils/grid_config.dart';
 import 'package:amaan_tv/core/widget/cached%20network%20image/cached_network_image.dart';
@@ -32,7 +33,7 @@ class _SearchItemWidgetState extends State<SearchItemWidget> {
       gridDelegate: GridConfig.getDefaultGridDelegate(),
       itemBuilder: (context, index) {
         final item = widget.searchModel.searchList![index];
-        return InkWell(
+        return TvClickButton(
           onTap: () {
             final id = item.id;
             final contentType = item.contentType;

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:amaan_tv/core/widget/tv_click_button.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:amaan_tv/core/Themes/app_colors_new.dart';
 import 'package:amaan_tv/core/Themes/app_text_styles_new.dart';
@@ -12,12 +13,13 @@ import 'package:amaan_tv/core/utils/app_router.dart';
 
 class PromoWidget extends StatelessWidget {
   const PromoWidget({
-    required this.model, super.key,
+    required this.model,
+    super.key,
   });
   final ReelModel model;
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
+    return TvClickButton(
       onTap: () {
         if (model.presignedUrl != null) {
           // Navigate using go_router to ShowPlayerScreen

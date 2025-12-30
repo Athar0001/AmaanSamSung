@@ -1,6 +1,7 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:amaan_tv/core/widget/tv_click_button.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
@@ -27,9 +28,8 @@ class TabletBannerView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bannerData = currentPage == 0
-        ? null
-        : provider.bannerModel?.data?[currentPage - 1];
+    final bannerData =
+        currentPage == 0 ? null : provider.bannerModel?.data?[currentPage - 1];
 
     return Stack(
       children: [
@@ -40,16 +40,13 @@ class TabletBannerView extends StatelessWidget {
           physics: NeverScrollableScrollPhysics(), // Disable manual swiping
           itemCount: (provider.bannerModel?.data?.length ?? 0) + 1,
           itemBuilder: (context, index) {
-            final banner = index == 0
-                ? null
-                : provider.bannerModel?.data?[index - 1];
+            final banner =
+                index == 0 ? null : provider.bannerModel?.data?[index - 1];
 
             return Stack(
-
               children: [
-
                 if (index == 0)
-                // First item shows cover image
+                  // First item shows cover image
                   Center(
                     child: Image.asset(
                       Assets.images.coverImageJpg.path,
@@ -131,7 +128,6 @@ class TabletBannerView extends StatelessWidget {
             right: 24.r,
             left: 24.r,
             bottom: 80,
-
             child: Column(
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -179,61 +175,44 @@ class TabletBannerView extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
                   // Watch Now button
-                  Focus(
-                    onKeyEvent: (node, event) {
-                      if (event is KeyDownEvent &&
-                          (event.logicalKey == LogicalKeyboardKey.enter ||
-                              event.logicalKey == LogicalKeyboardKey.select)) {
-                        context.pushNamed(
-                          AppRoutes.showDetails.routeName,
-                          pathParameters: {'id': bannerData.show.id},
-                          extra: bannerData.show,
-                        );
-                        return KeyEventResult.handled;
-                      }
-                      return KeyEventResult.ignored;
+                  TvClickButton(
+                    onTap: () {
+                      context.pushNamed(
+                        AppRoutes.showDetails.routeName,
+                        pathParameters: {'id': bannerData.show.id},
+                        extra: bannerData.show,
+                      );
                     },
-                    child: Builder(
-                      builder: (context) {
-                        final focused = Focus.of(context).hasFocus;
-                        return ElevatedButton(
-                          onPressed: () {
-                            context.pushNamed(
-                              AppRoutes.showDetails.routeName,
-                              pathParameters: {'id': bannerData.show.id},
-                              extra: bannerData.show,
-                            );
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColorsNew.primary,
-                            foregroundColor: AppColorsNew.white,
-                            padding: EdgeInsets.symmetric(
-                              horizontal: 20.w,
-                              vertical: 10.h,
-                            ),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(6.r),
-                              side: focused
-                                  ? BorderSide(color: AppColorsNew.white, width: 2)
-                                  : BorderSide(),
-                            ),
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(Icons.play_arrow, size: 18.r),
-                              6.horizontalSpace,
-                              Text(
-                                'شاهد الآن',
-                                style: AppTextStylesNew.style14BoldAlmarai.copyWith(
-                                  color: AppColorsNew.white,
-                                ),
+                    builder: (context, focused) {
+                      return Container(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 20.w,
+                          vertical: 10.h,
+                        ),
+                        decoration: BoxDecoration(
+                          color: AppColorsNew.primary,
+                          borderRadius: BorderRadius.circular(6.r),
+                          border: focused
+                              ? Border.all(color: AppColorsNew.white, width: 2)
+                              : null,
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(Icons.play_arrow,
+                                size: 18.r, color: AppColorsNew.white),
+                            6.horizontalSpace,
+                            Text(
+                              'شاهد الآن',
+                              style:
+                                  AppTextStylesNew.style14BoldAlmarai.copyWith(
+                                color: AppColorsNew.white,
                               ),
-                            ],
-                          ),
-                        );
-                      }
-                    ),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
                   ),
                   12.horizontalSpace,
 
@@ -342,7 +321,7 @@ class _ActionButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
+    return TvClickButton(
       onTap: onTap,
       child: Container(
         padding: EdgeInsets.symmetric(

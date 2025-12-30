@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:amaan_tv/core/widget/tv_click_button.dart';
 import 'package:flutter_multi_select_items/flutter_multi_select_items.dart';
 import 'package:amaan_tv/core/Themes/app_colors_new.dart';
 import 'package:amaan_tv/core/Themes/app_text_styles_new.dart';
@@ -41,7 +42,7 @@ class CheckBoxListState extends State<CheckBoxWidget> {
       itemBuilder: (context, index) {
         return Padding(
           padding: const EdgeInsets.all(5.0),
-          child: InkWell(
+          child: TvClickButton(
             onTap: () {
               if (selectedValues.contains(widget.items[index])) {
                 selectedValues.remove(widget.items[index]);
@@ -61,7 +62,6 @@ class CheckBoxListState extends State<CheckBoxWidget> {
                           : AppColorsNew.white1.withValues(alpha: 0.8),
                       border: Border.all(color: AppColorsNew.primary),
                     ),
-
               child: Row(
                 children: [
                   Container(

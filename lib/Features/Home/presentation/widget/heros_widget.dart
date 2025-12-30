@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:amaan_tv/core/widget/tv_click_button.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:amaan_tv/core/Themes/app_text_styles_new.dart';
 import 'package:amaan_tv/core/models/characters_model.dart';
@@ -31,7 +32,7 @@ class HerosWidget extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: List.generate(
           characters.length,
-          (index) => GestureDetector(
+          (index) => TvClickButton(
             onTap: () {
               context.pushNamed('character', extra: characters[index]);
             },

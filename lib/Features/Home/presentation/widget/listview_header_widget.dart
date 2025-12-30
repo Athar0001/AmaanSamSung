@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:amaan_tv/core/widget/tv_click_button.dart';
 import 'package:amaan_tv/Features/Home/data/models/home_categories_model/categories.dart';
 import 'package:amaan_tv/Features/Home/presentation/widget/category_widget.dart';
 
@@ -42,8 +43,7 @@ class _ListViewHeaderState extends State<ListViewHeader> {
       // Approximate width of item + padding
       // This is a naive implementation, better to use scroll_to_index if available or just ensure visibility logic
       double itemWidth = 150.0; // Estimate
-      double offset =
-          (index * itemWidth) -
+      double offset = (index * itemWidth) -
           (MediaQuery.of(context).size.width / 2) +
           (itemWidth / 2);
       if (offset < 0) offset = 0;
@@ -69,31 +69,26 @@ class _ListViewHeaderState extends State<ListViewHeader> {
           final category = entry.value;
           final isSelected = index == widget.selectedIndex;
 
-          return Focus(
+          return TvClickButton(
             onFocusChange: (hasFocus) {
               if (hasFocus) {
                 widget.onSelect?.call(index);
                 _scrollToIndex(index);
               }
             },
-            child: Builder(
-              builder: (context) {
-                final isFocused = Focus.of(context).hasFocus;
-                return GestureDetector(
-                  onTap: () {
-                    widget.onSelect?.call(index);
-                    FocusScope.of(context).requestFocus(
-                      Focus.of(context).enclosingScope?.focusedChild,
-                    ); // Keep or Request Focus logic
-                  },
-                  child: CategoryWidget(
-                    category: category,
-                    isSelected: isSelected,
-                    isFocused: isFocused,
-                  ),
-                );
-              },
-            ),
+            onTap: () {
+              widget.onSelect?.call(index);
+              FocusScope.of(context).requestFocus(
+                Focus.of(context).enclosingScope?.focusedChild,
+              ); // Keep or Request Focus logic
+            },
+            builder: (context, isFocused) {
+              return CategoryWidget(
+                category: category,
+                isSelected: isSelected,
+                isFocused: isFocused,
+              );
+            },
           );
         }).toList(),
       ),

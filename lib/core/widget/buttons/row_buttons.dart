@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:amaan_tv/core/widget/tv_click_button.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../Themes/app_colors_new.dart';
@@ -6,7 +7,10 @@ import '../../Themes/app_text_styles_new.dart';
 
 class RowButtonsWidget extends StatelessWidget {
   const RowButtonsWidget({
-    required this.items, required this.selectedIndex, required this.onChanged, super.key,
+    required this.items,
+    required this.selectedIndex,
+    required this.onChanged,
+    super.key,
   });
 
   final List<String> items;
@@ -21,7 +25,7 @@ class RowButtonsWidget extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: List.generate(
             items.length,
-            (index) => GestureDetector(
+            (index) => TvClickButton(
                   onTap: () => onChanged(index),
                   child: Container(
                     width: 110.r,

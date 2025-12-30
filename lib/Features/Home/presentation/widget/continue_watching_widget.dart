@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:amaan_tv/core/widget/tv_click_button.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:amaan_tv/core/Themes/app_colors_new.dart';
@@ -44,6 +45,7 @@ class ContinueWatchingWidget extends StatelessWidget {
       );
     }
   }
+
   @override
   Widget build(BuildContext context) {
     return SizedBox(
@@ -57,115 +59,103 @@ class ContinueWatchingWidget extends StatelessWidget {
         shrinkWrap: true,
         itemCount: cotinueWatchingModel.data?.length ?? 0,
         itemBuilder: (context, index) {
-          return Focus(
-            onKeyEvent: (node, event) {
-              if (event is KeyDownEvent &&
-                  (event.logicalKey == LogicalKeyboardKey.enter ||
-                      event.logicalKey == LogicalKeyboardKey.select)) {
-                onTap(context, index);
-                return KeyEventResult.handled;
-              }
-              return KeyEventResult.ignored;
+          return TvClickButton(
+            onTap: () {
+              onTap(context, index);
             },
-            child: Builder(builder: (context) {
-              final focused = Focus.of(context).hasFocus;
-              return GestureDetector(
-                onTap: () {
-                  onTap(context, index);
-                },
-                child: Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 8.r),
-                  child: AspectRatio(
-                    aspectRatio: 306 / 200,
-                    child: Padding(
-                      padding: EdgeInsets.all(1.r),
-                      child: Stack(
-                        fit: StackFit.expand,
-                        alignment: Alignment.bottomCenter,
-                        children: [
-                          Container(
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(12.r),
-                              border: focused
-                                  ? Border.all(color: AppColorsNew.white)
-                                  : null,
-                              image: decorationImageHelper(
-                                fit: BoxFit.cover,
-                                cotinueWatchingModel
-                                    .data?[index].thumbnailImage?.url,
+            builder: (context, focused) {
+              return Padding(
+                padding: EdgeInsets.symmetric(horizontal: 8.r),
+                child: AspectRatio(
+                  aspectRatio: 306 / 200,
+                  child: Padding(
+                    padding: EdgeInsets.all(1.r),
+                    child: Stack(
+                      fit: StackFit.expand,
+                      alignment: Alignment.bottomCenter,
+                      children: [
+                        Container(
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(12.r),
+                            border: focused
+                                ? Border.all(color: AppColorsNew.white)
+                                : null,
+                            image: decorationImageHelper(
+                              fit: BoxFit.cover,
+                              cotinueWatchingModel
+                                  .data?[index].thumbnailImage?.url,
+                            ),
+                          ),
+                        ),
+                        Padding(
+                          padding: EdgeInsets.all(1.r),
+                          child: Align(
+                            child: Container(
+                              decoration: BoxDecoration(
+                                border: Border.all(
+                                  strokeAlign: BorderSide.strokeAlignOutside,
+                                  width: 1.r,
+                                  color: AppColorsNew.white1.withValues(
+                                    alpha: 0.3,
+                                  ),
+                                ),
+                                borderRadius: BorderRadius.circular(12.r),
+                                gradient: LinearGradient(
+                                  colors: [
+                                    AppColorsNew.black1.withValues(alpha: 0),
+                                    AppColorsNew.black1.withValues(alpha: 1),
+                                  ],
+                                  begin: Alignment.topCenter,
+                                  end: Alignment.bottomCenter,
+                                  stops: [0.4, 1],
+                                ),
                               ),
                             ),
                           ),
-                          Padding(
-                            padding: EdgeInsets.all(1.r),
-                            child: Align(
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  border: Border.all(
-                                    strokeAlign: BorderSide.strokeAlignOutside,
-                                    width: 1.r,
-                                    color: AppColorsNew.white1.withValues(
-                                      alpha: 0.3,
-                                    ),
+                        ),
+                        Positioned(
+                          bottom: 0.r,
+                          child: Directionality(
+                            textDirection: TextDirection.ltr,
+                            child: Padding(
+                              padding: EdgeInsets.symmetric(horizontal: 12.r),
+                              child: SizedBox(
+                                width: 1.sw > 1100
+                                    ? 230.r
+                                    : 1.sw > 600
+                                        ? 195.r
+                                        : 180.r,
+                                height: 2.r,
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.only(
+                                    bottomLeft: Radius.circular(30.r),
+                                    bottomRight: Radius.circular(30.r),
                                   ),
-                                  borderRadius: BorderRadius.circular(12.r),
-                                  gradient: LinearGradient(
-                                    colors: [
-                                      AppColorsNew.black1.withValues(alpha: 0),
-                                      AppColorsNew.black1.withValues(alpha: 1),
-                                    ],
-                                    begin: Alignment.topCenter,
-                                    end: Alignment.bottomCenter,
-                                    stops: [0.4, 1],
+                                  child: LinearProgressIndicator(
+                                    color: AppColorsNew.primary,
+                                    value: calculateProgress(
+                                      cotinueWatchingModel
+                                              .data?[index].fromMinute ??
+                                          '00:00',
+                                      cotinueWatchingModel
+                                              .data?[index].duration?.inSeconds
+                                              .toDouble() ??
+                                          0,
+                                    ),
+                                    minHeight: 7.r,
+                                    backgroundColor: AppColorsNew.white1,
                                   ),
                                 ),
                               ),
                             ),
                           ),
-                          Positioned(
-                            bottom: 0.r,
-                            child: Directionality(
-                              textDirection: TextDirection.ltr,
-                              child: Padding(
-                                padding: EdgeInsets.symmetric(horizontal: 12.r),
-                                child: SizedBox(
-                                  width: 1.sw > 1100
-                                      ? 230.r
-                                      : 1.sw > 600
-                                          ? 195.r
-                                          : 180.r,
-                                  height: 2.r,
-                                  child: ClipRRect(
-                                    borderRadius: BorderRadius.only(
-                                      bottomLeft: Radius.circular(30.r),
-                                      bottomRight: Radius.circular(30.r),
-                                    ),
-                                    child: LinearProgressIndicator(
-                                      color: AppColorsNew.primary,
-                                      value: calculateProgress(
-                                        cotinueWatchingModel
-                                                .data?[index].fromMinute ??
-                                            '00:00',
-                                        cotinueWatchingModel.data?[index]
-                                                .duration?.inSeconds
-                                                .toDouble() ??
-                                            0,
-                                      ),
-                                      minHeight: 7.r,
-                                      backgroundColor: AppColorsNew.white1,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
                   ),
                 ),
               );
-            }),
+            },
           );
         },
       ),

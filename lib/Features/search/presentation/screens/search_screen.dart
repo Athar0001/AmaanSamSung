@@ -1,4 +1,5 @@
 import 'package:amaan_tv/Features/Auth/provider/user_notifier.dart';
+import 'package:amaan_tv/core/widget/tv_click_button.dart';
 import 'package:amaan_tv/Features/search/provider/search_provider.dart';
 import 'package:amaan_tv/core/Themes/app_colors_new.dart';
 import 'package:amaan_tv/core/injection/injection_imports.dart';
@@ -128,7 +129,7 @@ class _SearchScreenState extends State<SearchScreen> {
                                       style:
                                           AppTextStylesNew.style20BoldAlmarai,
                                     ),
-                                    GestureDetector(
+                                    TvClickButton(
                                       onTap: () {
                                         provider.deleteRecentSearch();
                                       },
@@ -136,13 +137,12 @@ class _SearchScreenState extends State<SearchScreen> {
                                         children: [
                                           Text(
                                             AppLocalization
-                                                .strings
-                                                .clearHistory,
+                                                .strings.clearHistory,
                                             style: AppTextStylesNew
                                                 .style12BoldAlmarai
                                                 .copyWith(
-                                                  color: AppColorsNew.red3,
-                                                ),
+                                              color: AppColorsNew.red3,
+                                            ),
                                           ),
                                           SizedBox(width: 8),
                                           SVGImage(
@@ -161,16 +161,13 @@ class _SearchScreenState extends State<SearchScreen> {
                                 else
                                   provider.stateRecentSearch == AppState.error
                                       ? const SizedBox()
-                                      : provider
-                                            .recentSearchModel
-                                            .data!
-                                            .isNotEmpty
-                                      ? Wrap(
-                                          children: provider
-                                              .recentSearchModel
-                                              .data!
-                                              .map((e) {
-                                                return GestureDetector(
+                                      : provider.recentSearchModel.data!
+                                              .isNotEmpty
+                                          ? Wrap(
+                                              children: provider
+                                                  .recentSearchModel.data!
+                                                  .map((e) {
+                                                return TvClickButton(
                                                   onTap: () {
                                                     searchController.text =
                                                         e.text ?? '';
@@ -182,21 +179,23 @@ class _SearchScreenState extends State<SearchScreen> {
                                                   },
                                                   child: Container(
                                                     margin:
-                                                        EdgeInsetsDirectional.only(
-                                                          end: 11.5,
-                                                          bottom: 10,
-                                                        ),
+                                                        EdgeInsetsDirectional
+                                                            .only(
+                                                      end: 11.5,
+                                                      bottom: 10,
+                                                    ),
                                                     padding:
                                                         EdgeInsets.symmetric(
-                                                          horizontal: 18.w,
-                                                          vertical: 7.h,
-                                                        ),
-                                                    decoration: containerDecoration(
+                                                      horizontal: 18.w,
+                                                      vertical: 7.h,
+                                                    ),
+                                                    decoration:
+                                                        containerDecoration(
                                                       context,
                                                       borderRadius:
                                                           BorderRadius.circular(
-                                                            20.r,
-                                                          ),
+                                                        20.r,
+                                                      ),
                                                     ),
                                                     child: Text(
                                                       e.text ?? '',
@@ -205,26 +204,24 @@ class _SearchScreenState extends State<SearchScreen> {
                                                     ),
                                                   ),
                                                 );
-                                              })
-                                              .toList(),
-                                        )
-                                      : Row(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            Text(
-                                              AppLocalization
-                                                  .strings
-                                                  .noSearchResult,
-                                              style: AppTextStylesNew
-                                                  .style14RegularAlmarai
-                                                  .copyWith(
+                                              }).toList(),
+                                            )
+                                          : Row(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                Text(
+                                                  AppLocalization
+                                                      .strings.noSearchResult,
+                                                  style: AppTextStylesNew
+                                                      .style14RegularAlmarai
+                                                      .copyWith(
                                                     color:
                                                         AppColorsNew.darkGrey1,
                                                   ),
+                                                ),
+                                              ],
                                             ),
-                                          ],
-                                        ),
                               ],
                             ),
                             30.verticalSpace,
@@ -239,9 +236,7 @@ class _SearchScreenState extends State<SearchScreen> {
                             else
                               (provider.suggestedSearchState ==
                                           AppState.success &&
-                                      provider
-                                              .suggestedSearchModel
-                                              .searchList
+                                      provider.suggestedSearchModel.searchList
                                               ?.isNotEmpty ==
                                           true)
                                   ? SearchItemWidget(
@@ -256,22 +251,24 @@ class _SearchScreenState extends State<SearchScreen> {
                       provider.searchState == AppState.loading
                           ? const AppCircleProgressHelper()
                           : (provider.searchState == AppState.success &&
-                                provider.searchModel?.searchList?.isNotEmpty ==
-                                    true &&
-                                searchController.text.isNotEmpty == true)
-                          ? Expanded(
-                              child: ListView(
-                                children: [
-                                  SearchItemWidget(
-                                    searchModel: provider.searchModel!,
+                                  provider.searchModel?.searchList
+                                          ?.isNotEmpty ==
+                                      true &&
+                                  searchController.text.isNotEmpty == true)
+                              ? Expanded(
+                                  child: ListView(
+                                    children: [
+                                      SearchItemWidget(
+                                        searchModel: provider.searchModel!,
+                                      ),
+                                      110.verticalSpace,
+                                    ],
                                   ),
-                                  110.verticalSpace,
-                                ],
-                              ),
-                            )
-                          : searchController.text.isNotEmpty == true
-                          ? EmptySearchWidget(searchText: searchController.text)
-                          : const SizedBox.shrink(),
+                                )
+                              : searchController.text.isNotEmpty == true
+                                  ? EmptySearchWidget(
+                                      searchText: searchController.text)
+                                  : const SizedBox.shrink(),
                     // CacheHelper.currentUser != null
                     //     ? CacheHelper.currentUser!.userType.isChild
                     //         ? 0.verticalSpace

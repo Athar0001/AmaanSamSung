@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:amaan_tv/core/widget/tv_click_button.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:amaan_tv/core/Themes/app_colors_new.dart';
 import 'package:amaan_tv/core/Themes/app_text_styles_new.dart';
@@ -26,7 +27,7 @@ class FamilyCardWidget extends StatelessWidget {
     final selectedValue = context.watch<UserNotifier>().genderOfChild;
     final isTablet = MediaQuery.of(context).size.shortestSide >= 600;
 
-    return GestureDetector(
+    return TvClickButton(
       onTap: () {
         if (enableOnTap) {
           context.read<UserNotifier>().selectChild(label);

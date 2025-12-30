@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:amaan_tv/core/widget/tv_click_button.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:amaan_tv/Features/Auth/provider/user_notifier.dart';
 import 'package:amaan_tv/core/Themes/app_colors_new.dart';
@@ -19,8 +20,7 @@ class LayoutBottomSheet extends StatelessWidget {
     final isRtl = Directionality.of(context) == TextDirection.rtl;
 
     // Calculate the width of each tab section
-    final tabWidth =
-        (MediaQuery.of(context).size.width - 20.r) /
+    final tabWidth = (MediaQuery.of(context).size.width - 20.r) /
         layoutProvider.items.length;
     return Container(
       color: Colors.transparent,
@@ -66,9 +66,9 @@ class LayoutBottomSheet extends StatelessWidget {
                     ) {
                       final isGameicon =
                           layoutProvider.items[index].activeIcon ==
-                          Assets.images.games.path;
+                              Assets.images.games.path;
                       return Expanded(
-                        child: GestureDetector(
+                        child: TvClickButton(
                           onTap: () {
                             if (context.read<UserNotifier>().userData == null &&
                                 index != 0 &&
@@ -78,7 +78,6 @@ class LayoutBottomSheet extends StatelessWidget {
                               layoutProvider.changeIndex(index: index);
                             }
                           },
-                          behavior: HitTestBehavior.translucent,
                           child: Container(
                             alignment: Alignment.center,
                             padding: EdgeInsets.only(bottom: 10.r),
@@ -92,8 +91,8 @@ class LayoutBottomSheet extends StatelessWidget {
                               color: layoutProvider.currentIndex == index
                                   ? Theme.of(context).primaryColor
                                   : Theme.of(context)
-                                        .bottomNavigationBarTheme
-                                        .unselectedItemColor,
+                                      .bottomNavigationBarTheme
+                                      .unselectedItemColor,
                             ),
                           ),
                         ),
@@ -111,14 +110,14 @@ class LayoutBottomSheet extends StatelessWidget {
             top: 0.r, // Adjusted to sit slightly higher
             left: isRtl
                 ? (MediaQuery.of(context).size.width -
-                      10.r -
-                      (tabWidth * layoutProvider.currentIndex) -
-                      (tabWidth / 2) -
-                      20.r)
+                    10.r -
+                    (tabWidth * layoutProvider.currentIndex) -
+                    (tabWidth / 2) -
+                    20.r)
                 : (10.r +
-                      (tabWidth * layoutProvider.currentIndex) +
-                      (tabWidth / 2) -
-                      20.r),
+                    (tabWidth * layoutProvider.currentIndex) +
+                    (tabWidth / 2) -
+                    20.r),
             child: Container(
               width: 40.r,
               height: 40.r,

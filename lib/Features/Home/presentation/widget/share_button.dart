@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:amaan_tv/core/widget/tv_click_button.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:amaan_tv/core/Themes/app_colors_new.dart';
 import 'package:amaan_tv/core/Themes/app_text_styles_new.dart';
@@ -6,7 +7,9 @@ import 'package:amaan_tv/core/widget/radio%20button/radio_button_multi_select_pa
 
 class ShareButton extends StatelessWidget {
   const ShareButton({
-    required this.text, required this.icon, super.key,
+    required this.text,
+    required this.icon,
+    super.key,
     this.onTap,
   });
 
@@ -16,8 +19,8 @@ class ShareButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
+    return TvClickButton(
+      onTap: onTap ?? () {},
       child: Container(
         padding: EdgeInsets.symmetric(horizontal: 22.w, vertical: 10.h),
         decoration: containerDecoration(context),

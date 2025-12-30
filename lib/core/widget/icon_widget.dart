@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:amaan_tv/core/widget/tv_click_button.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import 'package:amaan_tv/core/utils/packages/blurry_container.dart';
@@ -32,8 +33,8 @@ class IconWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: EdgeInsets.all(8.r),
-      child: InkWell(
-        onTap: onTap,
+      child: TvClickButton(
+        onTap: onTap ?? () {},
         child: Center(
           child: ClipRRect(
             borderRadius: BorderRadius.circular(borderRadius ?? 10.r),
@@ -42,8 +43,8 @@ class IconWidget extends StatelessWidget {
               color: isBlack
                   ? AppColorsNew.black2.withValues(alpha: .4)
                   : Theme.of(context).brightness == Brightness.dark
-                  ? AppColorsNew.white.withValues(alpha: .1)
-                  : AppColorsNew.white.withValues(alpha: 0.5),
+                      ? AppColorsNew.white.withValues(alpha: .1)
+                      : AppColorsNew.white.withValues(alpha: 0.5),
               borderRadius: BorderRadius.circular(borderRadius ?? 10.r),
               child: SVGImage(
                 color: iconColor,

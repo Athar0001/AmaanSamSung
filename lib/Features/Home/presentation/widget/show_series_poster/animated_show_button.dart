@@ -1,9 +1,10 @@
-
 import 'package:flutter/material.dart';
 import 'package:amaan_tv/Features/Home/data/models/home/show_details_model/data.dart';
 import 'package:amaan_tv/Features/Home/presentation/widget/show_series_poster/show_detials_poster.dart';
 import 'package:amaan_tv/core/widget/buttons/player_button.dart';
+import 'package:amaan_tv/core/widget/tv_click_button.dart';
 import 'package:flutter/services.dart';
+
 class AnimatedShowButton extends StatefulWidget {
   const AnimatedShowButton({
     required this.model,
@@ -43,48 +44,32 @@ class _AnimatedShowButtonState extends State<AnimatedShowButton> {
 
   @override
   Widget build(BuildContext context) {
-    return Focus(
-      onKeyEvent: (node, event) {
-        if (event is KeyDownEvent &&
-            (event.logicalKey == LogicalKeyboardKey.enter ||
-                event.logicalKey == LogicalKeyboardKey.select)) {
-          widget.onTapShow.call();
-          return KeyEventResult.handled;
-        }
-        return KeyEventResult.ignored;
+    return TvClickButton(
+      onTap: () {
+        print('sdvsdvsdvsdv');
+        widget.onTapShow.call();
       },
-      child: Builder(
-        builder: (context) {
-          final hasFocus = Focus.of(context).hasFocus;
-
-          return AnimatedScale(
-            scale: _scale,
-            duration: const Duration(milliseconds: 200),
-            curve: Curves.easeOut,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                InkWell(
-                  autofocus: true,
-                  onTap: (){
-                    print('sdvsdvsdvsdv');
-                    widget.onTapShow.call();
-                  },
-                  child: ShowButtonWidget(
-                    hasFocus: hasFocus,
-                    widget: ShowSeriesPoster(
-                      model: widget.model,
-                      isLoading: widget.isLoading,
-                      onTapShow: widget.onTapShow,
-                      refresh: () {},
-                    ),
-                  ),
+      builder: (context, hasFocus) {
+        return AnimatedScale(
+          scale: _scale,
+          duration: const Duration(milliseconds: 200),
+          curve: Curves.easeOut,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              ShowButtonWidget(
+                hasFocus: hasFocus,
+                widget: ShowSeriesPoster(
+                  model: widget.model,
+                  isLoading: widget.isLoading,
+                  onTapShow: widget.onTapShow,
+                  refresh: () {},
                 ),
-              ],
-            ),
-          );
-        },
-      ),
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 }

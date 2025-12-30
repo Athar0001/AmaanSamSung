@@ -1,5 +1,5 @@
 import 'dart:developer';
-
+import 'package:amaan_tv/core/widget/tv_click_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -113,12 +113,12 @@ class _ShowPlayerScreenState extends State<ShowPlayerScreen>
               if (!provider.isTransactionCompleted) {
                 context.read<TimeProvider>().sendVideoLog();
                 final endTime = provider.claculateEndTime();
-                 provider.stopAndDispose();
+                provider.stopAndDispose();
                 if (endTime != null) {
                   context.read<TimeProvider>().continueWatching(
-                    widget.videoId,
-                    endTime,
-                  );
+                        widget.videoId,
+                        endTime,
+                      );
                 }
                 provider.sendVideoTransaction(VideoTransactionType.closePage);
               }
@@ -132,8 +132,8 @@ class _ShowPlayerScreenState extends State<ShowPlayerScreen>
               body: SafeArea(
                 child: Stack(
                   children: [
-                    if(provider.videoPlayerController != null)
-                    VideoPlayer(provider.videoPlayerController!),
+                    if (provider.videoPlayerController != null)
+                      VideoPlayer(provider.videoPlayerController!),
                     Align(
                       alignment: Alignment.topRight,
                       child: VideoTitleWidget(
@@ -169,7 +169,7 @@ class _VideoTitleWidgetState extends State<VideoTitleWidget> {
         (MediaQuery.of(context).orientation == Orientation.landscape);
     return Row(
       children: [
-        GestureDetector(
+        TvClickButton(
           onTap: () {
             if (isLandscape) {
               Navigator.pop(context);

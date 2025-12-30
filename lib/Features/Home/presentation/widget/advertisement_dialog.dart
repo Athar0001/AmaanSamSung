@@ -1,4 +1,5 @@
 import 'dart:developer';
+import 'package:amaan_tv/core/widget/tv_click_button.dart';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
@@ -49,7 +50,7 @@ class AdvertisementDialog extends StatelessWidget {
                 Positioned(
                   top: -15.h,
                   right: -15.w,
-                  child: GestureDetector(
+                  child: TvClickButton(
                     onTap: () => Navigator.of(context).pop(),
                     child: Container(
                       padding: EdgeInsets.all(8.r),

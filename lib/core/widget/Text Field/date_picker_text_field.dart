@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:amaan_tv/core/widget/tv_click_button.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
@@ -111,13 +112,12 @@ class DatePickerTextFieldState extends State<DatePickerTextField> {
                 child: CupertinoTheme(
                   data: CupertinoThemeData(
                     textTheme: CupertinoTextThemeData(
-                      dateTimePickerTextStyle: AppTextStylesNew
-                          .style16BoldAlmarai
-                          .copyWith(
-                            color: Theme.of(
-                              context,
-                            ).textTheme.bodyMedium?.color,
-                          ),
+                      dateTimePickerTextStyle:
+                          AppTextStylesNew.style16BoldAlmarai.copyWith(
+                        color: Theme.of(
+                          context,
+                        ).textTheme.bodyMedium?.color,
+                      ),
                     ),
                   ),
                   child: CupertinoDatePicker(
@@ -142,11 +142,10 @@ class DatePickerTextFieldState extends State<DatePickerTextField> {
                   ),
                 ),
                 child: Center(
-                  child: TextButton(
-                    onPressed: () {
+                  child: TvClickButton(
+                    onTap: () {
                       Navigator.pop(context);
-                      final date =
-                          dateFormat.tryParse(dateController.text) ??
+                      final date = dateFormat.tryParse(dateController.text) ??
                           initialDate ??
                           DateTime.now();
                       if (dateController.text.isEmpty) {

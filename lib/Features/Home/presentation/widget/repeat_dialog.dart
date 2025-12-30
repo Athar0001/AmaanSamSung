@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:amaan_tv/core/widget/tv_click_button.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../../../core/Themes/app_colors_new.dart';
 import '../../../../core/Themes/app_text_styles_new.dart';
@@ -36,7 +37,7 @@ class _RepeatDialogState extends State<RepeatDialog> {
                 repeats.length,
                 (index) => Padding(
                       padding: const EdgeInsets.all(5.0),
-                      child: InkWell(
+                      child: TvClickButton(
                         onTap: () {
                           setState(() {
                             selected = repeats[index];

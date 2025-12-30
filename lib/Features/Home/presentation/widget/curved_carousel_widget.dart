@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:amaan_tv/core/widget/tv_click_button.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:amaan_tv/Features/Auth/data/models/login_model.dart';
 import 'package:amaan_tv/Features/Auth/provider/user_notifier.dart';
@@ -30,7 +31,7 @@ class _CurvedCarouselWidgetState extends State<CurvedCarouselWidget> {
   Widget build(BuildContext context) {
     final showTasks =
         UserNotifier.instance.userData?.userType == UserType.child &&
-        AppFlavor.flavor.showInProd;
+            AppFlavor.flavor.showInProd;
     return Consumer<HomeProvider>(
       builder: (context, provider, child) {
         const isLive = false;
@@ -59,8 +60,7 @@ class _CurvedCarouselWidgetState extends State<CurvedCarouselWidget> {
               height: 190.r,
               curveRadius: 550.r,
               itemSize: 100.r,
-              itemCount:
-                  provider.reelsHomeModel!.data!.length +
+              itemCount: provider.reelsHomeModel!.data!.length +
                   (isLive ? 1 : 0) +
                   (showTasks ? 1 : 0),
               itemBuilder: (context, index) {
@@ -85,7 +85,7 @@ class _TasksWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
+    return TvClickButton(
       onTap: () {
         AppNavigation.navigationPush(context, screen: TasksScreen());
       },
@@ -144,8 +144,7 @@ class _ReelWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final provider = Provider.of<HomeProvider>(context);
-    return GestureDetector(
-      behavior: HitTestBehavior.translucent, // Make area clickable
+    return TvClickButton(
       onTap: () {
         final reelsData = provider.reelsHomeModel!.data!;
         final start = reelsData.getRange(0, index);
@@ -187,12 +186,8 @@ class _ReelWidget extends StatelessWidget {
                     child: CachedNetworkImageHelper(
                       width: double.infinity,
                       height: double.infinity,
-                      imageUrl:
-                          provider
-                              .reelsHomeModel
-                              ?.data?[index]
-                              .thumbnailImage
-                              ?.url ??
+                      imageUrl: provider.reelsHomeModel?.data?[index]
+                              .thumbnailImage?.url ??
                           '',
                     ),
                   ),

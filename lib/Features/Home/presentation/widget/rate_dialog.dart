@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:amaan_tv/core/widget/tv_click_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
@@ -60,9 +61,8 @@ class RateDialog extends StatefulWidget {
 
 class _RateDialogState extends State<RateDialog> {
   late final initRate = widget.rateModel.rate;
-  late VideoRate? videoRate = initRate == null
-      ? null
-      : VideoRate.fromRate(initRate!);
+  late VideoRate? videoRate =
+      initRate == null ? null : VideoRate.fromRate(initRate!);
 
   bool isLoading = false;
 
@@ -136,8 +136,8 @@ class _RateDialogState extends State<RateDialog> {
                       },
                     ),
                     Gap(10.r),
-                    TextButton(
-                      onPressed: () => Navigator.pop(context),
+                    TvClickButton(
+                      onTap: () => Navigator.pop(context),
                       child: Text(
                         AppLocalization.strings.noThanks,
                         style: AppTextStylesNew.style14BoldAlmarai,
@@ -178,7 +178,7 @@ class _RateEmojiWidget extends StatelessWidget {
       width: isSelected ? 84.r : 60.r,
       height: isSelected ? 84.r : 60.r,
       duration: Durations.medium1,
-      child: GestureDetector(
+      child: TvClickButton(
         onTap: onTap,
         child: ColorFiltered(
           colorFilter: isSelected

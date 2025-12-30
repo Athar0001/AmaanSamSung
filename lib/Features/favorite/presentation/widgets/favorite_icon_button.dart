@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:amaan_tv/core/widget/tv_click_button.dart';
 
 class FavoriteIconButton extends StatelessWidget {
   final dynamic model;
@@ -17,14 +18,18 @@ class FavoriteIconButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (builder != null) {
-      return GestureDetector(onTap: onPressed, child: builder!(isFavorite));
+      return TvClickButton(
+          onTap: onPressed ?? () {}, child: builder!(isFavorite));
     }
-    return IconButton(
-      icon: Icon(
-        isFavorite ? Icons.favorite : Icons.favorite_border,
-        color: Colors.red,
+    return TvClickButton(
+      onTap: onPressed ?? () {},
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Icon(
+          isFavorite ? Icons.favorite : Icons.favorite_border,
+          color: Colors.red,
+        ),
       ),
-      onPressed: onPressed,
     );
   }
 }

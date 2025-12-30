@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:amaan_tv/core/widget/tv_click_button.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:amaan_tv/core/Themes/app_colors_new.dart';
 import 'package:amaan_tv/core/Themes/app_text_styles_new.dart';
@@ -48,8 +49,8 @@ class MainButtonWidget extends StatelessWidget {
     return Center(
       heightFactor: isCenter ? null : 1,
       widthFactor: isCenter ? null : 1,
-      child: GestureDetector(
-        onTap: onTap,
+      child: TvClickButton(
+        onTap: onTap ?? () {},
         child: ConstrainedBox(
           constraints: BoxConstraints(maxWidth: 500),
           child: Container(
@@ -59,8 +60,8 @@ class MainButtonWidget extends StatelessWidget {
               color: buttonColor != null
                   ? buttonColor
                   : isBlack
-                  ? Theme.of(context).dialogTheme.shadowColor
-                  : null,
+                      ? Theme.of(context).dialogTheme.shadowColor
+                      : null,
               border: Border.all(
                 width: borderWidth ?? 0.1,
                 color: borderColor ?? AppColorsNew.white.withValues(alpha: 0.2),
@@ -68,22 +69,22 @@ class MainButtonWidget extends StatelessWidget {
               gradient: buttonColor != null
                   ? null
                   : isBlack
-                  ? null
-                  : gradient ??
-                        LinearGradient(
-                          colors: [
-                            if (isPrimary)
-                              AppColorsNew.blue4
-                            else
-                              AppColorsNew.orange3, // Starting color
-                            if (isPrimary)
-                              AppColorsNew.blue2
-                            else
-                              AppColorsNew.orange4, // Ending color
-                          ],
-                          begin: Alignment.bottomLeft,
-                          end: Alignment.topRight,
-                        ),
+                      ? null
+                      : gradient ??
+                          LinearGradient(
+                            colors: [
+                              if (isPrimary)
+                                AppColorsNew.blue4
+                              else
+                                AppColorsNew.orange3, // Starting color
+                              if (isPrimary)
+                                AppColorsNew.blue2
+                              else
+                                AppColorsNew.orange4, // Ending color
+                            ],
+                            begin: Alignment.bottomLeft,
+                            end: Alignment.topRight,
+                          ),
               borderRadius: BorderRadius.circular(12.r),
             ),
             child: FittedBox(
@@ -95,8 +96,7 @@ class MainButtonWidget extends StatelessWidget {
                   SizedBox(width: 12.r),
                   Text(
                     label,
-                    style:
-                        style ??
+                    style: style ??
                         AppTextStylesNew.style18BoldAlmarai.copyWith(
                           color: isBlack
                               ? Theme.of(context).iconTheme.color
