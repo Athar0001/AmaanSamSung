@@ -14,10 +14,12 @@ import 'package:amaan_tv/core/utils/cash_services/cashe_helper.dart';
 import 'package:amaan_tv/core/languages/app_localizations.dart';
 import 'package:toastification/toastification.dart';
 import 'package:amaan_tv/core/injection/injection_imports.dart' as di;
+import 'package:amaan_tv/core/services/signalr_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   di.init();
+  await di.sl<SignalRService>().init("gamal_tv");
 
   AppFlavor.flavor = Flavor.values.firstWhere(
     (flavor) => flavor.name == appFlavor,
