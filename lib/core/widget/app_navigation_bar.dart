@@ -78,6 +78,20 @@ class _AppNavigationBarState extends State<AppNavigationBar> {
           // Spacer
           Spacer(),
 
+          // Favorites Icon (Left side for RTL)
+          TvClickButton(
+            onTap: () {
+              context.pushNamed('favorites');
+            },
+            child: Padding(
+              padding: EdgeInsets.all(8.r),
+              child:
+                  Icon(Icons.favorite, color: AppColorsNew.white, size: 24.r),
+            ),
+          ),
+
+          8.horizontalSpace,
+
           // Search Icon (Left side for RTL)
           TvClickButton(
             onTap: () {
