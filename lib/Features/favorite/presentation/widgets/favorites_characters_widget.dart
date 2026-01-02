@@ -48,100 +48,98 @@ class _FavoritesCharactersWidgetState extends State<FavoritesCharactersWidget> {
                   ? EmptyFavoriteWidget()
                   : favoriteProvider.favoriteState == AppState.success
                       ? GridView.builder(
-                            shrinkWrap: true,
-                            padding: GridConfig.getDefaultPadding(),
-                            gridDelegate: GridConfig.getDefaultGridDelegate(),
-                            itemBuilder: (context, index) {
-                              final character =
-                                  favoriteProvider.charactersModel!.data[index];
-                              return GestureDetector(
-                                onTap: () async {
-                                  final isFav = await context.pushNamed<bool>(
-                                    'character',
-                                    extra: character,
-                                  );
-                                  if (isFav == false) {
-                                    favoriteProvider.removeCharacter(character);
-                                  }
-                                },
-                                child: Stack(
-                                  alignment: Alignment.center,
-                                  children: [
+                          shrinkWrap: true,
+                          padding: GridConfig.getDefaultPadding(),
+                          gridDelegate: GridConfig.getDefaultGridDelegate(),
+                          itemBuilder: (context, index) {
+                            final character =
+                                favoriteProvider.charactersModel!.data[index];
+                            return GestureDetector(
+                              onTap: () async {
+                                final isFav = await context.pushNamed<bool>(
+                                  'character',
+                                  extra: character,
+                                );
+                                if (isFav == false) {
+                                  favoriteProvider.removeCharacter(character);
+                                }
+                              },
+                              child: Stack(
+                                alignment: Alignment.center,
+                                children: [
+                                  Container(
+                                    decoration: BoxDecoration(
+                                      gradient: LinearGradient(
+                                        colors: [
+                                          Color(0xFF164B80),
+                                          Color(0xFF2C4D6D),
+                                        ],
+                                        begin: Alignment.topCenter,
+                                        end: Alignment.bottomCenter,
+                                      ),
+                                      borderRadius: BorderRadius.circular(18.r),
+                                    ),
+                                  ),
+                                  if (character.image?.url == null)
+                                    Padding(
+                                      padding: EdgeInsets.only(top: 30.r),
+                                      child: assets.Assets.images.character
+                                          .image(),
+                                    )
+                                  else
                                     Container(
+                                      margin: EdgeInsets.only(top: 40.r),
                                       decoration: BoxDecoration(
-                                        gradient: LinearGradient(
-                                          colors: [
-                                            Color(0xFF164B80),
-                                            Color(0xFF2C4D6D),
-                                          ],
-                                          begin: Alignment.topCenter,
-                                          end: Alignment.bottomCenter,
+                                        image: decorationImageHelper(
+                                          character.image?.url,
                                         ),
                                         borderRadius:
                                             BorderRadius.circular(18.r),
                                       ),
                                     ),
-                                    if (character.image?.url == null)
-                                      Padding(
-                                        padding: EdgeInsets.only(top: 30.r),
-                                        child: assets.Assets.images.character
-                                            .image(),
-                                      )
-                                    else
-                                      Container(
-                                        margin: EdgeInsets.only(top: 40.r),
-                                        decoration: BoxDecoration(
-                                          image: decorationImageHelper(
-                                            character.image?.url,
-                                          ),
-                                          borderRadius:
-                                              BorderRadius.circular(18.r),
-                                        ),
-                                      ),
-                                    // Updated name widget with overflow handling
-                                    PositionedDirectional(
-                                      top: 8.r,
-                                      start: 0.r,
-                                      end: 24.r,
-                                      child: Text(
-                                        _characterDisplayName(character),
-                                        textAlign: TextAlign.center,
-                                        maxLines: 2,
-                                        overflow: TextOverflow.ellipsis,
-                                        style: AppTextStylesNew
-                                            .style18BoldAlmarai
-                                            .copyWith(
-                                          color: AppColorsNew.white,
-                                          fontWeight: FontWeight.w800,
-                                        ),
+                                  // Updated name widget with overflow handling
+                                  PositionedDirectional(
+                                    top: 8.r,
+                                    start: 0.r,
+                                    end: 24.r,
+                                    child: Text(
+                                      _characterDisplayName(character),
+                                      textAlign: TextAlign.center,
+                                      maxLines: 2,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: AppTextStylesNew.style18BoldAlmarai
+                                          .copyWith(
+                                        color: AppColorsNew.white,
+                                        fontWeight: FontWeight.w800,
                                       ),
                                     ),
-                                    PositionedDirectional(
-                                      top: 1,
-                                      end: 1,
-                                      child: GestureDetector(
-                                        onTap: () {
-                                          favoriteProvider
-                                              .removeCharacter(character);
-                                        },
-                                        child: IconWidget(
-                                          isBlack: false,
-                                          iconHeight: 18.h,
-                                          iconWidth: 18.w,
-                                          iconColor: AppColorsNew.primary,
-                                          path: character.isFavorite.value
-                                              ? Assets.imagesTrueHeart
-                                              : Assets.imagesTrueHeart,
-                                        ),
+                                  ),
+                                  PositionedDirectional(
+                                    top: 1,
+                                    end: 1,
+                                    child: GestureDetector(
+                                      onTap: () {
+                                        favoriteProvider
+                                            .removeCharacter(character);
+                                      },
+                                      child: IconWidget(
+                                        isBlack: false,
+                                        iconHeight: 18.h,
+                                        iconWidth: 18.w,
+                                        iconColor: AppColorsNew.primary,
+                                        path: character.isFavorite.value
+                                            ? Assets.imagesTrueHeart
+                                            : Assets.imagesTrueHeart,
                                       ),
                                     ),
-                                  ],
-                                ),
-                              );
-                            },
-                            itemCount:
-                                favoriteProvider.charactersModel?.data.length,
-                          )
+                                  ),
+                                ],
+                              ),
+                            );
+                          },
+                          itemCount:
+                              favoriteProvider.charactersModel?.data.length,
+                        )
                       : const SizedBox.shrink();
         },
       ),

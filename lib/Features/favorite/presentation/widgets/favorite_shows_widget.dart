@@ -46,104 +46,102 @@ class _FavoriteShowsWidgetState extends State<FavoriteShowsWidget> {
                                   ?.isNotEmpty ==
                               true
                       ? GridView.builder(
-                            shrinkWrap: true,
-                            padding: GridConfig.getDefaultPadding(),
-                            gridDelegate: GridConfig.getDefaultGridDelegate(),
-                            itemBuilder: (context, index) {
-                              final show = favoriteShowProvider
-                                  .favoriteShowsModel?.favoriteShows?[index];
+                          shrinkWrap: true,
+                          padding: GridConfig.getDefaultPadding(),
+                          gridDelegate: GridConfig.getDefaultGridDelegate(),
+                          itemBuilder: (context, index) {
+                            final show = favoriteShowProvider
+                                .favoriteShowsModel?.favoriteShows?[index];
 
-                              return GestureDetector(
-                                onTap: () async {
-                                  final isFav = await context.pushNamed(
-                                    'showDetails',
-                                    pathParameters: {
-                                      'id': show.showId.toString()
-                                    },
+                            return GestureDetector(
+                              onTap: () async {
+                                final isFav = await context.pushNamed(
+                                  'showDetails',
+                                  pathParameters: {
+                                    'id': show.showId.toString()
+                                  },
+                                );
+                                if (isFav == false) {
+                                  log(
+                                    isFav.toString(),
+                                    name: 'ShowSeriesScreen isFav',
                                   );
-                                  if (isFav == false) {
-                                    log(
-                                      isFav.toString(),
-                                      name: 'ShowSeriesScreen isFav',
-                                    );
-                                    favoriteShowProvider.removeShow(
-                                      e: favoriteShowProvider
-                                          .favoriteShowsModel!
-                                          .favoriteShows![index],
-                                    );
-                                  }
-                                },
-                                child: Stack(
-                                  alignment: Alignment.center,
-                                  children: [
-                                    Container(
-                                      decoration: BoxDecoration(
-                                        image: decorationImageHelper(
-                                          show?.show?.thumbnailImage?.url ?? '',
-                                        ),
-                                        border: Border.all(
-                                            color: AppColorsNew.primary),
-                                        gradient: LinearGradient(
-                                          colors: [
-                                            Color(0xff164B80),
-                                            Color(0xff2C4D6D),
-                                          ],
-                                        ),
-                                        boxShadow: [
-                                          BoxShadow(
-                                            color: Color(0xff93a7b7),
-                                            blurRadius: 4,
-                                          ),
+                                  favoriteShowProvider.removeShow(
+                                    e: favoriteShowProvider.favoriteShowsModel!
+                                        .favoriteShows![index],
+                                  );
+                                }
+                              },
+                              child: Stack(
+                                alignment: Alignment.center,
+                                children: [
+                                  Container(
+                                    decoration: BoxDecoration(
+                                      image: decorationImageHelper(
+                                        show?.show?.thumbnailImage?.url ?? '',
+                                      ),
+                                      border: Border.all(
+                                          color: AppColorsNew.primary),
+                                      gradient: LinearGradient(
+                                        colors: [
+                                          Color(0xff164B80),
+                                          Color(0xff2C4D6D),
                                         ],
-                                        borderRadius:
-                                            BorderRadius.circular(12.r),
                                       ),
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: Color(0xff93a7b7),
+                                          blurRadius: 4,
+                                        ),
+                                      ],
+                                      borderRadius: BorderRadius.circular(12.r),
                                     ),
-                                    if (!show!.show!.isReleased ||
-                                        (checkIfVideoAllowed(
-                                              isFree: show.show?.isFree,
-                                              isGuest: show.show?.isGuest,
-                                            ) !=
-                                            null))
-                                      Align(child: LockWidget())
-                                    else
-                                      SizedBox(),
-                                    Padding(
-                                      padding: EdgeInsets.all(1.sp),
-                                      child: Align(
-                                        child: Container(
-                                          decoration: BoxDecoration(
-                                            borderRadius:
-                                                BorderRadius.circular(12.r),
-                                            gradient: LinearGradient(
-                                              colors: [
-                                                AppColorsNew.black1.withValues(
-                                                  alpha: 0.0,
-                                                ),
-                                                AppColorsNew.black1.withValues(
-                                                  alpha: 0.2,
-                                                ),
-                                              ],
-                                              stops: const [0, 1],
-                                              begin: Alignment.bottomCenter,
-                                              end: Alignment.topCenter,
-                                            ),
+                                  ),
+                                  if (!show!.show!.isReleased ||
+                                      (checkIfVideoAllowed(
+                                            isFree: show.show?.isFree,
+                                            isGuest: show.show?.isGuest,
+                                          ) !=
+                                          null))
+                                    Align(child: LockWidget())
+                                  else
+                                    SizedBox(),
+                                  Padding(
+                                    padding: EdgeInsets.all(1.sp),
+                                    child: Align(
+                                      child: Container(
+                                        decoration: BoxDecoration(
+                                          borderRadius:
+                                              BorderRadius.circular(12.r),
+                                          gradient: LinearGradient(
+                                            colors: [
+                                              AppColorsNew.black1.withValues(
+                                                alpha: 0.0,
+                                              ),
+                                              AppColorsNew.black1.withValues(
+                                                alpha: 0.2,
+                                              ),
+                                            ],
+                                            stops: const [0, 1],
+                                            begin: Alignment.bottomCenter,
+                                            end: Alignment.topCenter,
                                           ),
                                         ),
                                       ),
                                     ),
-                                    PositionedDirectional(
-                                      top: 1,
-                                      end: 1,
-                                      child: FavoriteIconButton(show.show!),
-                                    ),
-                                  ],
-                                ),
-                              );
-                            },
-                            itemCount: favoriteShowProvider
-                                .favoriteShowsModel?.favoriteShows?.length,
-                          )
+                                  ),
+                                  PositionedDirectional(
+                                    top: 1,
+                                    end: 1,
+                                    child: FavoriteIconButton(show.show!),
+                                  ),
+                                ],
+                              ),
+                            );
+                          },
+                          itemCount: favoriteShowProvider
+                              .favoriteShowsModel?.favoriteShows?.length,
+                        )
                       : const SizedBox.shrink();
         },
       ),
