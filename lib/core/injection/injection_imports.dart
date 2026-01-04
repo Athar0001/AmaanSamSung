@@ -7,6 +7,11 @@ import 'package:amaan_tv/Features/Home/provider/show_provider.dart';
 import 'package:amaan_tv/Features/family/provider/family_provider.dart';
 import 'package:amaan_tv/core/utils/api/api_service.dart';
 import 'package:amaan_tv/Features/Home/data/data_source/home_service.dart';
+import 'package:amaan_tv/Features/favorite/data/data_source/favorite_service.dart';
+import 'package:amaan_tv/Features/favorite/provider/favorites_provider.dart';
+import 'package:amaan_tv/Features/favorite/provider/get_favorites_episodes_provider.dart';
+import 'package:amaan_tv/Features/favorite/provider/get_favorites_shows_provider.dart';
+import 'package:amaan_tv/Features/favorite/provider/favorites_characters_provider.dart';
 
 import '../../Features/Home/provider/show_player_provider.dart';
 import '../../Features/Home/provider/time_provider.dart';
@@ -28,4 +33,9 @@ void init() {
   sl.registerFactory(() => FamilyProvider());
   sl.registerFactory(() => SearchProvider(sl(), sl()));
   sl.registerFactory(() => SearchService(sl(), sl()));
+  sl.registerFactory(() => FavoritesService(sl()));
+  sl.registerFactory(() => FavoritesProvider(sl()));
+  sl.registerFactory(() => GetFavoritesEpisodesProvider(sl()));
+  sl.registerFactory(() => GetFavoritesShowsProvider(sl()));
+  sl.registerFactory(() => FavoritesCharactersProvider(sl()));
 }
