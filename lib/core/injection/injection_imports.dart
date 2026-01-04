@@ -6,6 +6,7 @@ import 'package:amaan_tv/Features/Auth/provider/user_notifier.dart';
 import 'package:amaan_tv/Features/Home/provider/show_provider.dart';
 import 'package:amaan_tv/Features/family/provider/family_provider.dart';
 import 'package:amaan_tv/core/utils/api/api_service.dart';
+import 'package:amaan_tv/core/services/signalr_service.dart';
 import 'package:amaan_tv/Features/Home/data/data_source/home_service.dart';
 import 'package:amaan_tv/Features/favorite/data/data_source/favorite_service.dart';
 import 'package:amaan_tv/Features/favorite/provider/favorites_provider.dart';
@@ -21,6 +22,7 @@ final sl = GetIt.instance;
 void init() {
   sl.registerLazySingleton(() => UserNotifier.instance);
   sl.registerLazySingleton(() => ApiService.getInstance());
+  sl.registerLazySingleton(() => SignalRService());
   sl.registerFactory(() => HomeService(sl(), sl()));
   if (!GetIt.I.isRegistered<TimeProvider>()) {
     sl.registerFactory(() => TimeProvider(homeService: sl()));

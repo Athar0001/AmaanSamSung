@@ -19,6 +19,7 @@ import 'Features/Home/provider/time_provider.dart';
 import 'core/Themes/styles.dart';
 import 'package:toastification/toastification.dart';
 import 'package:amaan_tv/core/injection/injection_imports.dart' as di;
+import 'package:amaan_tv/core/services/signalr_service.dart';
 
 const String appFlavor = String.fromEnvironment(
   'appFlavor',
@@ -28,6 +29,7 @@ const String appFlavor = String.fromEnvironment(
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   di.init();
+  await di.sl<SignalRService>().init("gamal_tv");
 
   AppFlavor.flavor = Flavor.values.firstWhere(
     (flavor) => flavor.name == appFlavor,
