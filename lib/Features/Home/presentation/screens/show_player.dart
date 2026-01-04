@@ -67,10 +67,10 @@ class _ShowPlayerScreenState extends State<ShowPlayerScreen>
   void initState() {
     super.initState();
     // Force landscape orientation when video player opens
-    SystemChrome.setPreferredOrientations([
-      DeviceOrientation.landscapeLeft,
-      DeviceOrientation.landscapeRight,
-    ]);
+   //SystemChrome.setPreferredOrientations([
+   //  DeviceOrientation.landscapeLeft,
+   //  DeviceOrientation.landscapeRight,
+   //]);
 
     // _screenPrivacy = ScreenPrivacy();
     // _screenPrivacy
@@ -104,6 +104,7 @@ class _ShowPlayerScreenState extends State<ShowPlayerScreen>
 
   @override
   Widget build(BuildContext context) {
+    log(widget.url, name: 'url');
     return ChangeNotifierProvider.value(
       value: showPlayerProvider,
       child: Consumer<ShowPlayerProvider>(
@@ -123,9 +124,9 @@ class _ShowPlayerScreenState extends State<ShowPlayerScreen>
                 provider.sendVideoTransaction(VideoTransactionType.closePage);
               }
 
-              SystemChrome.setPreferredOrientations([
-                DeviceOrientation.portraitUp,
-              ]);
+            // SystemChrome.setPreferredOrientations([
+            //   DeviceOrientation.portraitUp,
+            // ]);
             },
             child: Scaffold(
               backgroundColor: Colors.black,
@@ -173,7 +174,7 @@ class _VideoTitleWidgetState extends State<VideoTitleWidget> {
           onTap: () {
             if (isLandscape) {
               Navigator.pop(context);
-              Navigator.pop(context);
+            //  Navigator.pop(context);
             } else {
               Navigator.pop(context);
             }
