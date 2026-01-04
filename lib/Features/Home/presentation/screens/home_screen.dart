@@ -90,7 +90,7 @@ class _HomeScreenState extends State<HomeScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               SizedBox(
-                height: 400,
+                height: 280,
                 child: Skeletonizer(
                   enabled: provider.stateBanner == AppState.loading,
                   child: HomeBannerWidget(),
@@ -111,6 +111,7 @@ class _HomeScreenState extends State<HomeScreen> {
               Expanded(
                 child: SingleChildScrollView(
                   controller: scrollController,
+                 physics: NeverScrollableScrollPhysics(),
                  child: Column(
                    crossAxisAlignment: CrossAxisAlignment.start,
                    children: [

@@ -61,25 +61,22 @@ class HomeBannerState extends State<HomeBannerWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      height: 400,
-      child: Container(
-        color: Colors.transparent,
-        height: 400,
-        child: Consumer<HomeProvider>(
-          builder: (context, provider, child) {
-            return TabletBannerView(
-              controller: _controller,
-              currentPage: _currentPage,
-              onPageChanged: (index) {
-                setState(() {
-                  _currentPage = index;
-                });
-              },
-              provider: provider,
-            );
-          },
-        ),
+    return Container(
+      color: Colors.transparent,
+      height: 280,
+      child: Consumer<HomeProvider>(
+        builder: (context, provider, child) {
+          return TabletBannerView(
+            controller: _controller,
+            currentPage: _currentPage,
+            onPageChanged: (index) {
+              setState(() {
+                _currentPage = index;
+              });
+            },
+            provider: provider,
+          );
+        },
       ),
     );
   }
