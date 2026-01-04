@@ -170,7 +170,6 @@ class _PlayerControls extends StatelessWidget {
         }
 
         return Stack(
-          textDirection: TextDirection.ltr,
           children: [
             // Center Controls
             Align(
@@ -178,6 +177,7 @@ class _PlayerControls extends StatelessWidget {
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 mainAxisAlignment: MainAxisAlignment.center,
+                textDirection: TextDirection.ltr,
                 children: [
                   // Backward
                   TvClickButton(
@@ -309,13 +309,16 @@ class _FocusableVideoProgressBar extends StatelessWidget {
                     borderRadius: BorderRadius.circular(4.r),
                   )
                 : null,
-            child: VideoProgressIndicator(
-              controller,
-              allowScrubbing: true,
-              colors: VideoProgressColors(
-                playedColor: AppColorsNew.primary,
-                bufferedColor: Colors.white24,
-                backgroundColor: Colors.white10.withOpacity(0.3),
+            child: Directionality(
+              textDirection: TextDirection.ltr,
+              child: VideoProgressIndicator(
+                controller,
+                allowScrubbing: true,
+                colors: VideoProgressColors(
+                  playedColor: AppColorsNew.primary,
+                  bufferedColor: Colors.white24,
+                  backgroundColor: Colors.white10.withOpacity(0.3),
+                ),
               ),
             ),
           );
