@@ -24,7 +24,6 @@ import '../presentation/widget/rate_dialog.dart';
 import '../presentation/widget/time_finished_popup.dart';
 import 'home_provider.dart';
 
-
 class ShowPlayerProvider extends ChangeNotifier {
   ShowPlayerProvider({required this.homeService});
   final HomeService homeService;
@@ -105,10 +104,12 @@ class ShowPlayerProvider extends ChangeNotifier {
 
     await _setupTizenPlayer(url);
   }
+
   void setRepeatCounter(String value) {
     repeatCounter = int.parse(value);
     notifyListeners();
   }
+
   Future<void> _setupTizenPlayer(String url) async {
     print(url);
     print("urlurlurl");
@@ -135,13 +136,11 @@ class ShowPlayerProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-
   void _videoListener() {
     final value = videoPlayerController!.value;
 
     // Handle Playback Status for Timer
     if (value.isPlaying) {
-
       print("urlurlurl444");
       _handlePlayEvent();
     } else {
@@ -162,13 +161,17 @@ class ShowPlayerProvider extends ChangeNotifier {
 
   void _handleLogicWithState(VideoPlayerValue value) {
     // 1. Check for Video Finished
-    final isFinishedNow = value.position >= value.duration && value.duration != Duration.zero;
+    final isFinishedNow =
+        value.position >= value.duration && value.duration != Duration.zero;
 
     // 2. Check for Closing Duration (Credit roll logic)
     bool isClosingRegion = false;
-    if (repeatCounter == 1 && !_hasTriggeredClosingDuration && closingDuration != null) {
+    if (repeatCounter == 1 &&
+        !_hasTriggeredClosingDuration &&
+        closingDuration != null) {
       final remaining = value.duration - value.position;
-      if (remaining.inSeconds <= closingDuration! && value.position > Duration.zero) {
+      if (remaining.inSeconds <= closingDuration! &&
+          value.position > Duration.zero) {
         isClosingRegion = true;
       }
     }
@@ -205,7 +208,8 @@ class ShowPlayerProvider extends ChangeNotifier {
     var hasSentLog = false;
 
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      if (videoPlayerController == null || !videoPlayerController!.value.isPlaying) {
+      if (videoPlayerController == null ||
+          !videoPlayerController!.value.isPlaying) {
         _stopTimer();
         return;
       }
@@ -227,7 +231,8 @@ class ShowPlayerProvider extends ChangeNotifier {
   }
 
   Future<void> _checkTimeLimit() async {
-    if (timeProvider.time >= (timeProvider.allowedDuration?.inSeconds ?? 86400) ||
+    if (timeProvider.time >=
+            (timeProvider.allowedDuration?.inSeconds ?? 86400) ||
         !timeProvider.isValidToContinue) {
       _stopTimer();
       videoPlayerController?.pause();
@@ -243,6 +248,57 @@ class ShowPlayerProvider extends ChangeNotifier {
     if (repeatCounter > 1) repeatCounter--;
     notifyListeners();
   }
+
+  void play() {
+    videoPlayerController?.play();
+    notifyListeners();
+  }
+
+  void pause() {
+    videoPlayerController?.pause();
+    notifyListeners();
+  }
+
+  void togglePlay() {
+    if (videoPlayerController?.value.isPlaying ?? false) {
+      pause();
+    } else {
+      play();
+    }
+  }
+
+  void seekForward({int seconds = 10}) {
+    final controller = videoPlayerController;
+    if (controller == null) return;
+
+    final currentPosition = controller.value.position;
+    final duration = controller.value.duration;
+
+    // If duration is unknown, we can't safely seek near the end, but we can try blindly
+    // Typically better to check, but let's just add and clamp if duration is known.
+
+    var newPosition = currentPosition + Duration(seconds: seconds);
+    if (newPosition > duration) {
+      newPosition = duration;
+    }
+
+    controller.seekTo(newPosition);
+  }
+
+  void seekBackward({int seconds = 10}) {
+    final controller = videoPlayerController;
+    if (controller == null) return;
+
+    final currentPosition = controller.value.position;
+    var newPosition = currentPosition - Duration(seconds: seconds);
+
+    if (newPosition < Duration.zero) {
+      newPosition = Duration.zero;
+    }
+
+    controller.seekTo(newPosition);
+  }
+
   bool _isPopupShowing = false;
 
   Future<void> showTimeFinishedPopup() async {
@@ -284,11 +340,12 @@ class ShowPlayerProvider extends ChangeNotifier {
       _isPopupShowing = false;
     }
   }
+
   StateProvider stateVideoTrans = const StateProvider.loading();
 
   Future<VideoTransactionModel> getForTransaction(
-      VideoTransactionType type,
-      ) async {
+    VideoTransactionType type,
+  ) async {
     final videoController = videoPlayerController;
     final fromMinute = videoController?.value.position.toString();
 
@@ -311,11 +368,11 @@ class ShowPlayerProvider extends ChangeNotifier {
       print(model.toJson());
       print('model.toJson()');
       (await homeService.videoTransaction(model: model)).fold(
-            (failure) {
+        (failure) {
           stateVideoTrans = StateProvider.error(failure.message);
           // AppToast.show(failure.message);
         },
-            (data) {
+        (data) {
           stateVideoTrans = const StateProvider.success();
           if (type == VideoTransactionType.closePage ||
               type == VideoTransactionType.completeVideo) {
@@ -343,17 +400,16 @@ class ShowPlayerProvider extends ChangeNotifier {
     final current = videoController.value.position;
     final duration = videoController.value.duration!;
     final difference = duration - current;
-    final differenceMinutes = difference.inMinutes < 2
-        ? 2
-        : difference.inMinutes;
+    final differenceMinutes =
+        difference.inMinutes < 2 ? 2 : difference.inMinutes;
 
     (await homeService.continueWatching(time: differenceMinutes)).fold(
-          (failure) {
+      (failure) {
         stateContinueWatching = AppState.error;
         AppToast.show(failure.message);
         notifyListeners();
       },
-          (data) {
+      (data) {
         stateContinueWatching = AppState.success;
         notifyListeners();
         AppToast.show(
@@ -430,7 +486,6 @@ class ShowPlayerProvider extends ChangeNotifier {
     // }
   }
 
-
   Future<RateModel?> getReview() async {
     //rate show only
     if (episodeId != null) return null;
@@ -469,10 +524,10 @@ class ShowPlayerProvider extends ChangeNotifier {
               result = await homeService.updateReview(rateModel);
             }
             result.fold(
-                  (failure) {
+              (failure) {
                 AppToast.show(failure.message);
               },
-                  (data) {
+              (data) {
                 oldRateModel = data;
               },
             );

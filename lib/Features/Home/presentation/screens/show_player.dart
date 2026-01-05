@@ -67,10 +67,10 @@ class _ShowPlayerScreenState extends State<ShowPlayerScreen>
   void initState() {
     super.initState();
     // Force landscape orientation when video player opens
-    SystemChrome.setPreferredOrientations([
-      DeviceOrientation.landscapeLeft,
-      DeviceOrientation.landscapeRight,
-    ]);
+    //SystemChrome.setPreferredOrientations([
+    //  DeviceOrientation.landscapeLeft,
+    //  DeviceOrientation.landscapeRight,
+    //]);
 
     // _screenPrivacy = ScreenPrivacy();
     // _screenPrivacy
@@ -104,6 +104,7 @@ class _ShowPlayerScreenState extends State<ShowPlayerScreen>
 
   @override
   Widget build(BuildContext context) {
+    log(widget.url, name: 'url');
     return ChangeNotifierProvider.value(
       value: showPlayerProvider,
       child: Consumer<ShowPlayerProvider>(
@@ -123,9 +124,9 @@ class _ShowPlayerScreenState extends State<ShowPlayerScreen>
                 provider.sendVideoTransaction(VideoTransactionType.closePage);
               }
 
-              SystemChrome.setPreferredOrientations([
-                DeviceOrientation.portraitUp,
-              ]);
+              // SystemChrome.setPreferredOrientations([
+              //   DeviceOrientation.portraitUp,
+              // ]);
             },
             child: Scaffold(
               backgroundColor: Colors.black,
@@ -141,7 +142,182 @@ class _ShowPlayerScreenState extends State<ShowPlayerScreen>
                         url: widget.url,
                       ),
                     ),
+                    if (provider.videoPlayerController != null)
+                      Align(
+                          alignment: Alignment.center,
+                          child: const _PlayerControls()),
                   ],
+                ),
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+}
+
+class _PlayerControls extends StatelessWidget {
+  const _PlayerControls();
+
+  @override
+  Widget build(BuildContext context) {
+    return Consumer<ShowPlayerProvider>(
+      builder: (context, provider, child) {
+        final controller = provider.videoPlayerController;
+        if (controller == null || !controller.value.isInitialized) {
+          return const SizedBox.shrink();
+        }
+
+        return Stack(
+          children: [
+            // Center Controls
+            Align(
+              alignment: Alignment.center,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.center,
+                textDirection: TextDirection.ltr,
+                children: [
+                  // Backward
+                  TvClickButton(
+                    onTap: () => provider.seekBackward(),
+                    child: Container(
+                      margin: EdgeInsets.all(2.r),
+                      padding: EdgeInsets.all(10.r),
+                      decoration: BoxDecoration(
+                        color: Colors.black45,
+                        borderRadius: BorderRadius.circular(10.r),
+                      ),
+                      child: Icon(
+                        Icons.replay_10,
+                        color: AppColorsNew.white,
+                        size: 40.r,
+                        shadows: const [
+                          Shadow(
+                            blurRadius: 10.0,
+                            color: Colors.black,
+                            offset: Offset(2.0, 2.0),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  SizedBox(width: 20.w),
+                  // Play/Pause
+                  TvClickButton(
+                    onTap: () => provider.togglePlay(),
+                    child: Container(
+                      margin: EdgeInsets.all(2.r),
+                      padding: EdgeInsets.all(10.r),
+                      decoration: BoxDecoration(
+                        color: Colors.black45,
+                        borderRadius: BorderRadius.circular(10.r),
+                      ),
+                      child: Icon(
+                        controller.value.isPlaying
+                            ? Icons.pause
+                            : Icons.play_arrow,
+                        color: AppColorsNew.white,
+                        size: 60.r,
+                        shadows: const [
+                          Shadow(
+                            blurRadius: 10.0,
+                            color: Colors.black,
+                            offset: Offset(2.0, 2.0),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  SizedBox(width: 20.w),
+                  // Forward
+                  TvClickButton(
+                    onTap: () => provider.seekForward(),
+                    child: Container(
+                      margin: EdgeInsets.all(2.r),
+                      padding: EdgeInsets.all(10.r),
+                      decoration: BoxDecoration(
+                        color: Colors.black45,
+                        borderRadius: BorderRadius.circular(10.r),
+                      ),
+                      child: Icon(
+                        Icons.forward_10,
+                        color: AppColorsNew.white,
+                        size: 40.r,
+                        shadows: const [
+                          Shadow(
+                            blurRadius: 10.0,
+                            color: Colors.black,
+                            offset: Offset(2.0, 2.0),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            // Bottom Progress
+            Align(
+              alignment: Alignment.bottomCenter,
+              child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: 40.w, vertical: 20.h),
+                child: _FocusableVideoProgressBar(
+                    controller: controller, provider: provider),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+}
+
+class _FocusableVideoProgressBar extends StatelessWidget {
+  const _FocusableVideoProgressBar({
+    required this.controller,
+    required this.provider,
+  });
+
+  final VideoPlayerController controller;
+  final ShowPlayerProvider provider;
+
+  @override
+  Widget build(BuildContext context) {
+    return Focus(
+      onKeyEvent: (node, event) {
+        if (event is KeyDownEvent) {
+          if (event.logicalKey == LogicalKeyboardKey.arrowLeft) {
+            provider.seekBackward(seconds: 5);
+            return KeyEventResult.handled;
+          } else if (event.logicalKey == LogicalKeyboardKey.arrowRight) {
+            provider.seekForward(seconds: 5);
+            return KeyEventResult.handled;
+          }
+        }
+        return KeyEventResult.ignored;
+      },
+      child: Builder(
+        builder: (context) {
+          final hasFocus = Focus.of(context).hasFocus;
+          return Container(
+            padding: EdgeInsets.symmetric(vertical: 4.h),
+            decoration: hasFocus
+                ? BoxDecoration(
+                    border: Border.all(color: AppColorsNew.primary, width: 2),
+                    borderRadius: BorderRadius.circular(4.r),
+                  )
+                : null,
+            child: Directionality(
+              textDirection: TextDirection.ltr,
+              child: VideoProgressIndicator(
+                controller,
+                allowScrubbing: true,
+                colors: VideoProgressColors(
+                  playedColor: AppColorsNew.primary,
+                  bufferedColor: Colors.white24,
+                  backgroundColor: Colors.white10.withOpacity(0.3),
                 ),
               ),
             ),
@@ -173,7 +349,7 @@ class _VideoTitleWidgetState extends State<VideoTitleWidget> {
           onTap: () {
             if (isLandscape) {
               Navigator.pop(context);
-              Navigator.pop(context);
+              //  Navigator.pop(context);
             } else {
               Navigator.pop(context);
             }
