@@ -21,28 +21,40 @@ class SignalRService {
   Future<void> init(String guid) async {
     final httpOptions = HttpConnectionOptions(logger: transportProtLogger);
 
-    // Creates the connection by using the HubConnectionBuilder.
     hubConnection = HubConnectionBuilder()
         .withUrl(serverUrl, options: httpOptions)
         .configureLogging(hubProtLogger)
+        .withAutomaticReconnect() // Highly recommended for TV apps
         .build();
 
-    // When the connection is closed, print out a message to the console.
-    hubConnection.onclose(({error}) => hubProtLogger.info("Connection Closed"));
+    hubConnection.onclose(({error}) => print("Connection Closed: $error"));
 
-    // Calling following method starts handshaking and connects the client to SignalR server
-    await hubConnection.start();
+    // --- REGISTER ALL LISTENERS FIRST ---
 
-    hubConnection.on("Registered", (guid) {
-      hubProtLogger.info("Successfully registered with GUID: $guid");
+    hubConnection.on("Registered", (args) {
+      // Access the first element of the list
+      print("Successfully registered with GUID: ${args?.first}");
     });
 
-    // Invoke "Register"
-    await hubConnection.invoke("Register", args: [guid]);
-
-    // Add AuthCompleted listener
-    hubConnection.on("AuthCompleted", (authData) {
-      hubProtLogger.info("AuthComplete received: $authData");
+    hubConnection.on("AuthCompleted", (args) {
+      print("AuthComplete received: ${args?.first}");
     });
+
+    // Example for a generic message from backend
+    hubConnection.on("ReceiveMessage", (args) {
+      print("New Message: ${args?[0]} from ${args?[1]}");
+    });
+
+    // --- NOW START AND INVOKE ---
+    try {
+      await hubConnection.start();
+      print("SignalR Connected. State: ${hubConnection.state}");
+
+      // Only invoke after the connection is fully open
+      await hubConnection.invoke("Register", args: [guid]);
+      print("Register invocation sent.");
+    } catch (e) {
+      print("SignalR Error: $e");
+    }
   }
 }
