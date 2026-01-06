@@ -1,3 +1,4 @@
+import 'package:amaan_tv/Features/Auth/presentation/widget/qr_login_screen.dart';
 import 'package:amaan_tv/Features/Home/data/models/home_categories_model/categories.dart';
 import 'package:amaan_tv/Features/Home/presentation/screens/categories_screen.dart';
 import 'package:amaan_tv/Features/favorite/presentation/screens/favorite_screen.dart';
@@ -31,7 +32,8 @@ enum AppRoutes {
   // Favorite routes
   favorites('favorites'),
 
-  homeChild('homeChild');
+  homeChild('homeChild'),
+  qrLogin('qrLogin');
 
   final String name;
   const AppRoutes(this.name);
@@ -42,12 +44,17 @@ final GlobalKey<NavigatorState> appNavigatorKey = GlobalKey<NavigatorState>();
 
 final GoRouter appRouter = GoRouter(
   navigatorKey: appNavigatorKey,
-  initialLocation: '/home',
+  initialLocation: '/qr-login',
   routes: [
     GoRoute(
       path: '/home',
       name: AppRoutes.home.routeName,
       builder: (context, state) => const HomeScreen(),
+    ),
+    GoRoute(
+      path: '/qr-login',
+      name: AppRoutes.qrLogin.routeName,
+      builder: (context, state) => const QRLoginScreen(),
     ),
     GoRoute(
       path: '/showDetails/:id',

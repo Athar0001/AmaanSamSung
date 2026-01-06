@@ -577,5 +577,9 @@
   "applyCoupon": "Apply Coupon",
   "invalidCoupon": "Invalid Coupon Code",
   "couponApplied": "Coupon Code Applied",
-  "addPhoneNumber": "Please complete your account information by adding your phone number."
+  "addPhoneNumber": "Please complete your account information by adding your phone number.",
+  "qrLoginTitle": "Login from your mobile using the QR code below",
+  "qrLoginSubtitle": "Scan the code from the mobile app and you will be automatically logged in to the screen after a successful operation.",
+  "qrCodeExpiresIn": "Code expires in:",
+  "refreshCode": "Refresh Code"
 }
