@@ -1,5 +1,6 @@
 import 'package:amaan_tv/Features/Home/data/models/home_categories_model/categories.dart';
 import 'package:amaan_tv/Features/Home/presentation/screens/categories_screen.dart';
+import 'package:amaan_tv/Features/favorite/presentation/screens/favorite_screen.dart';
 import 'package:amaan_tv/Features/search/presentation/screens/search_screen.dart';
 import 'package:amaan_tv/core/utils/route_extra_helper.dart';
 import 'package:flutter/material.dart';
@@ -27,6 +28,9 @@ enum AppRoutes {
   soonStories('soonStories'),
   search('search'),
   parentSettingsSubscription('parentSettingsSubscription'),
+  // Favorite routes
+  favorites('favorites'),
+
   homeChild('homeChild');
 
   final String name;
@@ -86,7 +90,17 @@ final GoRouter appRouter = GoRouter(
         child: SearchScreen(),
       ),
     ),
-
+    GoRoute(
+      path: '/favorites',
+      name: 'favorites',
+      builder: (context, state) {
+        // Support both extra and query parameter sources for childId
+        final String? childId =
+            RouteExtraHelper.getNullableString(state.extra, 'childId') ??
+                state.uri.queryParameters['childId'];
+        return FavoriteScreen(childId: childId);
+      },
+    ),
     GoRoute(
       path: '/show-player',
       name: AppRoutes.showPlayer.routeName,
@@ -95,17 +109,17 @@ final GoRouter appRouter = GoRouter(
         final videoId = RouteExtraHelper.getString(state.extra, 'videoId');
         final show = RouteExtraHelper.getValue<Details>(state.extra, 'show');
         final repeatTimes =
-        RouteExtraHelper.getNullableInt(state.extra, 'repeatTimes');
+            RouteExtraHelper.getNullableInt(state.extra, 'repeatTimes');
         final episodeId =
-        RouteExtraHelper.getNullableString(state.extra, 'episodeId');
+            RouteExtraHelper.getNullableString(state.extra, 'episodeId');
         final closingDuration =
-        RouteExtraHelper.getNullableInt(state.extra, 'closingDuration');
+            RouteExtraHelper.getNullableInt(state.extra, 'closingDuration');
         final fromMinute =
-        RouteExtraHelper.getNullableString(state.extra, 'fromMinute');
-        final episodesModel =
-        RouteExtraHelper.getValue<List<Details>>(state.extra, 'episodesModel');
+            RouteExtraHelper.getNullableString(state.extra, 'fromMinute');
+        final episodesModel = RouteExtraHelper.getValue<List<Details>>(
+            state.extra, 'episodesModel');
         final showRate =
-        RouteExtraHelper.getBool(state.extra, 'showRate', true);
+            RouteExtraHelper.getBool(state.extra, 'showRate', true);
 
         if (show != null && url.isNotEmpty && videoId.isNotEmpty) {
           return NoTransitionPage(
@@ -131,6 +145,5 @@ final GoRouter appRouter = GoRouter(
         );
       },
     ),
-
   ],
 );

@@ -1,7 +1,6 @@
 {
     "version": "0.2.0",
     "configurations": [
-        
         {
             "name": "AmaanSamSung",
             "request": "launch",
@@ -50,7 +49,7 @@
             "request": "attach",
             "type": "dart",
             "cwd": "${workspaceFolder}",
-            "vmServiceUri": "http://127.0.0.1:59186/34MB-NLKSeU=/"
+            "vmServiceUri": "http://127.0.0.1:63407/vjtPYNAW0ow=/"
         }
     ]
 }

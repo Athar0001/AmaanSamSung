@@ -12,6 +12,7 @@ import 'package:amaan_tv/core/utils/app_localiztion.dart';
 import 'package:amaan_tv/core/utils/app_router.dart';
 import 'package:amaan_tv/core/utils/cash_services/cashe_helper.dart';
 import 'package:amaan_tv/core/languages/app_localizations.dart';
+import 'package:tizen_log/tizen_log.dart';
 import 'package:toastification/toastification.dart';
 
 import 'Features/Home/provider/show_player_provider.dart';
@@ -19,6 +20,7 @@ import 'Features/Home/provider/time_provider.dart';
 import 'core/Themes/styles.dart';
 import 'package:toastification/toastification.dart';
 import 'package:amaan_tv/core/injection/injection_imports.dart' as di;
+import 'package:amaan_tv/core/services/signalr_service.dart';
 
 const String appFlavor = String.fromEnvironment(
   'appFlavor',
@@ -29,13 +31,14 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   di.init();
 
+
   AppFlavor.flavor = Flavor.values.firstWhere(
     (flavor) => flavor.name == appFlavor,
     orElse: () => Flavor.dev,
   );
   await CacheHelper.init();
-
   runApp(const AmaanTVApp());
+  di.sl<SignalRService>().init("gamal_tv");
 }
 
 class AmaanTVApp extends StatelessWidget {
