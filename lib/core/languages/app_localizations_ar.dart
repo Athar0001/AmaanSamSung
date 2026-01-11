@@ -1586,4 +1586,18 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get addPhoneNumber => 'يرجى إكمال معلومات حسابك بإضافة رقم الهاتف.';
+
+  @override
+  String get qrLoginTitle =>
+      'سجل الدخول من موبايلك باستخدام رمز الـQR الموجود بالأسفل';
+
+  @override
+  String get qrLoginSubtitle =>
+      'قوم بمسح (Scan) للرمز من تطبيق الموبايل وسيتم تسجيل الدخول تلقائياً على الشاشة بعد نجاح العملية.';
+
+  @override
+  String get qrCodeExpiresIn => 'تنتهي صلاحية الرمز خلال:';
+
+  @override
+  String get refreshCode => 'تحديث الرمز';
 }

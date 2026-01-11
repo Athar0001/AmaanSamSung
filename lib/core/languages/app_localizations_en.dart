@@ -1603,4 +1603,17 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get addPhoneNumber =>
       'Please complete your account information by adding your phone number.';
+
+  @override
+  String get qrLoginTitle => 'Login from your mobile using the QR code below';
+
+  @override
+  String get qrLoginSubtitle =>
+      'Scan the code from the mobile app and you will be automatically logged in to the screen after a successful operation.';
+
+  @override
+  String get qrCodeExpiresIn => 'Code expires in:';
+
+  @override
+  String get refreshCode => 'Refresh Code';
 }
