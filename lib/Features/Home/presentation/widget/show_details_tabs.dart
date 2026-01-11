@@ -158,7 +158,7 @@ class _ShowDetailsTabBarViewState extends State<ShowDetailsTabBarView> {
 
   SliverGridDelegateWithFixedCrossAxisCount epsGrid() {
     return SliverGridDelegateWithFixedCrossAxisCount(
-      crossAxisCount: 3,
+      crossAxisCount: 4,
       childAspectRatio: 343 / 284,
       mainAxisSpacing: 16.r,
       crossAxisSpacing: 16.r,

@@ -344,6 +344,7 @@ class _VideoTitleWidgetState extends State<VideoTitleWidget> {
     final isLandscape =
         (MediaQuery.of(context).orientation == Orientation.landscape);
     return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         TvClickButton(
           onTap: () {
@@ -355,6 +356,7 @@ class _VideoTitleWidgetState extends State<VideoTitleWidget> {
             }
           },
           child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Container(
                 padding: EdgeInsets.only(
@@ -371,13 +373,16 @@ class _VideoTitleWidgetState extends State<VideoTitleWidget> {
                       : Theme.of(context).textTheme.bodyMedium?.color,
                 ),
               ),
-              Text(
-                widget.title,
-                style: AppTextStylesNew.style16BoldAlmarai.copyWith(
-                  fontSize: 20,
-                  color: isLandscape
-                      ? AppColorsNew.white
-                      : Theme.of(context).textTheme.bodyMedium?.color,
+              Container(
+                width: 0.9.sw,
+                child: Text(
+                  widget.title,
+                  style: AppTextStylesNew.style16BoldAlmarai.copyWith(
+                    fontSize: 20,
+                    color: isLandscape
+                        ? AppColorsNew.white
+                        : Theme.of(context).textTheme.bodyMedium?.color,
+                  ),
                 ),
               ),
             ],
