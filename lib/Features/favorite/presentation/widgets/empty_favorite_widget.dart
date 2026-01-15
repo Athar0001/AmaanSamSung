@@ -7,13 +7,15 @@ class EmptyFavoriteWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
+    return ListView(
       children: [
         Center(child: Image.asset('assets/images/emptyFavorite.png')),
-        Padding(
-          padding: const EdgeInsets.only(top: 32, bottom: 5),
-          child: Text(AppLocalization.strings.notFoundFavorites,
-              style: AppTextStylesNew.style20BoldAlmarai),
+        Center(
+          child: Padding(
+            padding: const EdgeInsets.only(top: 10, bottom: 5),
+            child: Text(AppLocalization.strings.notFoundFavorites,
+                style: AppTextStylesNew.style20BoldAlmarai),
+          ),
         ),
         Text(
           AppLocalization.strings.addYourFavorite,

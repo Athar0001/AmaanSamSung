@@ -1,5 +1,5 @@
+import 'package:amaan_tv/Features/favorite/presentation/screens/favorite_screen.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:amaan_tv/Features/Auth/provider/user_notifier.dart';
 import 'package:amaan_tv/core/Themes/app_text_styles_new.dart';
@@ -8,6 +8,7 @@ import 'package:amaan_tv/Features/Home/presentation/widget/continue_watching_wid
 import 'package:amaan_tv/Features/Home/presentation/widget/home_poster_widget.dart';
 import 'package:amaan_tv/Features/Home/presentation/widget/top_ten_widget.dart';
 import 'package:amaan_tv/Features/Home/presentation/widget/series_content_view.dart';
+import 'package:amaan_tv/Features/favorite/presentation/widgets/favorite_shows_widget.dart';
 import 'package:amaan_tv/core/utils/app_localiztion.dart';
 import 'package:amaan_tv/core/utils/constant.dart';
 import 'package:amaan_tv/core/widget/scaffold_gradient_background.dart';
@@ -61,6 +62,8 @@ class _HomeScreenState extends State<HomeScreen> {
                 _buildHomeContent(),
                 // Tab 1: Series Content
                 SeriesContentView(),
+                // Tab 2: Favorites Content
+                _buildFavoritesContent(),
               ],
             ),
           ),
@@ -111,137 +114,151 @@ class _HomeScreenState extends State<HomeScreen> {
               Expanded(
                 child: SingleChildScrollView(
                   controller: scrollController,
-                 physics: NeverScrollableScrollPhysics(),
-                 child: Column(
-                   crossAxisAlignment: CrossAxisAlignment.start,
-                   children: [
-                     if (context.read<UserNotifier>().userData != null) ...[
-                       Skeletonizer(
-                         enabled: provider.stateContinueWatching == AppState.loading,
-                         child:
-                         provider.stateContinueWatching == AppState.success &&
-                             provider.continueWatchingModel!.data!.isNotEmpty
-                             ? Column(
-                           crossAxisAlignment: CrossAxisAlignment.start,
-                           children: [
-                             Padding(
-                               padding: const EdgeInsetsDirectional.only(
-                                 start: Constant.paddingLeftRight,
-                               ),
-                               child: Text(
-                                 AppLocalization.strings.continueWatching,
-                                 style: AppTextStylesNew.style16BoldAlmarai,
-                               ),
-                             ),
-                             16.verticalSpace,
-                             ContinueWatchingWidget(
-                               cotinueWatchingModel:
-                               provider.continueWatchingModel!,
-                             ),
-                           ],
-                         )
-                             : SizedBox(),
-                       ),
-                       24.verticalSpace,
-                     ],
+                  physics: NeverScrollableScrollPhysics(),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      if (context.read<UserNotifier>().userData != null) ...[
+                        Skeletonizer(
+                          enabled: provider.stateContinueWatching ==
+                              AppState.loading,
+                          child: provider.stateContinueWatching ==
+                                      AppState.success &&
+                                  provider
+                                      .continueWatchingModel!.data!.isNotEmpty
+                              ? Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Padding(
+                                      padding: const EdgeInsetsDirectional.only(
+                                        start: Constant.paddingLeftRight,
+                                      ),
+                                      child: Text(
+                                        AppLocalization
+                                            .strings.continueWatching,
+                                        style:
+                                            AppTextStylesNew.style16BoldAlmarai,
+                                      ),
+                                    ),
+                                    16.verticalSpace,
+                                    ContinueWatchingWidget(
+                                      cotinueWatchingModel:
+                                          provider.continueWatchingModel!,
+                                    ),
+                                  ],
+                                )
+                              : SizedBox(),
+                        ),
+                        24.verticalSpace,
+                      ],
 
-                     ////////////////////////////////<---- whatIsNew  -->//////////////////////////////////////
-                     Skeletonizer(
-                       enabled: provider.stateLatest == AppState.loading,
-                       child: Builder(
-                         builder: (context) {
-                           final latest = provider.latestModel?.data;
-                           if (latest == null || latest.isEmpty) {
-                             return const SizedBox.shrink();
-                           }
-                           return Column(
-                             crossAxisAlignment: CrossAxisAlignment.start,
-                             children: [
-                               Padding(
-                                 padding: const EdgeInsetsDirectional.only(
-                                   start: Constant.paddingLeftRight,
-                                 ),
-                                 child: Text(
-                                   AppLocalization.strings.whatIsNew,
-                                   style: AppTextStylesNew.style16BoldAlmarai,
-                                 ),
-                               ),
-                               16.verticalSpace,
-                               TopTenWidget(
-                                 topTenModel: latest,
-                                 isTopTenWidget: false,
-                                 isNew: true,
-                               ),
-                             ],
-                           );
-                         },
-                       ),
-                     ),
-                     24.verticalSpace,
-                     ////////////////////////////////<---- top ten  -->//////////////////////////////////////
-                     Skeletonizer(
-                       enabled: provider.stateTopTen == AppState.loading,
-                       child: Column(
-                         crossAxisAlignment: CrossAxisAlignment.start,
-                         children: [
-                           Padding(
-                             padding: const EdgeInsetsDirectional.only(
-                               start: Constant.paddingLeftRight,
-                             ),
-                             child: Text(
-                               AppLocalization.strings.topTen,
-                               style: AppTextStylesNew.style16BoldAlmarai,
-                             ),
-                           ),
-                           16.verticalSpace,
-                           TopTenWidget(
-                             topTenModel: provider.topTenModel!.data!.topShows!,
-                           ),
-                         ],
-                       ),
-                     ),
-                     24.verticalSpace,
-                     ////////////////////////////////<---- suggested  -->//////////////////////////////////////
-                     if (context.read<UserNotifier>().userData != null)
-                       Skeletonizer(
-                         enabled: provider.suggestedSearchState == AppState.loading,
-                         child:
-                         provider.suggestedSearchState == AppState.success &&
-                             (provider.suggestedSearchModel.data ?? [])
-                                 .isNotEmpty
-                             ? Column(
-                           crossAxisAlignment: CrossAxisAlignment.start,
-                           children: [
-                             Padding(
-                               padding: const EdgeInsetsDirectional.only(
-                                 start: Constant.paddingLeftRight,
-                               ),
-                               child: Text(
-                                 AppLocalization.strings.suggestionsForYou,
-                                 style: AppTextStylesNew.style16BoldAlmarai,
-                               ),
-                             ),
-                             16.verticalSpace,
-                             TopTenWidget(
-                               topTenModel:
-                               provider.suggestedSearchModel.data!,
-                               isTopTenWidget: false,
-                             ),
-                             16.verticalSpace,
-                           ],
-                         )
-                             : SizedBox(),
-                       ),
-                   ],
-                 ),
-                               ),
+                      ////////////////////////////////<---- whatIsNew  -->//////////////////////////////////////
+                      Skeletonizer(
+                        enabled: provider.stateLatest == AppState.loading,
+                        child: Builder(
+                          builder: (context) {
+                            final latest = provider.latestModel?.data;
+                            if (latest == null || latest.isEmpty) {
+                              return const SizedBox.shrink();
+                            }
+                            return Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsetsDirectional.only(
+                                    start: Constant.paddingLeftRight,
+                                  ),
+                                  child: Text(
+                                    AppLocalization.strings.whatIsNew,
+                                    style: AppTextStylesNew.style16BoldAlmarai,
+                                  ),
+                                ),
+                                16.verticalSpace,
+                                TopTenWidget(
+                                  topTenModel: latest,
+                                  isTopTenWidget: false,
+                                  isNew: true,
+                                ),
+                              ],
+                            );
+                          },
+                        ),
+                      ),
+                      24.verticalSpace,
+                      ////////////////////////////////<---- top ten  -->//////////////////////////////////////
+                      Skeletonizer(
+                        enabled: provider.stateTopTen == AppState.loading,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Padding(
+                              padding: const EdgeInsetsDirectional.only(
+                                start: Constant.paddingLeftRight,
+                              ),
+                              child: Text(
+                                AppLocalization.strings.topTen,
+                                style: AppTextStylesNew.style16BoldAlmarai,
+                              ),
+                            ),
+                            16.verticalSpace,
+                            TopTenWidget(
+                              topTenModel:
+                                  provider.topTenModel!.data!.topShows!,
+                            ),
+                          ],
+                        ),
+                      ),
+                      24.verticalSpace,
+                      ////////////////////////////////<---- suggested  -->//////////////////////////////////////
+                      if (context.read<UserNotifier>().userData != null)
+                        Skeletonizer(
+                          enabled:
+                              provider.suggestedSearchState == AppState.loading,
+                          child: provider.suggestedSearchState ==
+                                      AppState.success &&
+                                  (provider.suggestedSearchModel.data ?? [])
+                                      .isNotEmpty
+                              ? Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Padding(
+                                      padding: const EdgeInsetsDirectional.only(
+                                        start: Constant.paddingLeftRight,
+                                      ),
+                                      child: Text(
+                                        AppLocalization
+                                            .strings.suggestionsForYou,
+                                        style:
+                                            AppTextStylesNew.style16BoldAlmarai,
+                                      ),
+                                    ),
+                                    16.verticalSpace,
+                                    TopTenWidget(
+                                      topTenModel:
+                                          provider.suggestedSearchModel.data!,
+                                      isTopTenWidget: false,
+                                    ),
+                                    16.verticalSpace,
+                                  ],
+                                )
+                              : SizedBox(),
+                        ),
+                    ],
+                  ),
+                ),
               ),
               // 24.verticalSpace,
-
             ],
           ),
         );
       },
+    );
+  }
+
+  Widget _buildFavoritesContent() {
+    return Padding(
+      padding: EdgeInsets.only(top: 20.h),
+      child: FavoriteScreen(),
     );
   }
 }

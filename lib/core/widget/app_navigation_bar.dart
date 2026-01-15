@@ -1,3 +1,4 @@
+import 'package:amaan_tv/core/languages/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:amaan_tv/core/widget/tv_click_button.dart';
 import 'package:flutter/services.dart';
@@ -74,23 +75,14 @@ class _AppNavigationBarState extends State<AppNavigationBar> {
             isSelected: _selectedTabIndex == 1,
             onTap: () => _onTabSelected(1),
           ),
+          _HeaderTab(
+            title: AppLocalizations.of(context)!.favorites,
+            isSelected: _selectedTabIndex == 2,
+            onTap: () => _onTabSelected(2),
+          ),
 
           // Spacer
           Spacer(),
-
-          // Favorites Icon (Left side for RTL)
-          TvClickButton(
-            onTap: () {
-              context.pushNamed('favorites');
-            },
-            child: Padding(
-              padding: EdgeInsets.all(8.r),
-              child:
-                  Icon(Icons.favorite, color: AppColorsNew.white, size: 24.r),
-            ),
-          ),
-
-          8.horizontalSpace,
 
           // Search Icon (Left side for RTL)
           TvClickButton(
