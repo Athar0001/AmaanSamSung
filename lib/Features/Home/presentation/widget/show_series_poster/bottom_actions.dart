@@ -29,17 +29,17 @@ class BottomActions extends StatelessWidget {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            ShareButton(
-              text: AppLocalization.strings.seasons,
-              icon: SVGImage(path: Assets.imagesYoutube),
-              onTap: () {
-                if (model?.type.isEpisode == false &&
-                    model?.showUniverse != null) {
-                  showSeasonsBottomSheet(context,
-                      season: context.read<ShowProvider>().seasonsModel!.data!);
-                }
-              },
-            ),
+            // ShareButton(
+            //   text: AppLocalization.strings.seasons,
+            //   icon: SVGImage(path: Assets.imagesYoutube),
+            //   onTap: () {
+            //     if (model?.type.isEpisode == false &&
+            //         model?.showUniverse != null) {
+            //       showSeasonsBottomSheet(context,
+            //           season: context.read<ShowProvider>().seasonsModel!.data!);
+            //     }
+            //   },
+            // ),
             if (context.read<UserNotifier>().userData?.userType.isParent == true &&
                     model?.type.isEpisode == false) Consumer<FamilyProvider>(
                     builder: (context, fmailyProvider, child) => ShareButton(

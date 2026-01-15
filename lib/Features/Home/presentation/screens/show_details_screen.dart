@@ -119,7 +119,6 @@ class _ShowDetailsScreenState extends State<ShowDetailsScreen> {
                       isLoading:
                           provider.stateGenerateVideoUrl == AppState.loading,
                       onTapShow: () {
-                        print('dvsdvsdvsdvdsv');
                         final isAllowed = checkIfVideoAllowed(
                           isFree: showDetailsModel.isFree,
                           isGuest: showDetailsModel.isGuest,

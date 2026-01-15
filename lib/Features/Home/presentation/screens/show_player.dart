@@ -160,6 +160,18 @@ class _ShowPlayerScreenState extends State<ShowPlayerScreen>
 class _PlayerControls extends StatelessWidget {
   const _PlayerControls();
 
+  Details? _findNextEpisode(ShowPlayerProvider provider) {
+    if (provider.episodes == null || provider.episodes!.isEmpty) return null;
+    final currentId = provider.episodeId;
+    if (currentId == null) return null;
+
+    final index = provider.episodes!.indexWhere((e) => e.id == currentId);
+    if (index != -1 && index < provider.episodes!.length - 1) {
+      return provider.episodes![index + 1];
+    }
+    return null;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Consumer<ShowPlayerProvider>(
@@ -258,6 +270,83 @@ class _PlayerControls extends StatelessWidget {
                 ],
               ),
             ),
+
+            // Reactive Overlays (Skip Intro & Next Episode)
+            ValueListenableBuilder<VideoPlayerValue>(
+              valueListenable: controller,
+              builder: (context, value, child) {
+                final position = value.position;
+                final duration = value.duration;
+                final trailerDuration = provider.trailerDuration;
+
+                // Skip Intro Logic
+                final showSkipIntro = trailerDuration != null &&
+                    position.inSeconds < trailerDuration &&
+                    trailerDuration > 0;
+
+                // Next Episode Logic
+                final isNearEnd = duration.inSeconds > 0 &&
+                    (duration.inSeconds - position.inSeconds) < 20;
+
+                final nextEpisode =
+                    isNearEnd ? _findNextEpisode(provider) : null;
+                final showNextEpisode = nextEpisode != null;
+
+                if (!showSkipIntro && !showNextEpisode) {
+                  return const SizedBox.shrink();
+                }
+
+                if (showSkipIntro) {
+                  return Align(
+                    alignment: Alignment.bottomRight,
+                    child: Padding(
+                      padding: EdgeInsets.only(bottom: 80.h, right: 40.w),
+                      child: _SkipIntroButton(
+                        onSkip: () {
+                          controller.seekTo(Duration(seconds: trailerDuration));
+                        },
+                      ),
+                    ),
+                  );
+                }
+                if (showNextEpisode) {
+                  return Align(
+                    alignment: Alignment.bottomRight,
+                    child: Padding(
+                      padding: EdgeInsets.only(bottom: 80.h, right: 40.w),
+                      child: _NextEpisodeOverlay(
+                        nextEpisode: nextEpisode,
+                        onPlayNext: () {
+                          provider.initializeVideo(
+                            url: nextEpisode.presignedUrl ?? '',
+                            context: context,
+                            showId: provider.showId,
+                            videoId: nextEpisode.episodeVideos
+                                    ?.firstWhere(
+                                        (element) => element.videoTypeId == '1')
+                                    .id ??
+                                '',
+                            showTitle: nextEpisode.title,
+                            addQuiz: nextEpisode.hasExam &&
+                                !nextEpisode.childTakedExam,
+                            showRate: false,
+                            episodesModel: provider.episodes,
+                            episodeId: nextEpisode.id,
+                            trailerDuration: nextEpisode.trailerDuration,
+                            closingDuration: nextEpisode.closingDuration,
+                          );
+                        },
+                        onCancel: () {
+                          // No-op for now
+                        },
+                      ),
+                    ),
+                  );
+                }
+                return const SizedBox.shrink();
+              },
+            ),
+
             // Bottom Progress
             Align(
               alignment: Alignment.bottomCenter,
@@ -270,6 +359,95 @@ class _PlayerControls extends StatelessWidget {
           ],
         );
       },
+    );
+  }
+}
+
+class _SkipIntroButton extends StatelessWidget {
+  final VoidCallback onSkip;
+  const _SkipIntroButton({required this.onSkip});
+
+  @override
+  Widget build(BuildContext context) {
+    return TvClickButton(
+      onTap: onSkip,
+      child: Container(
+        margin: EdgeInsets.all(2.r),
+        padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 10.h),
+        decoration: BoxDecoration(
+          color: Colors.black45,
+          borderRadius: BorderRadius.circular(10.r),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              "Skip Intro", // Should be localized
+              style: AppTextStylesNew.style16BoldAlmarai
+                  .copyWith(color: Colors.white),
+            ),
+            SizedBox(width: 10.w),
+            Icon(Icons.skip_next, color: Colors.white, size: 24.r),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _NextEpisodeOverlay extends StatelessWidget {
+  final Details nextEpisode;
+  final VoidCallback onPlayNext;
+  final VoidCallback onCancel;
+
+  const _NextEpisodeOverlay(
+      {required this.nextEpisode,
+      required this.onPlayNext,
+      required this.onCancel});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.end,
+      children: [
+        Text(
+          "Next Episode: ${nextEpisode.title}",
+          style: AppTextStylesNew.style16BoldAlmarai
+              .copyWith(color: Colors.white, shadows: [
+            const Shadow(blurRadius: 10, color: Colors.black),
+          ]),
+        ),
+        SizedBox(height: 10.h),
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TvClickButton(
+              onTap: onPlayNext,
+              child: Container(
+                margin: EdgeInsets.all(2.r),
+                padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 10.h),
+                decoration: BoxDecoration(
+                  color: Colors.black45,
+                  borderRadius: BorderRadius.circular(10.r),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.play_arrow, color: Colors.white, size: 24.r),
+                    SizedBox(width: 10.w),
+                    Text(
+                      "Play Next", // Should be localized
+                      style: AppTextStylesNew.style16BoldAlmarai
+                          .copyWith(color: Colors.white),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        )
+      ],
     );
   }
 }
@@ -344,6 +522,7 @@ class _VideoTitleWidgetState extends State<VideoTitleWidget> {
     final isLandscape =
         (MediaQuery.of(context).orientation == Orientation.landscape);
     return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         TvClickButton(
           onTap: () {
@@ -355,6 +534,7 @@ class _VideoTitleWidgetState extends State<VideoTitleWidget> {
             }
           },
           child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Container(
                 padding: EdgeInsets.only(
@@ -371,13 +551,16 @@ class _VideoTitleWidgetState extends State<VideoTitleWidget> {
                       : Theme.of(context).textTheme.bodyMedium?.color,
                 ),
               ),
-              Text(
-                widget.title,
-                style: AppTextStylesNew.style16BoldAlmarai.copyWith(
-                  fontSize: 20,
-                  color: isLandscape
-                      ? AppColorsNew.white
-                      : Theme.of(context).textTheme.bodyMedium?.color,
+              Container(
+                width: 0.9.sw,
+                child: Text(
+                  widget.title,
+                  style: AppTextStylesNew.style16BoldAlmarai.copyWith(
+                    fontSize: 20,
+                    color: isLandscape
+                        ? AppColorsNew.white
+                        : Theme.of(context).textTheme.bodyMedium?.color,
+                  ),
                 ),
               ),
             ],
