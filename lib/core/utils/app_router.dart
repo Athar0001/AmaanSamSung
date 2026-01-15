@@ -1,8 +1,10 @@
 import 'package:amaan_tv/Features/Auth/presentation/widget/qr_login_screen.dart';
 import 'package:amaan_tv/Features/Home/data/models/home_categories_model/categories.dart';
 import 'package:amaan_tv/Features/Home/presentation/screens/categories_screen.dart';
+import 'package:amaan_tv/Features/characters/presentation/screens/character_screen.dart';
 import 'package:amaan_tv/Features/favorite/presentation/screens/favorite_screen.dart';
 import 'package:amaan_tv/Features/search/presentation/screens/search_screen.dart';
+import 'package:amaan_tv/core/models/characters_model.dart';
 import 'package:amaan_tv/core/utils/route_extra_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -96,6 +98,20 @@ final GoRouter appRouter = GoRouter(
         create: (_) => di.sl<SearchProvider>(),
         child: SearchScreen(),
       ),
+    ),
+    GoRoute(
+      path: '/character',
+      name: 'character',
+      builder: (context, state) {
+        final character = state.extra as CharacterData?;
+
+        if (character != null) {
+          return CharacterScreen(character: character);
+        }
+
+        // Fallback if character data is not passed
+        return Scaffold(body: Center(child: Text('Character not found')));
+      },
     ),
     GoRoute(
       path: '/favorites',
