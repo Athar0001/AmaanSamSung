@@ -25,31 +25,31 @@ class IconContainer<T> extends StatelessWidget {
     return TvClickButton(
       behavior: HitTestBehavior.translucent,
       onTap: onTap ?? () {},
-      child: Padding(
-        padding: EdgeInsets.all(8.r),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(12.r),
-          child: SizedBox(
-            height: 39.r,
-            width: 39.r,
-            child: BlurryContainer(
-              padding: EdgeInsets.zero,
-              color: isBlack
-                  ? AppColorsNew.blackColor.withOpacity(.4)
-                  : isDark
-                      ? AppColorsNew.white.withOpacity(.1)
-                      : AppColorsNew.white.withOpacity(0.5),
-              borderRadius: BorderRadius.circular(12.r),
-              border: Border.all(
-                color: !isDark
-                    ? Colors.transparent
-                    : AppColorsNew.black1.withOpacity(0.1),
+      builder: (context, hasFocus) {
+        return Padding(
+          padding: EdgeInsets.all(8.r),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(12.r),
+            child: SizedBox(
+              height: 39.r,
+              width: 39.r,
+              child: BlurryContainer(
+                padding: EdgeInsets.zero,
+                color: isBlack
+                    ? AppColorsNew.blackColor.withOpacity(.4)
+                    : isDark
+                    ? AppColorsNew.white.withOpacity(.1)
+                    : AppColorsNew.white.withOpacity(0.5),
+                borderRadius: BorderRadius.circular(12.r),
+                border: Border.all(
+                  color: hasFocus? AppColorsNew.white : Colors.transparent,
+                ),
+                child: Center(child: child),
               ),
-              child: Center(child: child),
             ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 }

@@ -42,12 +42,12 @@ class ShowPlayerProvider extends ChangeNotifier {
   bool isTransactionCompleted = false;
   bool showRate = true;
   bool _isActuallyPlaying = false;
-  bool _isFinished = false;
+  bool isFinished = false;
   bool _hasTriggeredClosingDuration = false;
   int repeatCounter = 1;
   int? trailerDuration;
   int? closingDuration;
-
+  bool get isPlaying => videoPlayerController?.value.isPlaying ?? false;
   final timeProvider = appNavigatorKey.currentContext!.read<TimeProvider>();
   Timer? _timer;
 
@@ -75,7 +75,7 @@ class ShowPlayerProvider extends ChangeNotifier {
     int? repeatTimes,
   }) async {
     _hasTriggeredClosingDuration = false;
-    _isFinished = false;
+    isFinished = false;
 
     this.showTitle = showTitle;
     this.showId = showId;
@@ -176,13 +176,13 @@ class ShowPlayerProvider extends ChangeNotifier {
       }
     }
 
-    if ((isFinishedNow || isClosingRegion) && !_isFinished) {
+    if ((isFinishedNow || isClosingRegion) && !isFinished) {
       _triggerCompletion();
     }
   }
 
   void _triggerCompletion() {
-    _isFinished = true;
+    isFinished = true;
     _hasTriggeredClosingDuration = true;
 
     if (repeatCounter == 1) {
@@ -242,7 +242,7 @@ class ShowPlayerProvider extends ChangeNotifier {
 
   void repeat() {
     _hasTriggeredClosingDuration = false;
-    _isFinished = false;
+    isFinished = false;
     // videoPlayerController?.seekTo(Duration.zero);
     videoPlayerController?.play();
     if (repeatCounter > 1) repeatCounter--;

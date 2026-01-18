@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:developer';
 import 'package:amaan_tv/core/widget/tv_click_button.dart';
 import 'package:flutter/material.dart';
@@ -8,6 +9,10 @@ import 'package:video_player/video_player.dart';
 import '../../../../core/Themes/app_colors_new.dart';
 import '../../../../core/Themes/app_text_styles_new.dart';
 import '../../../../core/injection/injection_imports.dart' as di;
+import '../../../../core/utils/app_localiztion.dart';
+import '../../../../core/utils/asset_manager.dart';
+import '../../../../core/widget/SVG_Image/svg_img.dart';
+import '../../../../core/widget/buttons/main_button.dart';
 import '../../data/models/home/show_details_model/data.dart';
 import '../../data/models/video_transaction_model.dart';
 import '../../provider/show_player_provider.dart';
@@ -42,27 +47,39 @@ class ShowPlayerScreen extends StatefulWidget {
 
 class _ShowPlayerScreenState extends State<ShowPlayerScreen>
     with WidgetsBindingObserver {
-  // late final ScreenPrivacy _screenPrivacy;
+  final FocusScopeNode _controlsFocusScope = FocusScopeNode();
   late ShowPlayerProvider showPlayerProvider;
 
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.detached ||
-        state == AppLifecycleState.inactive) {
-      context.read<TimeProvider>().sendVideoLog();
+  bool _controlsVisible = false;
+  Timer? _hideControlsTimer;
+
+  void _showControls() {
+    if (!_controlsVisible) {
+      setState(() => _controlsVisible = true);
+
+      // ✅ MOVE FOCUS TO CONTROLS
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          _controlsFocusScope.requestFocus();
+        }
+      });
     }
+
+    _hideControlsTimer?.cancel();
+    _hideControlsTimer = Timer(const Duration(seconds: 5), () {
+      if (mounted) {
+        setState(() => _controlsVisible = false);
+        FocusManager.instance.primaryFocus?.unfocus();
+      }
+    });
   }
 
   @override
   void dispose() {
-    WidgetsBinding.instance.removeObserver(this);
-    // _screenPrivacy.enableScreenshot().catchError((Object error) {
-    //   log('Error enabling screenshot: $error');
-    //   return false; // Return false if enabling screenshot fails
-    // });
+    _controlsFocusScope.dispose();
+    _hideControlsTimer?.cancel();
     super.dispose();
   }
-
   @override
   void initState() {
     super.initState();
@@ -128,25 +145,41 @@ class _ShowPlayerScreenState extends State<ShowPlayerScreen>
               //   DeviceOrientation.portraitUp,
               // ]);
             },
-            child: Scaffold(
-              backgroundColor: Colors.black,
-              body: SafeArea(
-                child: Stack(
-                  children: [
-                    if (provider.videoPlayerController != null)
-                      VideoPlayer(provider.videoPlayerController!),
-                    Align(
-                      alignment: Alignment.topRight,
-                      child: VideoTitleWidget(
-                        title: provider.showTitle,
-                        url: widget.url,
-                      ),
-                    ),
-                    if (provider.videoPlayerController != null)
+            child: Focus(
+              autofocus: true,
+              onKeyEvent: (node, event) {
+                if (event is KeyDownEvent) {
+                  _showControls();
+                }
+                return KeyEventResult.ignored;
+              },
+              child: Scaffold(
+                backgroundColor: Colors.black,
+                body: SafeArea(
+                  child: Stack(
+                    children: [
+                      if (provider.videoPlayerController != null)
+                        VideoPlayer(provider.videoPlayerController!),
                       Align(
-                          alignment: Alignment.center,
-                          child: const _PlayerControls()),
-                  ],
+                        alignment: Alignment.topRight,
+                        child: VideoTitleWidget(
+                          title: provider.showTitle,
+                          url: widget.url,
+                        ),
+                      ),
+                      if (provider.videoPlayerController != null)
+                        Align(
+                            alignment: Alignment.center,
+                            child: AnimatedOpacity(
+                              opacity: _controlsVisible ? 1.0 : 0.0,
+                              duration: const Duration(milliseconds: 250),
+                              child: FocusScope(
+                              node: _controlsFocusScope,
+                              child: _PlayerControls(),
+                            ),
+                            )),
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -191,160 +224,158 @@ class _PlayerControls extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 textDirection: TextDirection.ltr,
                 children: [
-                  // Backward
+                  // Backward,
                   TvClickButton(
                     onTap: () => provider.seekBackward(),
-                    child: Container(
-                      margin: EdgeInsets.all(2.r),
-                      padding: EdgeInsets.all(10.r),
-                      decoration: BoxDecoration(
-                        color: Colors.black45,
-                        borderRadius: BorderRadius.circular(10.r),
-                      ),
-                      child: Icon(
-                        Icons.replay_10,
-                        color: AppColorsNew.white,
-                        size: 40.r,
-                        shadows: const [
-                          Shadow(
-                            blurRadius: 10.0,
-                            color: Colors.black,
-                            offset: Offset(2.0, 2.0),
-                          ),
-                        ],
-                      ),
-                    ),
+                    builder: (context, hasFocus){
+                      return Icon(Icons.replay_10_outlined, size: 40.r,
+                          color: hasFocus?
+                          AppColorsNew.primary:
+                          AppColorsNew.white);
+                    },
                   ),
                   SizedBox(width: 20.w),
                   // Play/Pause
                   TvClickButton(
                     onTap: () => provider.togglePlay(),
-                    child: Container(
-                      margin: EdgeInsets.all(2.r),
-                      padding: EdgeInsets.all(10.r),
-                      decoration: BoxDecoration(
-                        color: Colors.black45,
-                        borderRadius: BorderRadius.circular(10.r),
-                      ),
-                      child: Icon(
-                        controller.value.isPlaying
-                            ? Icons.pause
-                            : Icons.play_arrow,
-                        color: AppColorsNew.white,
-                        size: 60.r,
-                        shadows: const [
-                          Shadow(
-                            blurRadius: 10.0,
-                            color: Colors.black,
-                            offset: Offset(2.0, 2.0),
+                    builder: (context, hasFocus){
+                      return provider.isFinished
+                          ? Icon(Icons.replay, size: 42,
+                          color: hasFocus?
+                          AppColorsNew.primary:
+                          AppColorsNew.white)
+                          : Container(
+                        height: 0.15.sh,
+                        width: 0.15.sh,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                            color: hasFocus?
+                                !provider.isPlaying?
+                            AppColorsNew.white:
+                                AppColorsNew.primary:
+                            Colors.transparent,
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.all(5),
+                          child: Builder(
+                            builder: (context) {
+                              try {
+                                return SVGImage(
+                                  noTheme: true,
+                                  path: provider.isPlaying
+                                      ? Assets.imagesPauseVideo
+                                      : Assets.imagesCirclePause,
+                                );
+                              } catch (e) {
+                                // Fallback to Material Icons if SVG fails
+                                return Icon(
+                                  provider.isPlaying ? Icons.pause : Icons.play_arrow,
+                                  color:
+                                  hasFocus?
+                                  AppColorsNew.primary:
+                                  AppColorsNew.white,
+                                  size: 30,
+                                );
+                              }
+                            },
                           ),
-                        ],
-                      ),
-                    ),
+                        ),
+                      );
+                    },
                   ),
                   SizedBox(width: 20.w),
                   // Forward
                   TvClickButton(
                     onTap: () => provider.seekForward(),
-                    child: Container(
-                      margin: EdgeInsets.all(2.r),
-                      padding: EdgeInsets.all(10.r),
-                      decoration: BoxDecoration(
-                        color: Colors.black45,
-                        borderRadius: BorderRadius.circular(10.r),
-                      ),
-                      child: Icon(
-                        Icons.forward_10,
-                        color: AppColorsNew.white,
-                        size: 40.r,
-                        shadows: const [
-                          Shadow(
-                            blurRadius: 10.0,
-                            color: Colors.black,
-                            offset: Offset(2.0, 2.0),
-                          ),
-                        ],
-                      ),
-                    ),
+                    builder: (context, hasFocus){
+                      return Icon(Icons.forward_10_outlined, size: 40.r,
+                          color: hasFocus?
+                          AppColorsNew.primary:
+                          AppColorsNew.white);
+                    },
                   ),
                 ],
               ),
             ),
 
             // Reactive Overlays (Skip Intro & Next Episode)
-            ValueListenableBuilder<VideoPlayerValue>(
-              valueListenable: controller,
-              builder: (context, value, child) {
-                final position = value.position;
-                final duration = value.duration;
-                final trailerDuration = provider.trailerDuration;
+            Positioned(
+              bottom: 0,
+              right: 0,
+              child: ValueListenableBuilder<VideoPlayerValue>(
+                valueListenable: controller,
+                builder: (context, value, child) {
+                  final position = value.position;
+                  final duration = value.duration;
+                  final trailerDuration = provider.trailerDuration;
 
-                // Skip Intro Logic
-                final showSkipIntro = trailerDuration != null &&
-                    position.inSeconds < trailerDuration &&
-                    trailerDuration > 0;
+                  // Skip Intro Logic
+                  final showSkipIntro = trailerDuration != null &&
+                      position.inSeconds < trailerDuration &&
+                      trailerDuration > 0;
 
-                // Next Episode Logic
-                final isNearEnd = duration.inSeconds > 0 &&
-                    (duration.inSeconds - position.inSeconds) < 20;
+                  // Next Episode Logic
+                  final isNearEnd = duration.inSeconds > 0 &&
+                      (duration.inSeconds - position.inSeconds) < 20;
 
-                final nextEpisode =
-                    isNearEnd ? _findNextEpisode(provider) : null;
-                final showNextEpisode = nextEpisode != null;
+                  final nextEpisode =
+                      isNearEnd ? _findNextEpisode(provider) : null;
+                  final showNextEpisode = nextEpisode != null;
 
-                if (!showSkipIntro && !showNextEpisode) {
+                  if (!showSkipIntro && !showNextEpisode) {
+                    return const SizedBox.shrink();
+                  }
+
+                  if (showSkipIntro) {
+                    return Align(
+                      alignment: Alignment.bottomRight,
+                      child: Padding(
+                        padding: EdgeInsets.only(bottom: 80.h, right: 40.w),
+                        child: _SkipIntroButton(
+                          onSkip: () {
+                            controller.seekTo(Duration(seconds: trailerDuration));
+                          },
+                        ),
+                      ),
+                    );
+                  }
+                  if (showNextEpisode) {
+                    return Align(
+                      alignment: Alignment.bottomRight,
+                      child: Padding(
+                        padding: EdgeInsets.only(bottom: 80.h, right: 40.w),
+                        child: _NextEpisodeOverlay(
+                          nextEpisode: nextEpisode,
+                          onPlayNext: () {
+                            provider.initializeVideo(
+                              url: nextEpisode.presignedUrl ?? '',
+                              context: context,
+                              showId: provider.showId,
+                              videoId: nextEpisode.episodeVideos
+                                      ?.firstWhere(
+                                          (element) => element.videoTypeId == '1')
+                                      .id ??
+                                  '',
+                              showTitle: nextEpisode.title,
+                              addQuiz: nextEpisode.hasExam &&
+                                  !nextEpisode.childTakedExam,
+                              showRate: false,
+                              episodesModel: provider.episodes,
+                              episodeId: nextEpisode.id,
+                              trailerDuration: nextEpisode.trailerDuration,
+                              closingDuration: nextEpisode.closingDuration,
+                            );
+                          },
+                          onCancel: () {
+                            // No-op for now
+                          },
+                        ),
+                      ),
+                    );
+                  }
                   return const SizedBox.shrink();
-                }
-
-                if (showSkipIntro) {
-                  return Align(
-                    alignment: Alignment.bottomRight,
-                    child: Padding(
-                      padding: EdgeInsets.only(bottom: 80.h, right: 40.w),
-                      child: _SkipIntroButton(
-                        onSkip: () {
-                          controller.seekTo(Duration(seconds: trailerDuration));
-                        },
-                      ),
-                    ),
-                  );
-                }
-                if (showNextEpisode) {
-                  return Align(
-                    alignment: Alignment.bottomRight,
-                    child: Padding(
-                      padding: EdgeInsets.only(bottom: 80.h, right: 40.w),
-                      child: _NextEpisodeOverlay(
-                        nextEpisode: nextEpisode,
-                        onPlayNext: () {
-                          provider.initializeVideo(
-                            url: nextEpisode.presignedUrl ?? '',
-                            context: context,
-                            showId: provider.showId,
-                            videoId: nextEpisode.episodeVideos
-                                    ?.firstWhere(
-                                        (element) => element.videoTypeId == '1')
-                                    .id ??
-                                '',
-                            showTitle: nextEpisode.title,
-                            addQuiz: nextEpisode.hasExam &&
-                                !nextEpisode.childTakedExam,
-                            showRate: false,
-                            episodesModel: provider.episodes,
-                            episodeId: nextEpisode.id,
-                            trailerDuration: nextEpisode.trailerDuration,
-                            closingDuration: nextEpisode.closingDuration,
-                          );
-                        },
-                        onCancel: () {
-                          // No-op for now
-                        },
-                      ),
-                    ),
-                  );
-                }
-                return const SizedBox.shrink();
-              },
+                },
+              ),
             ),
 
             // Bottom Progress
@@ -371,26 +402,17 @@ class _SkipIntroButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return TvClickButton(
       onTap: onSkip,
-      child: Container(
-        margin: EdgeInsets.all(2.r),
-        padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 10.h),
-        decoration: BoxDecoration(
-          color: Colors.black45,
-          borderRadius: BorderRadius.circular(10.r),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              "Skip Intro", // Should be localized
-              style: AppTextStylesNew.style16BoldAlmarai
-                  .copyWith(color: Colors.white),
-            ),
-            SizedBox(width: 10.w),
-            Icon(Icons.skip_next, color: Colors.white, size: 24.r),
-          ],
-        ),
-      ),
+     builder: (context, hasFocus){
+        return MainButtonWidget(
+          onTap: onSkip,
+          width: 250,
+          borderColor: hasFocus
+              ? AppColorsNew.white
+              : Theme.of(context).scaffoldBackgroundColor,
+          borderWidth: 1,
+          label: AppLocalization.strings.skipIntro,
+        );
+     },
     );
   }
 }
@@ -424,26 +446,17 @@ class _NextEpisodeOverlay extends StatelessWidget {
           children: [
             TvClickButton(
               onTap: onPlayNext,
-              child: Container(
-                margin: EdgeInsets.all(2.r),
-                padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 10.h),
-                decoration: BoxDecoration(
-                  color: Colors.black45,
-                  borderRadius: BorderRadius.circular(10.r),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(Icons.play_arrow, color: Colors.white, size: 24.r),
-                    SizedBox(width: 10.w),
-                    Text(
-                      "Play Next", // Should be localized
-                      style: AppTextStylesNew.style16BoldAlmarai
-                          .copyWith(color: Colors.white),
-                    ),
-                  ],
-                ),
-              ),
+              builder: (context, hasFocus){
+                return MainButtonWidget(
+                  onTap: onPlayNext,
+                  width: 250,
+                  borderColor: hasFocus
+                      ? AppColorsNew.white
+                      : Theme.of(context).scaffoldBackgroundColor,
+                  borderWidth: 1,
+                  label: AppLocalization.strings.nextEpisode,
+                );
+              },
             ),
           ],
         )
@@ -452,7 +465,7 @@ class _NextEpisodeOverlay extends StatelessWidget {
   }
 }
 
-class _FocusableVideoProgressBar extends StatelessWidget {
+class _FocusableVideoProgressBar extends StatefulWidget {
   const _FocusableVideoProgressBar({
     required this.controller,
     required this.provider,
@@ -462,36 +475,85 @@ class _FocusableVideoProgressBar extends StatelessWidget {
   final ShowPlayerProvider provider;
 
   @override
+  State<_FocusableVideoProgressBar> createState() =>
+      _FocusableVideoProgressBarState();
+}
+
+class _FocusableVideoProgressBarState
+    extends State<_FocusableVideoProgressBar> {
+  final FocusNode _focusNode = FocusNode();
+
+  @override
+  void initState() {
+    super.initState();
+    // Auto focus when widget appears (VERY important for TV)
+    // WidgetsBinding.instance.addPostFrameCallback((_) {
+    //   _focusNode.requestFocus();
+    // });
+  }
+
+  @override
+  void didChangeDependencies() {
+    if (FocusScope.of(context).hasFocus == false) {
+      _focusNode.requestFocus();
+    }
+    super.didChangeDependencies();
+  }
+
+  @override
+  void dispose() {
+    _focusNode.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Focus(
+      focusNode: _focusNode,
       onKeyEvent: (node, event) {
-        if (event is KeyDownEvent) {
-          if (event.logicalKey == LogicalKeyboardKey.arrowLeft) {
-            provider.seekBackward(seconds: 5);
-            return KeyEventResult.handled;
-          } else if (event.logicalKey == LogicalKeyboardKey.arrowRight) {
-            provider.seekForward(seconds: 5);
-            return KeyEventResult.handled;
-          }
+        if (event is! KeyDownEvent) {
+          return KeyEventResult.ignored;
         }
+
+        if (event.logicalKey == LogicalKeyboardKey.arrowLeft) {
+          widget.provider.seekBackward(seconds: 5);
+          return KeyEventResult.handled;
+        }
+
+        if (event.logicalKey == LogicalKeyboardKey.arrowRight) {
+          widget.provider.seekForward(seconds: 5);
+          return KeyEventResult.handled;
+        }
+
+        if (event.logicalKey == LogicalKeyboardKey.enter ||
+            event.logicalKey == LogicalKeyboardKey.select) {
+          widget.provider.togglePlay();
+          return KeyEventResult.handled;
+        }
+
         return KeyEventResult.ignored;
       },
       child: Builder(
         builder: (context) {
           final hasFocus = Focus.of(context).hasFocus;
-          return Container(
-            padding: EdgeInsets.symmetric(vertical: 4.h),
-            decoration: hasFocus
-                ? BoxDecoration(
-                    border: Border.all(color: AppColorsNew.primary, width: 2),
-                    borderRadius: BorderRadius.circular(4.r),
-                  )
-                : null,
+
+          return AnimatedContainer(
+            duration: const Duration(milliseconds: 150),
+            padding: EdgeInsets.symmetric(vertical: 6.h),
+            decoration: BoxDecoration(
+              border: Border.all(
+                color: hasFocus
+                    ? AppColorsNew.primary
+                    : Colors.transparent,
+                width: 2,
+              ),
+              borderRadius: BorderRadius.circular(6.r),
+            ),
             child: Directionality(
               textDirection: TextDirection.ltr,
               child: VideoProgressIndicator(
-                controller,
-                allowScrubbing: true,
+                widget.controller,
+                allowScrubbing: false, // TV remote does manual scrubbing
                 colors: VideoProgressColors(
                   playedColor: AppColorsNew.primary,
                   bufferedColor: Colors.white24,
@@ -505,6 +567,7 @@ class _FocusableVideoProgressBar extends StatelessWidget {
     );
   }
 }
+
 
 class VideoTitleWidget extends StatefulWidget {
   VideoTitleWidget({required this.title, required this.url, super.key});

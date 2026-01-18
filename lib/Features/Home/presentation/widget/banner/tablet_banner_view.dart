@@ -79,7 +79,7 @@ class TabletBannerView extends StatelessWidget {
                     child: Image.asset(
                       Assets.images.coverImageJpg.path,
                       fit: BoxFit.fill,
-                      width: 0.6.sw,
+                      width: 0.5.sw,
                       height: 400,
                     ),
                   )
@@ -87,7 +87,7 @@ class TabletBannerView extends StatelessWidget {
                   CachedNetworkImageHelper(
                     imageUrl: banner!.show.bannerThumbnailImage!.url!,
                     fit: BoxFit.fill,
-                    width: 0.6.sw,
+                    width: 0.5.sw,
                     height: 400,
                   )
                 else
@@ -166,7 +166,7 @@ class TabletBannerView extends StatelessWidget {
         // Action Buttons
         if (bannerData != null)
           Positioned(
-            bottom: 30,
+            bottom: 20,
             left: 0,
             right: 0,
             child: Padding(
@@ -187,7 +187,7 @@ class TabletBannerView extends StatelessWidget {
                       return Container(
                         padding: EdgeInsets.symmetric(
                           horizontal: 20.w,
-                          vertical: 10.h,
+                          vertical: 5.h,
                         ),
                         decoration: BoxDecoration(
                           color: AppColorsNew.primary,

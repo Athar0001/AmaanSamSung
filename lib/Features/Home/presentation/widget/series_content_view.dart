@@ -95,10 +95,10 @@ class _SeriesContentViewState extends State<SeriesContentView> {
               SliverToBoxAdapter(
                 child: Column(
                   children: [
-                    20.verticalSpace,
+                    10.verticalSpace,
                     if (categories.isNotEmpty)
                       SizedBox(
-                        height: 145.r,
+                        height: 150,
                         child: ListViewHeader(
                           items: categories,
                           selectedIndex: selectedCategoryIndex,
@@ -113,7 +113,6 @@ class _SeriesContentViewState extends State<SeriesContentView> {
                           },
                         ),
                       ),
-                    20.verticalSpace,
                   ],
                 ),
               ),
@@ -129,10 +128,10 @@ class _SeriesContentViewState extends State<SeriesContentView> {
                 )
               else
                 SliverPadding(
-                  padding: EdgeInsets.all(20.w),
+                  padding: EdgeInsets.all(8.w),
                   sliver: SliverGrid(
                     gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 5,
+                      crossAxisCount: 6,
                       childAspectRatio: 0.7,
                       crossAxisSpacing: 20.r,
                       mainAxisSpacing: 20.r,

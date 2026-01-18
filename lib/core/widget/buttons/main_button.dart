@@ -51,66 +51,70 @@ class MainButtonWidget extends StatelessWidget {
       widthFactor: isCenter ? null : 1,
       child: TvClickButton(
         onTap: onTap ?? () {},
-        child: ConstrainedBox(
-          constraints: BoxConstraints(maxWidth: 500),
-          child: Container(
-            height: height ?? (1.sw > 1100 ? 60.r : 50.r),
-            width: width ?? double.infinity,
-            decoration: BoxDecoration(
-              color: buttonColor != null
-                  ? buttonColor
-                  : isBlack
-                      ? Theme.of(context).dialogTheme.shadowColor
-                      : null,
-              border: Border.all(
-                width: borderWidth ?? 0.1,
-                color: borderColor ?? AppColorsNew.white.withValues(alpha: 0.2),
+          builder: (context, hasFocus) {
+          return ConstrainedBox(
+            constraints: BoxConstraints(maxWidth: 500),
+            child: Container(
+              height: height ?? (1.sw > 1100 ? 60.r : 50.r),
+              width: width ?? double.infinity,
+              decoration: BoxDecoration(
+                color: buttonColor != null
+                    ? buttonColor
+                    : isBlack
+                    ? Theme.of(context).dialogTheme.shadowColor
+                    : null,
+                border: Border.all(
+                  width: borderWidth ?? 0.1,
+                  color:
+                  hasFocus? AppColorsNew.white :
+                  borderColor ?? AppColorsNew.white.withValues(alpha: 0.2),
+                ),
+                gradient: buttonColor != null
+                    ? null
+                    : isBlack
+                    ? null
+                    : gradient ??
+                    LinearGradient(
+                      colors: [
+                        if (isPrimary)
+                          AppColorsNew.blue4
+                        else
+                          AppColorsNew.orange3, // Starting color
+                        if (isPrimary)
+                          AppColorsNew.blue2
+                        else
+                          AppColorsNew.orange4, // Ending color
+                      ],
+                      begin: Alignment.bottomLeft,
+                      end: Alignment.topRight,
+                    ),
+                borderRadius: BorderRadius.circular(12.r),
               ),
-              gradient: buttonColor != null
-                  ? null
-                  : isBlack
-                      ? null
-                      : gradient ??
-                          LinearGradient(
-                            colors: [
-                              if (isPrimary)
-                                AppColorsNew.blue4
-                              else
-                                AppColorsNew.orange3, // Starting color
-                              if (isPrimary)
-                                AppColorsNew.blue2
-                              else
-                                AppColorsNew.orange4, // Ending color
-                            ],
-                            begin: Alignment.bottomLeft,
-                            end: Alignment.topRight,
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    if (rightIcon != null) rightIcon!,
+                    SizedBox(width: 12.r),
+                    Text(
+                      label,
+                      style: style ??
+                          AppTextStylesNew.style18BoldAlmarai.copyWith(
+                            color: isBlack
+                                ? Theme.of(context).iconTheme.color
+                                : AppColorsNew.white1,
+                            fontSize: fontSize,
                           ),
-              borderRadius: BorderRadius.circular(12.r),
-            ),
-            child: FittedBox(
-              fit: BoxFit.scaleDown,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  if (rightIcon != null) rightIcon!,
-                  SizedBox(width: 12.r),
-                  Text(
-                    label,
-                    style: style ??
-                        AppTextStylesNew.style18BoldAlmarai.copyWith(
-                          color: isBlack
-                              ? Theme.of(context).iconTheme.color
-                              : AppColorsNew.white1,
-                          fontSize: fontSize,
-                        ),
-                  ),
-                  SizedBox(width: 12.r),
-                  if (leftIcon != null) leftIcon!,
-                ],
+                    ),
+                    SizedBox(width: 12.r),
+                    if (leftIcon != null) leftIcon!,
+                  ],
+                ),
               ),
             ),
-          ),
-        ),
+          );
+          }
       ),
     );
   }

@@ -14,6 +14,8 @@ import 'package:amaan_tv/Features/favorite/provider/get_favorites_episodes_provi
 import 'package:amaan_tv/Features/favorite/provider/get_favorites_shows_provider.dart';
 import 'package:amaan_tv/Features/favorite/provider/favorites_characters_provider.dart';
 
+import '../../Features/Auth/data/data_source/auth_service.dart';
+import '../../Features/Auth/provider/auth_provider.dart';
 import '../../Features/Home/provider/show_player_provider.dart';
 import '../../Features/Home/provider/time_provider.dart';
 
@@ -24,6 +26,7 @@ void init() {
   sl.registerLazySingleton(() => ApiService.getInstance());
   sl.registerLazySingleton(() => SignalRService());
   sl.registerFactory(() => HomeService(sl(), sl()));
+  sl.registerFactory(() => AuthService(sl()));
   if (!GetIt.I.isRegistered<TimeProvider>()) {
     sl.registerFactory(() => TimeProvider(homeService: sl()));
   }
@@ -40,4 +43,5 @@ void init() {
   sl.registerFactory(() => GetFavoritesEpisodesProvider(sl()));
   sl.registerFactory(() => GetFavoritesShowsProvider(sl()));
   sl.registerFactory(() => FavoritesCharactersProvider(sl()));
+  sl.registerFactory(() => AuthProvider(sl(),sl()));
 }

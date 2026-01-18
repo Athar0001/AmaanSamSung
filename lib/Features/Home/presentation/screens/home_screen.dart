@@ -99,7 +99,7 @@ class _HomeScreenState extends State<HomeScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               SizedBox(
-                height: 280,
+                height: 300,
                 child: Skeletonizer(
                   enabled: provider.stateBanner == AppState.loading,
                   child: HomeBannerWidget(),

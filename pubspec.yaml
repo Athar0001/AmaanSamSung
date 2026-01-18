@@ -72,6 +72,8 @@ dependencies:
   video_player_tizen: ^2.5.8
   tizen_log: ^0.1.2
   qr_flutter: ^4.1.0
+  device_info_plus_tizen: ^1.3.0
+  uuid: ^4.5.2
 
 
 

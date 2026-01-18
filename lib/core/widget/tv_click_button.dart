@@ -11,6 +11,7 @@ class TvClickButton extends StatelessWidget {
       required this.onTap,
       this.onFocusChange,
       this.behavior,
+      this.decoration,
       })
       : assert(child != null || builder != null),
         assert(child == null || builder == null);
@@ -20,6 +21,7 @@ class TvClickButton extends StatelessWidget {
   final Function() onTap;
   final HitTestBehavior? behavior;
   final ValueChanged<bool>? onFocusChange;
+  final BoxDecoration? decoration;
 
   @override
   Widget build(BuildContext context) {
@@ -44,7 +46,7 @@ class TvClickButton extends StatelessWidget {
               },
               child: builder?.call(context, hasFocus) ??
                   DecoratedBox(
-                    decoration: containerDecoration(context,
+                    decoration: decoration ?? containerDecoration(context,
                         borderColor: hasFocus ? AppColorsNew.white : null),
                     child: child,
                   ),

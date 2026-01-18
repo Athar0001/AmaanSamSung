@@ -47,11 +47,7 @@ class _ItemsWidgetState extends State<ShowCategoryItemWidget> {
         GradientContainer(
           borderRadius: 12.r,
         ),
-        Positioned(
-          top: 0,
-          left: 0,
-          child: FavoriteIconButton(widget.model),
-        ),
+
       ],
     );
   }

@@ -24,7 +24,7 @@ class ShowButtonWidget extends StatelessWidget {
         shape: BoxShape.circle,
         border: Border.all(
           color: hasFocus
-              ? AppColorsNew.primary
+              ? AppColorsNew.white
               : Theme.of(context).scaffoldBackgroundColor,
           width: 6.r,
         ),

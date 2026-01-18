@@ -15,6 +15,7 @@ import 'package:amaan_tv/core/languages/app_localizations.dart';
 import 'package:tizen_log/tizen_log.dart';
 import 'package:toastification/toastification.dart';
 
+import 'Features/Auth/provider/auth_provider.dart';
 import 'Features/Home/provider/show_player_provider.dart';
 import 'Features/Home/provider/time_provider.dart';
 import 'core/Themes/styles.dart';
@@ -38,7 +39,6 @@ void main() async {
   );
   await CacheHelper.init();
   runApp(const AmaanTVApp());
-  di.sl<SignalRService>().init("gamal_tv");
 }
 
 class AmaanTVApp extends StatelessWidget {
@@ -60,6 +60,7 @@ class AmaanTVApp extends StatelessWidget {
             Provider<ApiService>(create: (_) => ApiService.getInstance()),
             ChangeNotifierProvider(create: (_) => di.sl<TimeProvider>()),
             ChangeNotifierProvider(create: (_) => di.sl<ShowPlayerProvider>()),
+            ChangeNotifierProvider(create: (_) => di.sl<AuthProvider>()),
             ChangeNotifierProxyProvider2<
               ApiService,
               UserNotifier,

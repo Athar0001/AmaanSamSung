@@ -121,8 +121,8 @@ class _itemWidget extends StatelessWidget {
               );
             },
             child: Container(
-              height: 30,
-              width: 140,
+              height: 15,
+              width: 200,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(12.r),
                 border: focused? Border.all(
@@ -203,7 +203,7 @@ class _itemWidget extends StatelessWidget {
                     )
                   else
                     const SizedBox(),
-                  Positioned(top: 0, left: 0, child: FavoriteIconButton(details)),
+
                 ],
               ),
             ),

@@ -46,7 +46,6 @@ class _AnimatedShowButtonState extends State<AnimatedShowButton> {
   Widget build(BuildContext context) {
     return TvClickButton(
       onTap: () {
-        print('sdvsdvsdvsdv');
         widget.onTapShow.call();
       },
       builder: (context, hasFocus) {

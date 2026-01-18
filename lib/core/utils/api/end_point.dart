@@ -28,7 +28,7 @@ mixin EndPoint {
   static final String login = 'login';
   static final String googleLogin = '$baseUrl/${urlPath1}Account/GoogleLogin';
   static final String appleLogin = '$baseUrl/${urlPath1}Account/AppleLogin';
-  static final String loginURL = '$baseUrl/${urlPath1}Account/$login';
+  static final String generateTvLoginQr = '$baseUrl/${urlPath1}Account/GenerateTvLoginQr';
   static final String guestLogin = '$baseUrl/${urlPath1}Account/GuestLogin';
   static final String refreshTokenURL = '${urlPath1}Account/RefreshToken';
   static final String xLogin = '${urlPath1}Account/xLogin';

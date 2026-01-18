@@ -1,4 +1,5 @@
 import 'package:amaan_tv/Features/Auth/provider/user_notifier.dart';
+import 'package:amaan_tv/core/widget/buttons/back_button.dart';
 import 'package:amaan_tv/core/widget/tv_click_button.dart';
 import 'package:amaan_tv/Features/search/provider/search_provider.dart';
 import 'package:amaan_tv/core/Themes/app_colors_new.dart';
@@ -33,11 +34,14 @@ class _SearchScreenState extends State<SearchScreen> {
   final searchController = TextEditingController();
   Timer? _debounce;
   late SearchProvider searchProvider;
+  final FocusNode _searchFocusNode = FocusNode(skipTraversal: true);
+
   @override
   void dispose() {
     _debounce
         ?.cancel(); // Cancel the debounce timer when the widget is disposed
     searchController.dispose();
+    _searchFocusNode.dispose();
     super.dispose();
   }
 
@@ -89,29 +93,51 @@ class _SearchScreenState extends State<SearchScreen> {
                 ),
                 child: Column(
                   children: [
-                    20.verticalSpace,
+                    Align(
+                      alignment: Alignment.topRight,
+                      child: BackButtonWidget(),
+                    ),
+                    12.verticalSpace,
                     Center(
                       child: Text(
                         AppLocalization.strings.search,
-                        style: AppTextStylesNew.style28ExtraBoldAlmarai,
+                        style: AppTextStylesNew.style20BoldAlmarai,
                       ),
                     ),
-                    30.verticalSpace,
+                    12.verticalSpace,
                     MaxWidthWidget(
-                      child: TextFieldWidget(
-                        onChanged: _onSearchChanged,
-                        borderRadius: 40.r,
-                        inputFormatters: [
-                          LengthLimitingTextInputFormatter(
-                            30,
-                          ), // Limits the input to 30 characters
-                        ],
-                        hintText: AppLocalization.strings.search,
-                        prefixIcon: SVGImage(path: Assets.imagesSearch),
-                        controller: searchController,
+                      child: TvClickButton(
+                        onTap: (){
+                          _searchFocusNode.requestFocus();
+                          SystemChannels.textInput.invokeMethod('TextInput.show');
+                        },
+                        builder: (context, hasFocus) => Container(
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(40.r),
+                            border: Border.all(
+                              color: hasFocus? AppColorsNew.primary: AppColorsNew.white1.withOpacity(0.2)
+                            )
+
+                          ),
+                          child: TextFieldWidget(
+                            onChanged: _onSearchChanged,
+                            borderRadius: 40.r,
+                            focusNode: _searchFocusNode,
+                            readOnly: true,
+                            enableInteractiveSelection: false,
+                            inputFormatters: [
+                              LengthLimitingTextInputFormatter(
+                                30,
+                              ), // Limits the input to 30 characters
+                            ],
+                            hintText: AppLocalization.strings.search,
+                            prefixIcon: SVGImage(path: Assets.imagesSearch),
+                            controller: searchController,
+                          ),
+                        ),
                       ),
                     ),
-                    16.verticalSpace,
+                    40.verticalSpace,
                     if (searchController.text.isEmpty &&
                         context.read<UserNotifier>().userData != null)
                       Expanded(
@@ -229,7 +255,7 @@ class _SearchScreenState extends State<SearchScreen> {
                               AppLocalization.strings.suggestionsForYou,
                               style: AppTextStylesNew.style20BoldAlmarai,
                             ),
-                            16.verticalSpace,
+                            30.verticalSpace,
                             if (provider.suggestedSearchState ==
                                 AppState.loading)
                               const AppCircleProgressHelper()

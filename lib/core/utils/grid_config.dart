@@ -10,7 +10,7 @@ class GridConfig {
     int? crossAxisCount,
   }) {
     return SliverGridDelegateWithFixedCrossAxisCount(
-      crossAxisCount: crossAxisCount ?? 5,
+      crossAxisCount: crossAxisCount ?? 6,
       mainAxisSpacing: mainAxisSpacing ?? 16.r,
       crossAxisSpacing: crossAxisSpacing ?? 16.r,
       childAspectRatio: aspectRatio ?? 163 / 210,

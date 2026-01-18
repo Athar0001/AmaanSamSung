@@ -58,28 +58,32 @@ class _SearchItemWidgetState extends State<SearchItemWidget> {
                 }
             }
           },
-          child: Stack(
-            children: [
-              DecoratedBox(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(12.r),
-                  border: Border.all(color: AppColorsNew.primary),
-                ),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(12.r),
-                  child: CachedNetworkImageHelper(
-                    height: double.infinity,
-                    width: double.infinity,
-                    fit: BoxFit.cover,
-                    imageUrl: item.thumbnailImage?.url,
+          builder: (context, hasFocus) {
+            return Stack(
+              children: [
+                DecoratedBox(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(12.r),
+                    border: Border.all(color: hasFocus? AppColorsNew.white: AppColorsNew.primary, width: 2.r),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(2.0),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(12.r),
+                      child: CachedNetworkImageHelper(
+                        height: double.infinity,
+                        width: double.infinity,
+                        fit: BoxFit.cover,
+                        imageUrl: item.thumbnailImage?.url,
+                      ),
+                    ),
                   ),
                 ),
-              ),
-              GradientContainer(borderRadius: 12.r),
-              Positioned(top: 0, left: 0, child: FavoriteIconButton(item)),
-              if (item.isReleased) SizedBox() else LockWidget(),
-            ],
-          ),
+                GradientContainer(borderRadius: 12.r),
+                if (item.isReleased) SizedBox() else LockWidget(),
+              ],
+            );
+          }
         );
       },
     );
