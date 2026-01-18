@@ -10,8 +10,6 @@ import 'package:amaan_tv/core/widget/scaffold_gradient_background.dart';
 import 'package:amaan_tv/gen/assets.gen.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
-import '../../../../core/Themes/app_text_styles_new.dart';
-import '../../../../core/widget/buttons/back_button.dart';
 import '../widgets/favorite_episodes_widget.dart';
 
 class FavoriteScreen extends StatefulWidget {
@@ -50,35 +48,23 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
     log(widget.childId.toString(), name: 'FavoriteScreen');
 
     return ScaffoldGradientBackground(
-      appBar: AppBar(
-        centerTitle: true,
-        title: Text(
-          AppLocalization.strings.favorites,
-          style: AppTextStylesNew.style24BoldAlmarai.copyWith(
-            fontWeight: FontWeight.w700,
+      body: Column(
+        children: [
+          ListViewHeader(
+            items: categories,
+            fromAssets: true,
+            selectedIndex: selectedIndex,
+            onSelect: (index) {
+              setState(() {
+                selectedIndex = index;
+              });
+            },
           ),
-        ),
-        leading: BackButtonWidget(),
-      ),
-      body: SafeArea(
-        child: Column(
-          children: [
-            ListViewHeader(
-              items: categories,
-              fromAssets: true,
-              selectedIndex: selectedIndex,
-              onSelect: (index) {
-                setState(() {
-                  selectedIndex = index;
-                });
-              },
-            ),
-            const Gap(15),
-            Expanded(
-              child: categoriesPages[selectedIndex],
-            ),
-          ],
-        ),
+          const Gap(15),
+          Expanded(
+            child: categoriesPages[selectedIndex],
+          ),
+        ],
       ),
     );
   }

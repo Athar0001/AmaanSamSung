@@ -214,18 +214,6 @@ class TabletBannerView extends StatelessWidget {
                       );
                     },
                   ),
-                  12.horizontalSpace,
-
-                  // // Info button
-                  // _ActionButton(
-                  //   icon: Icons.info_outline,
-                  //   label: 'إعلان',
-                  //   onTap: () {},
-                  // ),
-                  // 12.horizontalSpace,
-
-                  // Like button
-                  // _ActionButton(icon: Icons.favorite_border, onTap: () {}),
                 ],
               ),
             ),
