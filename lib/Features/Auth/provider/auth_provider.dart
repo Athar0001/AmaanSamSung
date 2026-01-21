@@ -32,7 +32,15 @@ class AuthProvider extends ChangeNotifier {
   Future<void> generateQr() async {
     state = AuthState.loading;
     notifyListeners();
-    TizenDeviceInfo tizenInfo = await deviceInfo.tizenInfo;
+    TizenDeviceInfo tizenInfo = Platform.isAndroid
+        ? TizenDeviceInfo.fromMap({
+            'modelName': 'Gamal Android Tv',
+            'screenWidth': 1920,
+            'screenHeight': 1080,
+            'tizenId': '1234567890',
+            'tizenVersion': '1.0.0'
+          })
+        : await deviceInfo.tizenInfo;
     String modelName = tizenInfo.modelName ?? '';
     (await authService.generateQr(modelName: modelName, uuid: uuid.v4())).fold(
       (failure) {
