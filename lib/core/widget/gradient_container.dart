@@ -42,7 +42,7 @@ class GradientHomePoster extends StatelessWidget {
               end: Alignment.bottomCenter,
               colors: [
                 AppColorsNew.darkBlue2.withOpacity(0),
-                AppColorsNew.darkBlue2,
+                AppColorsNew.darkBlue2.withOpacity(0.6),
               ],
               stops: [
                 0,

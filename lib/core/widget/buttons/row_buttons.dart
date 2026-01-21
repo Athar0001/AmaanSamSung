@@ -28,8 +28,8 @@ class RowButtonsWidget extends StatelessWidget {
             (index) => TvClickButton(
                   onTap: () => onChanged(index),
                   child: Container(
-                    width: 110.r,
-                    height: 35.r,
+                    width: 100.w,
+                    height: 40.h,
                     alignment: Alignment.center,
                     decoration: BoxDecoration(
                       gradient: index == selectedIndex
@@ -49,17 +49,17 @@ class RowButtonsWidget extends StatelessWidget {
                               begin: Alignment.center,
                               end: Alignment.topRight,
                             ),
-                      border: Border.all(color: AppColorsNew.darkBlue1),
-                      borderRadius: BorderRadius.circular(24.r),
+
+                      borderRadius: BorderRadius.circular(12.r),
                     ),
                     child: Text(
                       items[index],
                       style: index == selectedIndex
-                          ? AppTextStylesNew.style16BoldAlmarai.copyWith(
+                          ? AppTextStylesNew.style14BoldAlmarai.copyWith(
                               color: AppColorsNew.white,
                               height: 1,
                             )
-                          : AppTextStylesNew.style16BoldAlmarai.copyWith(
+                          : AppTextStylesNew.style14BoldAlmarai.copyWith(
                               color:
                                   Theme.of(context).textTheme.bodyMedium?.color,
                               height: 1,

@@ -63,8 +63,8 @@ class _ShowSeriesPosterState extends State<ShowSeriesPoster> {
             ],
           ),
         ),
-        BottomActions(model: widget.model),
-        10.verticalSpace,
+        // BottomActions(model: widget.model),
+        // 10.verticalSpace,
         if (widget.model.isReleased == false)
           ReleaseCountdown(releaseDate: widget.model.releaseDateTime!)
       ],

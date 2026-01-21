@@ -27,12 +27,12 @@ class IconContainer<T> extends StatelessWidget {
       onTap: onTap ?? () {},
       builder: (context, hasFocus) {
         return Padding(
-          padding: EdgeInsets.all(8.r),
+          padding: EdgeInsets.all(2.r),
           child: ClipRRect(
             borderRadius: BorderRadius.circular(12.r),
             child: SizedBox(
-              height: 39.r,
-              width: 39.r,
+              height: 80.h,
+              width: 80.h,
               child: BlurryContainer(
                 padding: EdgeInsets.zero,
                 color: isBlack

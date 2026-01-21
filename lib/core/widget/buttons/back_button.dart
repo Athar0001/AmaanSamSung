@@ -18,14 +18,18 @@ class BackButtonWidget<T> extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.all(5.0),
-      child: IconContainer(
-        isBlack: isBlack,
-        result: result,
-        onTap: onPressed ?? () => context.pop(result),
-        child: Icon(
-          Icons.arrow_back,
-          color: isBlack ? AppColorsNew.white : null,
+      padding: const EdgeInsets.all(8.0),
+      child: SizedBox(
+        height: 40,
+        width: 40,
+        child: IconContainer(
+          isBlack: isBlack,
+          result: result,
+          onTap: onPressed ?? () => context.pop(result),
+          child: Icon(
+            Icons.arrow_back,
+            color: isBlack ? AppColorsNew.white : null,
+          ),
         ),
       ),
     );

@@ -8,12 +8,13 @@ import 'package:amaan_tv/core/utils/api/end_point.dart';
 
 import '../../../../core/widget/app_toast.dart';
 import '../models/login_model.dart';
+import '../models/qr_model.dart';
 
 class AuthService {
   AuthService(this.serverConstants);
   ApiService serverConstants;
 
-  Future<Either<Failure, UserData>> generateQr({
+  Future<Either<Failure, QrModel>> generateQr({
     required String modelName,
     required String uuid,
   }) async {
@@ -26,7 +27,7 @@ class AuthService {
         },
         withToken: false,
       );
-      return Right(UserData.fromJson(response.data['data']));
+      return Right(QrModel.fromJson(response.data['data']));
     } catch (error, st) {
       return Left(ErrorHandler.handle(error, st).failure);
     }

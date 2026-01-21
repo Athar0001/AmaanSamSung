@@ -79,7 +79,7 @@ class TabletBannerView extends StatelessWidget {
                     child: Image.asset(
                       Assets.images.coverImageJpg.path,
                       fit: BoxFit.fill,
-                      width: 0.5.sw,
+                      width: 0.45.sw,
                       height: 400,
                     ),
                   )
@@ -87,7 +87,7 @@ class TabletBannerView extends StatelessWidget {
                   CachedNetworkImageHelper(
                     imageUrl: banner!.show.bannerThumbnailImage!.url!,
                     fit: BoxFit.fill,
-                    width: 0.5.sw,
+                    width: 0.45.sw,
                     height: 400,
                   )
                 else

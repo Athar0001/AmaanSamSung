@@ -43,8 +43,9 @@ class _QRLoginScreenState extends State<QRLoginScreen> {
     super.initState();
     _remainingTime = widget.expiryDuration;
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<AuthProvider>().generateQr();
-      di.sl<SignalRService>().init("gamal_tv");
+      context.read<AuthProvider>().generateQr((user){
+        context.goNamed(AppRoutes.home.routeName);
+      });
     });
     _startTimer();
   }
@@ -108,7 +109,7 @@ class _QRLoginScreenState extends State<QRLoginScreen> {
                       ),
                     ),
                   ),
-                  SizedBox(height: 30.r),
+                  SizedBox(height: 60.h),
 
                   // QR Code Container
                   Container(
@@ -127,9 +128,9 @@ class _QRLoginScreenState extends State<QRLoginScreen> {
                     child: authProvider.state == AuthState.loading
                         ? CircularProgressIndicator()
                         : QrImageView(
-                            data: widget.qrData ?? 'https://example.com/login',
+                            data: authProvider.qrData,
                             version: QrVersions.auto,
-                            size: 200.r,
+                            size: 300.r,
                             backgroundColor: Colors.white,
                             eyeStyle: const QrEyeStyle(
                               eyeShape: QrEyeShape.square,
@@ -144,50 +145,50 @@ class _QRLoginScreenState extends State<QRLoginScreen> {
                   SizedBox(height: 25.r),
 
                   // Timer
-                  Text(
-                    AppLocalization.strings.qrCodeExpiresIn +
-                        " " +
-                        _formatDuration(_remainingTime),
-                    style: AppTextStylesNew.style18RegularAlmarai.copyWith(
-                      color: AppColorsNew.grey1,
-                    ),
-                  ),
-                  SizedBox(height: 8.r),
-
-                  // Refresh button (optional)
-                  if (widget.onRefresh != null)
-                    TextButton.icon(
-                      onPressed: () {
-                        setState(() {
-                          _remainingTime = widget.expiryDuration;
-                          _timer?.cancel();
-                          _startTimer();
-                        });
-                        widget.onRefresh?.call();
-                      },
-                      icon: Icon(
-                        Icons.refresh,
-                        color: AppColorsNew.primary,
-                        size: 20.r,
-                      ),
-                      label: Text(
-                        AppLocalization.strings.refreshCode,
-                        style: AppTextStylesNew.style14RegularAlmarai.copyWith(
-                          color: AppColorsNew.primary,
-                        ),
-                      ),
-                    ),
-                  SizedBox(height: 20.r),
+                  // Text(
+                  //   AppLocalization.strings.qrCodeExpiresIn +
+                  //       " " +
+                  //       _formatDuration(_remainingTime),
+                  //   style: AppTextStylesNew.style18RegularAlmarai.copyWith(
+                  //     color: AppColorsNew.grey1,
+                  //   ),
+                  // ),
+                  // SizedBox(height: 8.r),
+                  //
+                  // // Refresh button (optional)
+                  // if (widget.onRefresh != null)
+                  //   TextButton.icon(
+                  //     onPressed: () {
+                  //       setState(() {
+                  //         _remainingTime = widget.expiryDuration;
+                  //         _timer?.cancel();
+                  //         _startTimer();
+                  //       });
+                  //       widget.onRefresh?.call();
+                  //     },
+                  //     icon: Icon(
+                  //       Icons.refresh,
+                  //       color: AppColorsNew.primary,
+                  //       size: 20.r,
+                  //     ),
+                  //     label: Text(
+                  //       AppLocalization.strings.refreshCode,
+                  //       style: AppTextStylesNew.style14RegularAlmarai.copyWith(
+                  //         color: AppColorsNew.primary,
+                  //       ),
+                  //     ),
+                  //   ),
+                  // SizedBox(height: 20.r),
 
                   // Navigate to Home button
-                  MainButtonWidget(
-                    onTap: () {
-                      context.goNamed(AppRoutes.home.routeName);
-                    },
-                    width: 250,
-                    borderWidth: 1,
-                    label: AppLocalization.strings.skipOrJoinAsGuest,
-                  ),
+                  // MainButtonWidget(
+                  //   onTap: () {
+                  //     context.goNamed(AppRoutes.home.routeName);
+                  //   },
+                  //   width: 250,
+                  //   borderWidth: 1,
+                  //   label: AppLocalization.strings.skipOrJoinAsGuest,
+                  // ),
                 ],
               ),
             ),
