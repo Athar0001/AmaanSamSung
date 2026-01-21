@@ -35,6 +35,7 @@ class HerosWidget extends StatelessWidget {
           (index) => Padding(
             padding: const EdgeInsets.all(8.0),
             child: TvClickButton(
+              focusScale: 1.1,
               onTap: () {
                 context.pushNamed('character', extra: characters[index]);
               },

@@ -119,7 +119,7 @@ class _AppNavigationBarState extends State<AppNavigationBar> {
                 path: Assets.images.loginSvg.path,
                 color: AppColorsNew.red2,
                 width: 24.r,
-                height:  24.r,
+                height: 24.r,
               ),
             ),
           ),
@@ -145,28 +145,25 @@ class _HeaderTab extends StatelessWidget {
   Widget build(BuildContext context) {
     return TvClickButton(
       onTap: onTap,
+      focusScale: 1.1,
       builder: (context, focused) {
         return AnimatedContainer(
           duration: Duration(milliseconds: 200),
-          margin: EdgeInsets.only(left: 8.w),
-          padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 8.h),
+          margin: EdgeInsets.symmetric(horizontal: 4.w),
+          padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 8.h),
           decoration: BoxDecoration(
             color: isSelected ? AppColorsNew.primary : Colors.transparent,
-            borderRadius: BorderRadius.circular(20.r),
+            borderRadius: BorderRadius.circular(50.r), // Pill shape
             border: Border.all(
-              color: focused
-                  ? AppColorsNew.white
-                  : isSelected
-                      ? AppColorsNew.primary
-                      : Colors.transparent,
-              width: 1,
+              color: focused ? AppColorsNew.white : Colors.transparent,
+              width: 1.5,
             ),
           ),
           child: Text(
             title,
             style: AppTextStylesNew.style14BoldAlmarai.copyWith(
               color: AppColorsNew.white,
-              fontSize: isSelected ? 15.r : 14.r,
+              fontSize: 14.r,
               fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
             ),
           ),

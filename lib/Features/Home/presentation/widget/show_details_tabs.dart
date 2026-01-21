@@ -35,9 +35,9 @@ class ShowDetailsTabs extends StatelessWidget {
           isScrollable: true,
           dividerColor: Colors.transparent,
           indicator: LineTabIndicator(
-            color: AppColorsNew.blue1,
-            height: 5.r,
-            width: 13.r,
+            color: AppColorsNew.amber,
+            height: 3.r,
+            width: 25.r,
             endRadius: 5.r,
           ),
           tabAlignment: TabAlignment.center,
@@ -181,10 +181,10 @@ class LineTabIndicator extends Decoration {
 
 class _LinePainter extends BoxPainter {
   _LinePainter(Color color, this.height, this.width, this.endRadius)
-    : _paint = Paint()
-        ..color = color
-        ..isAntiAlias = true
-        ..style = PaintingStyle.fill;
+      : _paint = Paint()
+          ..color = color
+          ..isAntiAlias = true
+          ..style = PaintingStyle.fill;
   final Paint _paint;
   final double height;
   final double? width;

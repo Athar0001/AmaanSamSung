@@ -1,3 +1,4 @@
+import 'package:amaan_tv/Features/Home/presentation/widget/show_series_poster/animated_show_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_clip_shadow/flutter_clip_shadow.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -5,14 +6,15 @@ import 'package:amaan_tv/Clippers/layour_clipper.dart';
 import 'package:amaan_tv/Features/Home/data/models/home/show_details_model/data.dart';
 import 'package:amaan_tv/core/Themes/app_colors_new.dart';
 import 'package:amaan_tv/Features/Home/presentation/widget/release_countdown.dart';
-import 'package:amaan_tv/Features/Home/presentation/widget/show_series_poster/animated_show_button.dart';
-import 'package:amaan_tv/Features/Home/presentation/widget/show_series_poster/bottom_actions.dart';
 import 'package:amaan_tv/Features/Home/presentation/widget/show_series_poster/mobile_layout.dart';
 import 'package:amaan_tv/Features/Home/presentation/widget/show_series_poster/tablet_layout.dart';
 
 class ShowSeriesPoster extends StatefulWidget {
   const ShowSeriesPoster({
-    required this.model, required this.onTapShow, required this.refresh, super.key,
+    required this.model,
+    required this.onTapShow,
+    required this.refresh,
+    super.key,
     this.isLoading = false,
   });
 
@@ -47,7 +49,9 @@ class _ShowSeriesPosterState extends State<ShowSeriesPoster> {
                   ),
                 ],
                 child: isTablet
-                    ? TabletLayout(model: widget.model)
+                    ? TabletLayout(
+                        model: widget.model,
+                      )
                     : MobileLayout(model: widget.model),
               ),
               Positioned(

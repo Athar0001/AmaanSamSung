@@ -63,6 +63,7 @@ class ContinueWatchingWidget extends StatelessWidget {
             onTap: () {
               onTap(context, index);
             },
+            focusScale: 1.05,
             builder: (context, focused) {
               return Padding(
                 padding: EdgeInsets.symmetric(horizontal: 8.r),
@@ -78,7 +79,9 @@ class ContinueWatchingWidget extends StatelessWidget {
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(12.r),
                             border: focused
-                                ? Border.all(color: AppColorsNew.white)
+                                ? Border.all(
+                                    color: AppColorsNew.white,
+                                    width: 2.5) // Thicker border on focus
                                 : null,
                             image: decorationImageHelper(
                               fit: BoxFit.cover,
@@ -103,7 +106,8 @@ class ContinueWatchingWidget extends StatelessWidget {
                                 gradient: LinearGradient(
                                   colors: [
                                     AppColorsNew.black1.withValues(alpha: 0),
-                                    AppColorsNew.black1.withValues(alpha: 1),
+                                    AppColorsNew.black1.withValues(
+                                        alpha: 0.8), // Slightly reduced opacity
                                   ],
                                   begin: Alignment.topCenter,
                                   end: Alignment.bottomCenter,
@@ -114,37 +118,33 @@ class ContinueWatchingWidget extends StatelessWidget {
                           ),
                         ),
                         Positioned(
-                          bottom: 0.r,
+                          bottom: 10.r, // Moved up slightly
                           child: Directionality(
                             textDirection: TextDirection.ltr,
-                            child: Padding(
-                              padding: EdgeInsets.symmetric(horizontal: 12.r),
-                              child: SizedBox(
-                                width: 1.sw > 1100
-                                    ? 230.r
-                                    : 1.sw > 600
-                                        ? 195.r
-                                        : 180.r,
-                                height: 2.r,
-                                child: ClipRRect(
-                                  borderRadius: BorderRadius.only(
-                                    bottomLeft: Radius.circular(30.r),
-                                    bottomRight: Radius.circular(30.r),
+                            child: SizedBox(
+                              width: 1.sw > 1100
+                                  ? 230.r
+                                  : 1.sw > 600
+                                      ? 195.r
+                                      : 180.r,
+                              height: 4.r, // Thinner progress bar
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(2.r),
+                                child: LinearProgressIndicator(
+                                  color: AppColorsNew.primary,
+                                  value: calculateProgress(
+                                    cotinueWatchingModel
+                                            .data?[index].fromMinute ??
+                                        '00:00',
+                                    cotinueWatchingModel
+                                            .data?[index].duration?.inSeconds
+                                            .toDouble() ??
+                                        0,
                                   ),
-                                  child: LinearProgressIndicator(
-                                    color: AppColorsNew.primary,
-                                    value: calculateProgress(
-                                      cotinueWatchingModel
-                                              .data?[index].fromMinute ??
-                                          '00:00',
-                                      cotinueWatchingModel
-                                              .data?[index].duration?.inSeconds
-                                              .toDouble() ??
-                                          0,
-                                    ),
-                                    minHeight: 7.r,
-                                    backgroundColor: AppColorsNew.white1,
-                                  ),
+                                  minHeight: 4.r,
+                                  backgroundColor: AppColorsNew.white
+                                      .withOpacity(
+                                          0.3), // Semi-transparent white
                                 ),
                               ),
                             ),
