@@ -41,6 +41,25 @@ enum Gender {
   bool get isFemale => this == Gender.female;
 }
 
+class AuthModel {
+  final String sessionId;
+  final UserData authModel;
+
+  AuthModel({
+    required this.sessionId,
+    required this.authModel,
+  });
+
+  factory AuthModel.fromMap(Map<String, dynamic> map) {
+    return AuthModel(
+      sessionId: map['sessionId'],
+      authModel: UserData.fromJson(
+        Map<String, dynamic>.from(map['authModel']),
+      ),
+    );
+  }
+}
+
 class UserData extends Equatable {
   UserData({
     this.userId,

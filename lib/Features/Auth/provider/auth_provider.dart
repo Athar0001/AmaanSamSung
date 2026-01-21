@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 import 'package:amaan_tv/Features/Auth/provider/user_notifier.dart';
 import 'package:amaan_tv/core/services/signalr_service.dart';
@@ -6,6 +7,7 @@ import 'package:device_info_plus_tizen/device_info_plus_tizen.dart';
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
 import '../../../core/error/failure.dart';
+import '../../../core/injection/injection_imports.dart' as di;
 import '../data/models/login_model.dart';
 import '../data/data_source/auth_service.dart';
 import '../../../core/widget/app_toast.dart';
@@ -28,8 +30,9 @@ class AuthProvider extends ChangeNotifier {
   AuthState state = AuthState.inite;
   DeviceInfoPluginTizen deviceInfo = DeviceInfoPluginTizen();
   var uuid = Uuid();
+  String qrData = '';
 
-  Future<void> generateQr() async {
+  Future<void> generateQr(Function(AuthModel user) onAuthCompleted) async {
     state = AuthState.loading;
     notifyListeners();
     TizenDeviceInfo tizenInfo = Platform.isAndroid
@@ -51,6 +54,11 @@ class AuthProvider extends ChangeNotifier {
       (data) {
         // userNotifier.login(data);
         state = AuthState.success;
+        di.sl<SignalRService>().init(data.sessionId!, (user){
+          userNotifier.login(user.authModel);
+          onAuthCompleted(user);
+        });
+        qrData = jsonEncode(data.toJson());
         notifyListeners();
       },
     );

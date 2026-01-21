@@ -1,13 +1,16 @@
+import 'dart:convert';
 import 'dart:developer';
 
 import 'package:logging/logging.dart';
 import 'package:signalr_netcore/signalr_client.dart';
 
+import '../../Features/Auth/data/models/login_model.dart';
+
 class SignalRService {
   late HubConnection hubConnection;
   final Logger hubProtLogger = Logger("SignalR - hub");
   final Logger transportProtLogger = Logger("SignalR - transport");
-  final String serverUrl = "https://amaan-be.runasp.net/hub/tv";
+  final String serverUrl = "https://dev-be.amaantv.com/hub/tv";
 
   SignalRService() {
     // Configure the logging
@@ -18,7 +21,7 @@ class SignalRService {
     });
   }
 
-  Future<void> init(String guid) async {
+  Future<void> init(String guid, Function(AuthModel authModel) onAuthCompleted) async {
     final httpOptions = HttpConnectionOptions(logger: transportProtLogger);
 
     hubConnection = HubConnectionBuilder()
@@ -37,7 +40,15 @@ class SignalRService {
     });
 
     hubConnection.on("AuthCompleted", (args) {
-      print("AuthComplete received: ${args?.first}");
+      final raw = args?.first;
+      print('sdvlksdnvsdv222');
+      if (raw is Map) {
+        print('sdvlksdnvsdv111');
+        final data = Map<String, dynamic>.from(raw);
+        print("AuthCompleted JSON: $data");
+        print("AuthCompleted JSON: ${AuthModel.fromMap(data).authModel.toJson()}");
+        onAuthCompleted(AuthModel.fromMap(data));
+      }
     });
 
     // Example for a generic message from backend
@@ -46,15 +57,15 @@ class SignalRService {
     });
 
     // --- NOW START AND INVOKE ---
-    try {
+    // try {
       await hubConnection.start();
       print("SignalR Connected. State: ${hubConnection.state}");
 
       // Only invoke after the connection is fully open
       await hubConnection.invoke("Register", args: [guid]);
       print("Register invocation sent.");
-    } catch (e) {
-      print("SignalR Error: $e");
-    }
+    // } catch (e) {
+    //   print("SignalR Error: $e");
+    // }
   }
 }

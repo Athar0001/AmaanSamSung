@@ -229,14 +229,16 @@ class _ShowDetailsScreenState extends State<ShowDetailsScreen> {
                                           AppTextStylesNew.style16BoldAlmarai,
                                     ),
                                   ),
-                                  8.verticalSpace,
-                                  HerosWidget(
-                                    characters: charactersModel.data,
-                                    charactersScrollController: // Type mismatch in HerosWidget?
-                                        // Mobile used charactersScrollController, check TV HerosWidget signature
-                                        // If TV HerosWidget doesn't take controller, omit it.
-                                        // Checking TV home_screen.dart usage: HerosWidget(characters: charactersModel.data), no controller.
-                                        null,
+                                  Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: HerosWidget(
+                                      characters: charactersModel.data,
+                                      charactersScrollController: // Type mismatch in HerosWidget?
+                                          // Mobile used charactersScrollController, check TV HerosWidget signature
+                                          // If TV HerosWidget doesn't take controller, omit it.
+                                          // Checking TV home_screen.dart usage: HerosWidget(characters: charactersModel.data), no controller.
+                                          null,
+                                    ),
                                   ),
                                 ],
                               );

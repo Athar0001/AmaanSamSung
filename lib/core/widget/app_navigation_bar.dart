@@ -118,8 +118,8 @@ class _AppNavigationBarState extends State<AppNavigationBar> {
               child: SVGImage(
                 path: Assets.images.loginSvg.path,
                 color: AppColorsNew.red2,
-                width: 1.sw > 1100 ? 32.r : 24.r,
-                height: 1.sw > 1100 ? 32.r : 24.r,
+                width: 24.r,
+                height:  24.r,
               ),
             ),
           ),

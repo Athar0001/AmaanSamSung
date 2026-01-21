@@ -50,6 +50,8 @@ class ShowPlayerProvider extends ChangeNotifier {
   bool get isPlaying => videoPlayerController?.value.isPlaying ?? false;
   final timeProvider = appNavigatorKey.currentContext!.read<TimeProvider>();
   Timer? _timer;
+  bool _isLoading = false;
+  bool get isLoading => _isLoading;
 
   @override
   void dispose() {
@@ -76,6 +78,8 @@ class ShowPlayerProvider extends ChangeNotifier {
   }) async {
     _hasTriggeredClosingDuration = false;
     isFinished = false;
+    _isLoading = true;
+    notifyListeners();
 
     this.showTitle = showTitle;
     this.showId = showId;
@@ -111,8 +115,6 @@ class ShowPlayerProvider extends ChangeNotifier {
   }
 
   Future<void> _setupTizenPlayer(String url) async {
-    print(url);
-    print("urlurlurl");
     videoPlayerController = VideoPlayerController.networkUrl(
       Uri.parse(url),
       httpHeaders: {
@@ -121,37 +123,40 @@ class ShowPlayerProvider extends ChangeNotifier {
     );
 
     await videoPlayerController!.initialize();
-    print("urlurlurl111");
     // MUST play first on Tizen
     videoPlayerController!.play();
-    print("urlurlurl222");
     // Seek AFTER playback starts
     if (startFrom != null) {
       Future.delayed(const Duration(milliseconds: 500), () {
         videoPlayerController?.seekTo(startFrom!);
       });
     }
-    print("urlurlurl333");
     videoPlayerController!.addListener(_videoListener);
+
     notifyListeners();
   }
-
   void _videoListener() {
-    final value = videoPlayerController!.value;
+    final controller = videoPlayerController;
+    if (controller == null) return;
 
-    // Handle Playback Status for Timer
+    final value = controller.value;
+
+    final loadingNow =
+        !value.isInitialized || value.isBuffering ;
+
+    if (_isLoading != loadingNow) {
+      _isLoading = loadingNow;
+      notifyListeners();
+    }
+
     if (value.isPlaying) {
-      print("urlurlurl444");
       _handlePlayEvent();
     } else {
-      print("urlurlurl5555");
       _stopTimer();
     }
 
-    // Handle Completion and Closing Duration logic
     _handleLogicWithState(value);
 
-    // Handle Errors
     if (value.hasError) {
       _stopTimer();
       timeProvider.sendVideoLog();
@@ -160,11 +165,8 @@ class ShowPlayerProvider extends ChangeNotifier {
   }
 
   void _handleLogicWithState(VideoPlayerValue value) {
-    // 1. Check for Video Finished
     final isFinishedNow =
         value.position >= value.duration && value.duration != Duration.zero;
-
-    // 2. Check for Closing Duration (Credit roll logic)
     bool isClosingRegion = false;
     if (repeatCounter == 1 &&
         !_hasTriggeredClosingDuration &&
@@ -241,6 +243,7 @@ class ShowPlayerProvider extends ChangeNotifier {
   }
 
   void repeat() {
+    if (!(videoPlayerController?.value.isInitialized ?? false) ) return;
     _hasTriggeredClosingDuration = false;
     isFinished = false;
     // videoPlayerController?.seekTo(Duration.zero);
@@ -250,6 +253,7 @@ class ShowPlayerProvider extends ChangeNotifier {
   }
 
   void play() {
+    if (!(videoPlayerController?.value.isInitialized ?? false) ) return;
     videoPlayerController?.play();
     notifyListeners();
   }
@@ -267,36 +271,54 @@ class ShowPlayerProvider extends ChangeNotifier {
     }
   }
 
-  void seekForward({int seconds = 10}) {
+  Future<void> seekForward({int seconds = 10}) async {
     final controller = videoPlayerController;
     if (controller == null) return;
 
-    final currentPosition = controller.value.position;
-    final duration = controller.value.duration;
+    final value = controller.value;
 
-    // If duration is unknown, we can't safely seek near the end, but we can try blindly
-    // Typically better to check, but let's just add and clamp if duration is known.
+    if (!value.isInitialized) return;
+    if (value.isBuffering) return;
+    if (!value.isPlaying) return;
 
-    var newPosition = currentPosition + Duration(seconds: seconds);
+    final duration = value.duration;
+    if (duration == Duration.zero) return;
+
+    var newPosition = value.position + Duration(seconds: seconds);
+
     if (newPosition > duration) {
       newPosition = duration;
     }
 
-    controller.seekTo(newPosition);
+    try {
+      await controller.seekTo(newPosition);
+    } catch (e) {
+      log('Tizen seekForward failed (ignored): $e');
+    }
   }
 
-  void seekBackward({int seconds = 10}) {
+
+  Future<void> seekBackward({int seconds = 10}) async {
     final controller = videoPlayerController;
     if (controller == null) return;
 
-    final currentPosition = controller.value.position;
-    var newPosition = currentPosition - Duration(seconds: seconds);
+    final value = controller.value;
+
+    if (!value.isInitialized) return;
+    if (value.isBuffering) return;
+    if (!value.isPlaying) return;
+
+    var newPosition = value.position - Duration(seconds: seconds);
 
     if (newPosition < Duration.zero) {
       newPosition = Duration.zero;
     }
 
-    controller.seekTo(newPosition);
+    try {
+      await controller.seekTo(newPosition);
+    } catch (e) {
+      log('Tizen seekBackward failed (ignored): $e');
+    }
   }
 
   bool _isPopupShowing = false;
@@ -346,6 +368,7 @@ class ShowPlayerProvider extends ChangeNotifier {
   Future<VideoTransactionModel> getForTransaction(
     VideoTransactionType type,
   ) async {
+
     final videoController = videoPlayerController;
     final fromMinute = videoController?.value.position.toString();
 
@@ -360,13 +383,12 @@ class ShowPlayerProvider extends ChangeNotifier {
   }
 
   Future sendVideoTransaction(VideoTransactionType type) async {
+    if (!(videoPlayerController?.value.isInitialized ?? false) ) return;
     isTransactionCompleted = type == VideoTransactionType.completeVideo;
     stateVideoTrans = const StateProvider.loading();
     notifyListeners();
     if (userId != null) {
       final model = await getForTransaction(type);
-      print(model.toJson());
-      print('model.toJson()');
       (await homeService.videoTransaction(model: model)).fold(
         (failure) {
           stateVideoTrans = StateProvider.error(failure.message);

@@ -99,7 +99,7 @@ class _HomeScreenState extends State<HomeScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               SizedBox(
-                height: 300,
+                height: 350,
                 child: Skeletonizer(
                   enabled: provider.stateBanner == AppState.loading,
                   child: HomeBannerWidget(),
@@ -116,6 +116,7 @@ class _HomeScreenState extends State<HomeScreen> {
               //   ),
               //   // 24.verticalSpace,
               // ],
+              30.verticalSpace,
               ////////////////////////////////<---- continue watching  -->//////////////////////////////////////
               Expanded(
                 child: SingleChildScrollView(

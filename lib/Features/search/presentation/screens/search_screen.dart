@@ -34,7 +34,7 @@ class _SearchScreenState extends State<SearchScreen> {
   final searchController = TextEditingController();
   Timer? _debounce;
   late SearchProvider searchProvider;
-  final FocusNode _searchFocusNode = FocusNode(skipTraversal: true);
+  final FocusNode _searchFocusNode = FocusNode();
 
   @override
   void dispose() {
@@ -123,12 +123,10 @@ class _SearchScreenState extends State<SearchScreen> {
                             onChanged: _onSearchChanged,
                             borderRadius: 40.r,
                             focusNode: _searchFocusNode,
-                            readOnly: true,
-                            enableInteractiveSelection: false,
+                            readOnly: false, // <-- IMPORTANT
+                            enableInteractiveSelection: true,
                             inputFormatters: [
-                              LengthLimitingTextInputFormatter(
-                                30,
-                              ), // Limits the input to 30 characters
+                              LengthLimitingTextInputFormatter(30),
                             ],
                             hintText: AppLocalization.strings.search,
                             prefixIcon: SVGImage(path: Assets.imagesSearch),

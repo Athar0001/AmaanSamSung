@@ -22,17 +22,25 @@ import '../../Features/Home/provider/time_provider.dart';
 final sl = GetIt.instance;
 
 void init() {
-  sl.registerLazySingleton(() => UserNotifier.instance);
+
+
   sl.registerLazySingleton(() => ApiService.getInstance());
   sl.registerLazySingleton(() => SignalRService());
   sl.registerFactory(() => HomeService(sl(), sl()));
-  sl.registerFactory(() => AuthService(sl()));
+
   if (!GetIt.I.isRegistered<TimeProvider>()) {
     sl.registerFactory(() => TimeProvider(homeService: sl()));
   }
   if (!GetIt.I.isRegistered<ShowPlayerProvider>()) {
     sl.registerFactory(() => ShowPlayerProvider(homeService: sl()));
   }
+  if (!GetIt.I.isRegistered<AuthService>()) {
+    sl.registerFactory(() => AuthService(sl()));
+  }
+  if (!GetIt.I.isRegistered<UserNotifier>()) {
+    sl.registerSingleton<UserNotifier>(UserNotifier(sl()));
+  }
+
   sl.registerFactory(() => BottomBarProvider(sl()));
   sl.registerFactory(() => ShowProvider(sl(), sl()));
   sl.registerFactory(() => FamilyProvider());
@@ -43,5 +51,5 @@ void init() {
   sl.registerFactory(() => GetFavoritesEpisodesProvider(sl()));
   sl.registerFactory(() => GetFavoritesShowsProvider(sl()));
   sl.registerFactory(() => FavoritesCharactersProvider(sl()));
-  sl.registerFactory(() => AuthProvider(sl(),sl()));
+  sl.registerFactory(() => AuthProvider(sl(), sl()));
 }

@@ -160,6 +160,13 @@ class _ShowPlayerScreenState extends State<ShowPlayerScreen>
                     children: [
                       if (provider.videoPlayerController != null)
                         VideoPlayer(provider.videoPlayerController!),
+
+                      if (provider.isLoading)
+                        const Center(
+                          child: CircularProgressIndicator(
+                            color: AppColorsNew.primary,
+                          ),
+                        ),
                       Align(
                         alignment: Alignment.topRight,
                         child: VideoTitleWidget(
@@ -167,7 +174,7 @@ class _ShowPlayerScreenState extends State<ShowPlayerScreen>
                           url: widget.url,
                         ),
                       ),
-                      if (provider.videoPlayerController != null)
+                      if (provider.videoPlayerController != null && !provider.isLoading)
                         Align(
                             alignment: Alignment.center,
                             child: AnimatedOpacity(
@@ -400,19 +407,11 @@ class _SkipIntroButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return TvClickButton(
+    return MainButtonWidget(
       onTap: onSkip,
-     builder: (context, hasFocus){
-        return MainButtonWidget(
-          onTap: onSkip,
-          width: 250,
-          borderColor: hasFocus
-              ? AppColorsNew.white
-              : Theme.of(context).scaffoldBackgroundColor,
-          borderWidth: 1,
-          label: AppLocalization.strings.skipIntro,
-        );
-     },
+      width: 250,
+      borderWidth: 1,
+      label: AppLocalization.strings.skipIntro,
     );
   }
 }
@@ -441,24 +440,11 @@ class _NextEpisodeOverlay extends StatelessWidget {
           ]),
         ),
         SizedBox(height: 10.h),
-        Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TvClickButton(
-              onTap: onPlayNext,
-              builder: (context, hasFocus){
-                return MainButtonWidget(
-                  onTap: onPlayNext,
-                  width: 250,
-                  borderColor: hasFocus
-                      ? AppColorsNew.white
-                      : Theme.of(context).scaffoldBackgroundColor,
-                  borderWidth: 1,
-                  label: AppLocalization.strings.nextEpisode,
-                );
-              },
-            ),
-          ],
+        MainButtonWidget(
+          onTap: onPlayNext,
+          width: 250,
+          borderWidth: 1,
+          label: AppLocalization.strings.nextEpisode,
         )
       ],
     );
@@ -482,19 +468,33 @@ class _FocusableVideoProgressBar extends StatefulWidget {
 class _FocusableVideoProgressBarState
     extends State<_FocusableVideoProgressBar> {
   final FocusNode _focusNode = FocusNode();
+  Timer? _seekTimer;
+  bool _seekingForward = false;
 
-  @override
-  void initState() {
-    super.initState();
-    // Auto focus when widget appears (VERY important for TV)
-    // WidgetsBinding.instance.addPostFrameCallback((_) {
-    //   _focusNode.requestFocus();
-    // });
+  void _startSeeking(bool forward) {
+    _seekingForward = forward;
+
+    _seekTimer?.cancel();
+    _seekTimer = Timer.periodic(
+      const Duration(milliseconds: 200),
+          (_) {
+        if (_seekingForward) {
+          widget.provider.seekForward(seconds: 1);
+        } else {
+          widget.provider.seekBackward(seconds: 1);
+        }
+      },
+    );
+  }
+
+  void _stopSeeking() {
+    _seekTimer?.cancel();
+    _seekTimer = null;
   }
 
   @override
   void didChangeDependencies() {
-    if (FocusScope.of(context).hasFocus == false) {
+    if (!FocusScope.of(context).hasFocus) {
       _focusNode.requestFocus();
     }
     super.didChangeDependencies();
@@ -502,6 +502,7 @@ class _FocusableVideoProgressBarState
 
   @override
   void dispose() {
+    _seekTimer?.cancel();
     _focusNode.dispose();
     super.dispose();
   }
@@ -511,24 +512,30 @@ class _FocusableVideoProgressBarState
     return Focus(
       focusNode: _focusNode,
       onKeyEvent: (node, event) {
-        if (event is! KeyDownEvent) {
-          return KeyEventResult.ignored;
+        if (event is KeyDownEvent) {
+          if (event.logicalKey == LogicalKeyboardKey.arrowRight) {
+            _startSeeking(true);
+            return KeyEventResult.handled;
+          }
+
+          if (event.logicalKey == LogicalKeyboardKey.arrowLeft) {
+            _startSeeking(false);
+            return KeyEventResult.handled;
+          }
+
+          if (event.logicalKey == LogicalKeyboardKey.enter ||
+              event.logicalKey == LogicalKeyboardKey.select) {
+            widget.provider.togglePlay();
+            return KeyEventResult.handled;
+          }
         }
 
-        if (event.logicalKey == LogicalKeyboardKey.arrowLeft) {
-          widget.provider.seekBackward(seconds: 5);
-          return KeyEventResult.handled;
-        }
-
-        if (event.logicalKey == LogicalKeyboardKey.arrowRight) {
-          widget.provider.seekForward(seconds: 5);
-          return KeyEventResult.handled;
-        }
-
-        if (event.logicalKey == LogicalKeyboardKey.enter ||
-            event.logicalKey == LogicalKeyboardKey.select) {
-          widget.provider.togglePlay();
-          return KeyEventResult.handled;
+        if (event is KeyUpEvent) {
+          if (event.logicalKey == LogicalKeyboardKey.arrowRight ||
+              event.logicalKey == LogicalKeyboardKey.arrowLeft) {
+            _stopSeeking();
+            return KeyEventResult.handled;
+          }
         }
 
         return KeyEventResult.ignored;
@@ -542,9 +549,8 @@ class _FocusableVideoProgressBarState
             padding: EdgeInsets.symmetric(vertical: 6.h),
             decoration: BoxDecoration(
               border: Border.all(
-                color: hasFocus
-                    ? AppColorsNew.primary
-                    : Colors.transparent,
+                color:
+                hasFocus ? AppColorsNew.primary : Colors.transparent,
                 width: 2,
               ),
               borderRadius: BorderRadius.circular(6.r),
@@ -553,11 +559,12 @@ class _FocusableVideoProgressBarState
               textDirection: TextDirection.ltr,
               child: VideoProgressIndicator(
                 widget.controller,
-                allowScrubbing: false, // TV remote does manual scrubbing
+                allowScrubbing: false,
                 colors: VideoProgressColors(
                   playedColor: AppColorsNew.primary,
                   bufferedColor: Colors.white24,
-                  backgroundColor: Colors.white10.withOpacity(0.3),
+                  backgroundColor:
+                  Colors.white10.withOpacity(0.3),
                 ),
               ),
             ),
@@ -567,6 +574,7 @@ class _FocusableVideoProgressBarState
     );
   }
 }
+
 
 
 class VideoTitleWidget extends StatefulWidget {
@@ -588,6 +596,7 @@ class _VideoTitleWidgetState extends State<VideoTitleWidget> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         TvClickButton(
+
           onTap: () {
             if (isLandscape) {
               Navigator.pop(context);
@@ -596,38 +605,37 @@ class _VideoTitleWidgetState extends State<VideoTitleWidget> {
               Navigator.pop(context);
             }
           },
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(
-                padding: EdgeInsets.only(
-                  top: 10,
-                  bottom: 10,
-                  right: 20,
-                  left: 10,
+          builder: (context, hasFocus){
+            return Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  padding: EdgeInsets.only(
+                    top: 10,
+                    bottom: 10,
+                    right: 20,
+                    left: 10,
+                  ),
+                  // child: Icon(
+                  //   Icons.arrow_back_ios,
+                  //   size: 30.r,
+                  //   color: isLandscape
+                  //       ? AppColorsNew.white
+                  //       : Theme.of(context).textTheme.bodyMedium?.color,
+                  // ),
                 ),
-                child: Icon(
-                  Icons.arrow_back_ios,
-                  size: 30.r,
-                  color: isLandscape
-                      ? AppColorsNew.white
-                      : Theme.of(context).textTheme.bodyMedium?.color,
-                ),
-              ),
-              Container(
-                width: 0.9.sw,
-                child: Text(
-                  widget.title,
-                  style: AppTextStylesNew.style16BoldAlmarai.copyWith(
-                    fontSize: 20,
-                    color: isLandscape
-                        ? AppColorsNew.white
-                        : Theme.of(context).textTheme.bodyMedium?.color,
+                Container(
+                  width: 0.9.sw,
+                  child: Text(
+                    widget.title,
+                    style: AppTextStylesNew.style16BoldAlmarai.copyWith(
+                      fontSize: 20,
+                      color: hasFocus? AppColorsNew.primary : AppColorsNew.white ),
                   ),
                 ),
-              ),
-            ],
-          ),
+              ],
+            );
+          },
         ),
         Spacer(),
       ],

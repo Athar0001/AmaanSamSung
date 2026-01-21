@@ -63,7 +63,7 @@ class HomeBannerState extends State<HomeBannerWidget> {
   Widget build(BuildContext context) {
     return Container(
       color: Colors.transparent,
-      height: 300,
+      height: 350,
       child: Consumer<HomeProvider>(
         builder: (context, provider, child) {
           return TabletBannerView(

@@ -117,12 +117,15 @@ class _EpisodeWidgetState extends State<EpisodeWidget> {
                 child: Stack(
                   alignment: AlignmentDirectional.center,
                   children: [
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(12.r),
-                      child: CachedNetworkImageHelper(
-                        width: double.infinity,
-                        height: double.infinity,
-                        imageUrl: widget.model.thumbnailImage?.url,
+                    Padding(
+                      padding: const EdgeInsets.all(3.0),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(12.r),
+                        child: CachedNetworkImageHelper(
+                          width: double.infinity,
+                          height: double.infinity,
+                          imageUrl: widget.model.thumbnailImage?.url,
+                        ),
                       ),
                     ),
                     GradientHomePoster(
@@ -160,11 +163,7 @@ class _EpisodeWidgetState extends State<EpisodeWidget> {
                         ),
                       ),
                     ),
-                    PositionedDirectional(
-                      end: 0,
-                      top: 0,
-                      child: FavoriteIconButton(widget.model),
-                    ),
+
                   ],
                 ),
               ),
