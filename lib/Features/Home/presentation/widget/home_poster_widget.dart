@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:amaan_tv/core/Themes/app_colors_new.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:amaan_tv/Features/Home/provider/home_provider.dart';
@@ -62,21 +63,28 @@ class HomeBannerState extends State<HomeBannerWidget> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: Colors.transparent,
       height: 1130.r,
-      child: Consumer<HomeProvider>(
-        builder: (context, provider, child) {
-          return TabletBannerView(
-            controller: _controller,
-            currentPage: _currentPage,
-            onPageChanged: (index) {
-              setState(() {
-                _currentPage = index;
-              });
-            },
-            provider: provider,
-          );
-        },
+      margin: EdgeInsets.symmetric(horizontal: 30.r),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(20.r),
+        border: Border.all(color: AppColorsNew.blue2),
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(20.r),
+        child: Consumer<HomeProvider>(
+          builder: (context, provider, child) {
+            return TabletBannerView(
+              controller: _controller,
+              currentPage: _currentPage,
+              onPageChanged: (index) {
+                setState(() {
+                  _currentPage = index;
+                });
+              },
+              provider: provider,
+            );
+          },
+        ),
       ),
     );
   }
