@@ -278,7 +278,7 @@ class TabletBannerView extends StatelessWidget {
                 // Banner data starts from index 1 in pageview
                 final pageIndex = index + 1;
                 final isSelected = currentPage == pageIndex;
-                return GestureDetector(
+                return TvClickButton(
                   onTap: () {
                     controller.animateToPage(
                       pageIndex,
@@ -286,40 +286,42 @@ class TabletBannerView extends StatelessWidget {
                       curve: Curves.easeInOut,
                     );
                   },
-                  child: Container(
-                    width: 232.r,
-                    margin: EdgeInsetsDirectional.only(end: 30),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(12.r),
-                      border: isSelected
-                          ? Border.all(
-                              color: AppColorsNew.white,
-                              width: 2,
-                            )
-                          : null,
-                      boxShadow: isSelected
-                          ? [
-                              BoxShadow(
-                                color: Colors.black.withOpacity(0.3),
-                                blurRadius: 8,
-                                offset: Offset(0, 4),
-                              ),
-                            ]
-                          : null,
-                    ),
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(10.r),
-                      child: show.show.thumbnailImage?.url != null
-                          ? CachedNetworkImageHelper(
-                              imageUrl: show.show.thumbnailImage!.url!,
-                              fit: BoxFit.cover,
-                              width: 232.r,
-                              height: 330.r,
-                              borderRadius: 0,
-                            )
-                          : Container(color: Colors.grey[800]),
-                    ),
-                  ),
+                  builder: (context, hasFocus) {
+                    return Container(
+                      width: 232.r,
+                      margin: EdgeInsetsDirectional.only(end: 30),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(12.r),
+                        border: isSelected || hasFocus
+                            ? Border.all(
+                                color: AppColorsNew.white,
+                                width: hasFocus ? 4 : 2,
+                              )
+                            : null,
+                        boxShadow: isSelected || hasFocus
+                            ? [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.3),
+                                  blurRadius: 8,
+                                  offset: Offset(0, 4),
+                                ),
+                              ]
+                            : null,
+                      ),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(10.r),
+                        child: show.show.thumbnailImage?.url != null
+                            ? CachedNetworkImageHelper(
+                                imageUrl: show.show.thumbnailImage!.url!,
+                                fit: BoxFit.cover,
+                                width: 232.r,
+                                height: 330.r,
+                                borderRadius: 0,
+                              )
+                            : Container(color: Colors.grey[800]),
+                      ),
+                    );
+                  },
                 );
               },
             ),
