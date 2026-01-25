@@ -32,7 +32,6 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   di.init();
 
-
   AppFlavor.flavor = Flavor.values.firstWhere(
     (flavor) => flavor.name == appFlavor,
     orElse: () => Flavor.dev,
@@ -48,8 +47,8 @@ class AmaanTVApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return ScreenUtilInit(
       designSize: const Size(
-        375,
-        812,
+        1920,
+        1080,
       ), // Standard mobile size, adjust if needed
       minTextAdapt: true,
       splitScreenMode: true,
@@ -61,11 +60,8 @@ class AmaanTVApp extends StatelessWidget {
             ChangeNotifierProvider(create: (_) => di.sl<TimeProvider>()),
             ChangeNotifierProvider(create: (_) => di.sl<ShowPlayerProvider>()),
             ChangeNotifierProvider(create: (_) => di.sl<AuthProvider>()),
-            ChangeNotifierProxyProvider2<
-              ApiService,
-              UserNotifier,
-              HomeProvider
-            >(
+            ChangeNotifierProxyProvider2<ApiService, UserNotifier,
+                HomeProvider>(
               create: (context) => HomeProvider(
                 HomeService(ApiService.getInstance(), UserNotifier.instance),
                 UserNotifier.instance,
