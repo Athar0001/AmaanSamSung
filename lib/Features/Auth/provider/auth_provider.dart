@@ -31,6 +31,7 @@ class AuthProvider extends ChangeNotifier {
   DeviceInfoPluginTizen deviceInfo = DeviceInfoPluginTizen();
   var uuid = Uuid();
   String qrData = '';
+  Duration expiryDuration = const Duration(minutes: 4);
 
   Future<void> generateQr(Function(AuthModel user) onAuthCompleted) async {
     state = AuthState.loading;
@@ -54,7 +55,8 @@ class AuthProvider extends ChangeNotifier {
       (data) {
         // userNotifier.login(data);
         state = AuthState.success;
-        di.sl<SignalRService>().init(data.sessionId!, (user){
+        expiryDuration = data.expiryDuration;
+        di.sl<SignalRService>().init(data.sessionId!, (user) {
           userNotifier.login(user.authModel);
           onAuthCompleted(user);
         });

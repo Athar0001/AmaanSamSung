@@ -1600,4 +1600,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get refreshCode => 'تحديث الرمز';
+
+  @override
+  String get qrCodeExpired => 'انتهت صلاحية رمز QR';
 }
