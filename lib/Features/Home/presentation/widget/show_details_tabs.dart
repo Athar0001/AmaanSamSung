@@ -134,15 +134,6 @@ class _ShowDetailsTabBarViewState extends State<ShowDetailsTabBarView> {
             return SuggestionsWidget(relatedModel: data);
           },
         ),
-        AppStateBuilder<ShowProvider, RelatedModel>(
-          isSliver: true,
-          initState: (provider) => provider.getRelatedShowsProvide(),
-          state: (provider) => provider.stateRelatedShows,
-          selector: (provider) => provider.relatedModel,
-          builder: (context, data, child) {
-            return SuggestionsWidget(relatedModel: data);
-          },
-        ),
         MoreWidget(
           model: context.read<ShowProvider>().showDetailsModel!,
           seasons: context.read<ShowProvider>().seasonsModel?.data?.length,

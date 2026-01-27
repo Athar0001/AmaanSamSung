@@ -1,5 +1,7 @@
 import 'package:amaan_tv/Features/search/data/data_source/search_service.dart';
 import 'package:amaan_tv/Features/search/provider/search_provider.dart';
+import 'package:amaan_tv/Features/quiz/data/data_source/quiz_service.dart';
+import 'package:amaan_tv/Features/quiz/provider/quiz_provider.dart';
 import 'package:get_it/get_it.dart';
 import 'package:amaan_tv/Features/Home/provider/bottom_bar_provider.dart';
 import 'package:amaan_tv/Features/Auth/provider/user_notifier.dart';
@@ -22,8 +24,6 @@ import '../../Features/Home/provider/time_provider.dart';
 final sl = GetIt.instance;
 
 void init() {
-
-
   sl.registerLazySingleton(() => ApiService.getInstance());
   sl.registerLazySingleton(() => SignalRService());
   sl.registerFactory(() => HomeService(sl(), sl()));
@@ -52,4 +52,8 @@ void init() {
   sl.registerFactory(() => GetFavoritesShowsProvider(sl()));
   sl.registerFactory(() => FavoritesCharactersProvider(sl()));
   sl.registerFactory(() => AuthProvider(sl(), sl()));
+
+  // Quiz Feature
+  sl.registerFactory(() => QuizService(sl()));
+  sl.registerFactory(() => QuizProvider(sl()));
 }

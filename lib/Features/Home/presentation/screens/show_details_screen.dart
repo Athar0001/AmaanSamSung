@@ -151,7 +151,7 @@ class _ShowDetailsScreenState extends State<ShowDetailsScreen> {
                                     'url': provider.showVideo!.presignedUrl!,
                                     'videoId': provider.videoId!,
                                     'episodesModel':
-                                    provider.showsEpisodesModel?.data,
+                                        provider.showsEpisodesModel?.data,
                                     'fromMinute': widget.fromMinute,
                                     'repeatTimes': value,
                                   },
@@ -165,7 +165,7 @@ class _ShowDetailsScreenState extends State<ShowDetailsScreen> {
                                 'url': provider.showVideo!.presignedUrl!,
                                 'videoId': provider.videoId!,
                                 'episodesModel':
-                                provider.showsEpisodesModel?.data,
+                                    provider.showsEpisodesModel?.data,
                                 'fromMinute': widget.fromMinute,
                               },
                             );
@@ -202,13 +202,14 @@ class _ShowDetailsScreenState extends State<ShowDetailsScreen> {
                       ),
                     ),
                   ).sliver,
-                  Selector<ShowProvider, StateProvider<CharactersModel, String>>(
+                  Selector<ShowProvider,
+                      StateProvider<CharactersModel, String>>(
                     selector: (context, provider) =>
                         provider.stateCharactersShows,
                     builder: (context, stateCharacters, child) {
-                      return provider.stateCharactersShows.when<
-                        Widget
-                      >(AppCircleProgressHelper.new, (error) => SizedBox.shrink(), (
+                      return provider.stateCharactersShows.when<Widget>(
+                          AppCircleProgressHelper.new,
+                          (error) => SizedBox.shrink(), (
                         data,
                       ) {
                         final charactersModel = data;
@@ -233,11 +234,8 @@ class _ShowDetailsScreenState extends State<ShowDetailsScreen> {
                                     padding: const EdgeInsets.all(8.0),
                                     child: HerosWidget(
                                       characters: charactersModel.data,
-                                      charactersScrollController: // Type mismatch in HerosWidget?
-                                          // Mobile used charactersScrollController, check TV HerosWidget signature
-                                          // If TV HerosWidget doesn't take controller, omit it.
-                                          // Checking TV home_screen.dart usage: HerosWidget(characters: charactersModel.data), no controller.
-                                          null,
+                                      charactersScrollController:
+                                          charactersScrollController,
                                     ),
                                   ),
                                 ],

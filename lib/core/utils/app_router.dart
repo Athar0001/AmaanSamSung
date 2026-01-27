@@ -3,9 +3,15 @@ import 'package:amaan_tv/Features/Home/data/models/home_categories_model/categor
 import 'package:amaan_tv/Features/Home/presentation/screens/categories_screen.dart';
 import 'package:amaan_tv/Features/characters/presentation/screens/character_screen.dart';
 import 'package:amaan_tv/Features/favorite/presentation/screens/favorite_screen.dart';
+import 'package:amaan_tv/Features/quiz/presntation/screens/leader_board_screen.dart';
+import 'package:amaan_tv/Features/quiz/presntation/screens/postponed_quizzes_screen.dart';
+import 'package:amaan_tv/Features/quiz/presntation/screens/quiz_score_screen.dart';
+import 'package:amaan_tv/Features/quiz/presntation/screens/quiz_screen.dart';
+import 'package:amaan_tv/Features/quiz/provider/quiz_provider.dart';
 import 'package:amaan_tv/Features/search/presentation/screens/search_screen.dart';
 import 'package:amaan_tv/core/models/characters_model.dart';
 import 'package:amaan_tv/core/utils/route_extra_helper.dart';
+import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:amaan_tv/Features/Home/presentation/screens/home_screen.dart';
@@ -35,7 +41,12 @@ enum AppRoutes {
   favorites('favorites'),
 
   homeChild('homeChild'),
-  qrLogin('qrLogin');
+  qrLogin('qrLogin'),
+  // Quiz routes
+  quiz('quiz'),
+  quizScore('quizScore'),
+  quizLeaderboard('quizLeaderboard'),
+  postponedQuizzes('postponedQuizzes');
 
   final String name;
   const AppRoutes(this.name);
@@ -46,7 +57,7 @@ final GlobalKey<NavigatorState> appNavigatorKey = GlobalKey<NavigatorState>();
 
 final GoRouter appRouter = GoRouter(
   navigatorKey: appNavigatorKey,
-  initialLocation: '/qr-login',
+  initialLocation:kDebugMode ? '/home': '/qr-login',
   routes: [
     GoRoute(
       path: '/home',
@@ -167,6 +178,48 @@ final GoRouter appRouter = GoRouter(
           ),
         );
       },
+    ),
+    // Quiz Routes
+    GoRoute(
+      path: '/quiz/:examId',
+      name: AppRoutes.quiz.routeName,
+      builder: (context, state) {
+        final examId = state.pathParameters['examId']!;
+        return ChangeNotifierProvider(
+          create: (_) => di.sl<QuizProvider>(),
+          child: QuizScreen(examId: examId),
+        );
+      },
+    ),
+    GoRoute(
+      path: '/quiz-score/:examId',
+      name: AppRoutes.quizScore.routeName,
+      builder: (context, state) {
+        final examId = state.pathParameters['examId']!;
+        return ChangeNotifierProvider(
+          create: (_) => di.sl<QuizProvider>(),
+          child: QuizScoreScreen(examId: examId),
+        );
+      },
+    ),
+    GoRoute(
+      path: '/quiz-leaderboard/:examId',
+      name: AppRoutes.quizLeaderboard.routeName,
+      builder: (context, state) {
+        final examId = state.pathParameters['examId'];
+        return ChangeNotifierProvider(
+          create: (_) => di.sl<QuizProvider>(),
+          child: LeaderBoardScreen(examId: examId),
+        );
+      },
+    ),
+    GoRoute(
+      path: '/postponed-quizzes',
+      name: AppRoutes.postponedQuizzes.routeName,
+      builder: (context, state) => ChangeNotifierProvider(
+        create: (_) => di.sl<QuizProvider>(),
+        child: const PostponedQuizzesScreen(),
+      ),
     ),
   ],
 );
