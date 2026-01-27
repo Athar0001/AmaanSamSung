@@ -41,12 +41,8 @@ class SignalRService {
 
     hubConnection.on("AuthCompleted", (args) {
       final raw = args?.first;
-      print('sdvlksdnvsdv222');
       if (raw is Map) {
-        print('sdvlksdnvsdv111');
         final data = Map<String, dynamic>.from(raw);
-        print("AuthCompleted JSON: $data");
-        print("AuthCompleted JSON: ${AuthModel.fromMap(data).authModel.toJson()}");
         onAuthCompleted(AuthModel.fromMap(data));
       }
     });
@@ -57,15 +53,15 @@ class SignalRService {
     });
 
     // --- NOW START AND INVOKE ---
-    // try {
+    try {
       await hubConnection.start();
       print("SignalR Connected. State: ${hubConnection.state}");
 
       // Only invoke after the connection is fully open
       await hubConnection.invoke("Register", args: [guid]);
       print("Register invocation sent.");
-    // } catch (e) {
-    //   print("SignalR Error: $e");
-    // }
+    } catch (e) {
+      print("SignalR Error: $e");
+    }
   }
 }

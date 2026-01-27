@@ -1,3 +1,4 @@
+
 import 'package:amaan_tv/core/Themes/app_colors_new.dart';
 import 'package:amaan_tv/core/widget/radio%20button/radio_button_multi_select_package.dart';
 import 'package:flutter/material.dart';
@@ -8,6 +9,7 @@ class TvClickButton extends StatelessWidget {
     super.key,
     this.child,
     this.builder,
+    this.focusNode,
     required this.onTap,
     this.onFocusChange,
     this.behavior,
@@ -27,11 +29,25 @@ class TvClickButton extends StatelessWidget {
   final double? focusScale;
   final Color? focusBorderColor;
   final double focusBorderWidth;
+  final FocusNode? focusNode;
 
   @override
   Widget build(BuildContext context) {
     return Focus(
-      onFocusChange: onFocusChange,
+      focusNode: focusNode,
+      // onFocusChange: onFocusChange,
+      onFocusChange: (hasFocus) {
+        onFocusChange?.call(hasFocus);
+        if (hasFocus) {
+          Scrollable.ensureVisible(
+            context,
+            alignment: 0.5,
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeInOut,
+          );
+        }
+        onFocusChange?.call(hasFocus);
+      },
       onKeyEvent: (node, event) {
         if (event is KeyDownEvent &&
             (event.logicalKey == LogicalKeyboardKey.enter ||

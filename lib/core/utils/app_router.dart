@@ -16,6 +16,7 @@ import 'package:amaan_tv/core/injection/injection_imports.dart' as di;
 
 import '../../Features/Home/data/models/home/show_details_model/data.dart';
 import '../../Features/Home/presentation/screens/show_player.dart';
+import 'cash_services/cashe_helper.dart';
 
 // Definition of AppRoutes as an Enum to support .routeName and strict typing
 enum AppRoutes {
@@ -47,6 +48,21 @@ final GlobalKey<NavigatorState> appNavigatorKey = GlobalKey<NavigatorState>();
 final GoRouter appRouter = GoRouter(
   navigatorKey: appNavigatorKey,
   initialLocation: '/qr-login',
+  redirect: (context, state) {
+    final loginInfo = CacheHelper.getData(key: 'loginInfo');
+
+    final isOnLogin = state.matchedLocation == '/qr-login';
+
+    if (loginInfo != null && isOnLogin) {
+      return '/home';
+    }
+
+    if (loginInfo == null && !isOnLogin) {
+      return '/qr-login';
+    }
+
+    return null;
+  },
   routes: [
     GoRoute(
       path: '/home',

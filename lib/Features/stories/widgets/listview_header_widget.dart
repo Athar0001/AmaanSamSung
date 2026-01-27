@@ -1,4 +1,5 @@
 import 'package:amaan_tv/Features/stories/widgets/category_widget.dart';
+import 'package:amaan_tv/core/widget/tv_click_button.dart';
 import 'package:flutter/material.dart';
 import '../../Home/data/models/home_categories_model/categories.dart';
 
@@ -23,27 +24,31 @@ class ListViewHeader extends StatefulWidget {
 class _ListViewHeaderState extends State<ListViewHeader> {
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: Row(
-        children: widget.items.map(
-          (category) {
-            final currentStoreIndex = widget.items.indexOf(category);
-            final isSelected = currentStoreIndex == widget.selectedIndex;
+    return Row(
 
-            return GestureDetector(
+      children: widget.items.map(
+        (category) {
+          final currentStoreIndex = widget.items.indexOf(category);
+          final isSelected = currentStoreIndex == widget.selectedIndex;
+
+          return Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: TvClickButton(
               onTap: () {
                 widget.onSelect?.call(currentStoreIndex);
               },
-              child: CategoryWidget(
-                category: category,
-                isSelected: isSelected,
-                fromAssets: widget.fromAssets,
-              ),
-            );
-          },
-        ).toList(),
-      ),
+              builder: (context, hasFocus){
+                return CategoryWidget(
+                  category: category,
+                  isSelected: isSelected,
+                  fromAssets: widget.fromAssets,
+                  hasFocus: hasFocus,
+                );
+              },
+            ),
+          );
+        },
+      ).toList(),
     );
   }
 }

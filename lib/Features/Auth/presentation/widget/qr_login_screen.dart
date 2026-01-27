@@ -158,7 +158,7 @@ class _QRLoginScreenState extends State<QRLoginScreen> {
                         : QrImageView(
                             data: authProvider.qrData,
                             version: QrVersions.auto,
-                            size: 300.r,
+                            size: 450.r,
                             backgroundColor: Colors.white,
                             eyeStyle: const QrEyeStyle(
                               eyeShape: QrEyeShape.square,

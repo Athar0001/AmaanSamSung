@@ -18,6 +18,7 @@ class TabletBannerView extends StatelessWidget {
     required this.currentPage,
     required this.onPageChanged,
     required this.provider,
+    required this.onFocus,
     super.key,
   });
 
@@ -25,6 +26,7 @@ class TabletBannerView extends StatelessWidget {
   final int currentPage;
   final void Function(int) onPageChanged;
   final HomeProvider provider;
+  final VoidCallback onFocus;
 
   @override
   Widget build(BuildContext context) {
@@ -268,62 +270,74 @@ class TabletBannerView extends StatelessWidget {
             start: 0,
             end: 0,
             height: 330.r,
-            child: ListView.builder(
-              scrollDirection: Axis.horizontal,
-              padding: EdgeInsetsDirectional.only(start: 24.w, bottom: 24.r),
-              itemCount: provider.bannerModel!.data!.length,
-              itemBuilder: (context, index) {
-                final show = provider.bannerModel!.data![index];
-                // Since index is 0-based for list, but pageview has cover at 0
-                // Banner data starts from index 1 in pageview
-                final pageIndex = index + 1;
-                final isSelected = currentPage == pageIndex;
-                return TvClickButton(
-                  onTap: () {
-                    controller.animateToPage(
-                      pageIndex,
-                      duration: Duration(milliseconds: 300),
-                      curve: Curves.easeInOut,
-                    );
-                  },
-                  builder: (context, hasFocus) {
-                    return Container(
-                      width: 232.r,
-                      margin: EdgeInsetsDirectional.only(end: 30),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(12.r),
-                        border: isSelected || hasFocus
-                            ? Border.all(
-                                color: AppColorsNew.white,
-                                width: hasFocus ? 4 : 2,
-                              )
-                            : null,
-                        boxShadow: isSelected || hasFocus
-                            ? [
-                                BoxShadow(
-                                  color: Colors.black.withOpacity(0.3),
-                                  blurRadius: 8,
-                                  offset: Offset(0, 4),
-                                ),
-                              ]
-                            : null,
-                      ),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(10.r),
-                        child: show.show.thumbnailImage?.url != null
-                            ? CachedNetworkImageHelper(
-                                imageUrl: show.show.thumbnailImage!.url!,
-                                fit: BoxFit.cover,
-                                width: 232.r,
-                                height: 330.r,
-                                borderRadius: 0,
-                              )
-                            : Container(color: Colors.grey[800]),
-                      ),
-                    );
-                  },
-                );
-              },
+            child: FocusTraversalGroup(
+              policy: ReadingOrderTraversalPolicy(),
+              child: ListView.builder(
+                scrollDirection: Axis.horizontal,
+                padding: EdgeInsetsDirectional.only(start: 24.w, bottom: 24.r),
+                itemCount: provider.bannerModel!.data!.length,
+                physics: NeverScrollableScrollPhysics(),
+                itemBuilder: (context, index) {
+                  final show = provider.bannerModel!.data![index];
+                  // Since index is 0-based for list, but pageview has cover at 0
+                  // Banner data starts from index 1 in pageview
+                  final pageIndex = index + 1;
+                  final isSelected = currentPage == pageIndex;
+                  return TvClickButton(
+                    onTap: () {
+                      controller.animateToPage(
+                        pageIndex,
+                        duration: Duration(milliseconds: 300),
+                        curve: Curves.easeInOut,
+                      );
+                    },
+                    builder: (context, hasFocus) {
+                      if(hasFocus) {
+                        onFocus.call();
+                        controller.animateToPage(
+                          pageIndex,
+                          duration: Duration(milliseconds: 300),
+                          curve: Curves.easeInOut,
+                        );
+                      }
+                      return Container(
+                        width: 232.r,
+                        margin: EdgeInsetsDirectional.only(end: 30),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(12.r),
+                          border: isSelected || hasFocus
+                              ? Border.all(
+                                  color: AppColorsNew.white,
+                                  width: hasFocus ? 4 : 2,
+                                )
+                              : null,
+                          boxShadow: isSelected || hasFocus
+                              ? [
+                                  BoxShadow(
+                                    color: Colors.black.withOpacity(0.3),
+                                    blurRadius: 8,
+                                    offset: Offset(0, 4),
+                                  ),
+                                ]
+                              : null,
+                        ),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(10.r),
+                          child: show.show.thumbnailImage?.url != null
+                              ? CachedNetworkImageHelper(
+                                  imageUrl: show.show.thumbnailImage!.url!,
+                                  fit: BoxFit.cover,
+                                  width: 232.r,
+                                  height: 330.r,
+                                  borderRadius: 0,
+                                )
+                              : Container(color: Colors.grey[800]),
+                        ),
+                      );
+                    },
+                  );
+                },
+              ),
             ),
           )
       ],
