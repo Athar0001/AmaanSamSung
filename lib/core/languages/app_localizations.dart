@@ -3163,6 +3163,12 @@ abstract class AppLocalizations {
   /// In ar, this message translates to:
   /// **'تحديث الرمز'**
   String get refreshCode;
+
+  /// No description provided for @qrCodeExpired.
+  ///
+  /// In ar, this message translates to:
+  /// **'انتهت صلاحية رمز QR'**
+  String get qrCodeExpired;
 }
 
 class _AppLocalizationsDelegate

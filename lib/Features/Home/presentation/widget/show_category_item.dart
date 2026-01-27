@@ -6,6 +6,8 @@ import 'package:amaan_tv/Features/favorite/presentation/widgets/favorite_icon_bu
 import 'package:amaan_tv/core/widget/cached%20network%20image/cached_network_image.dart';
 import 'package:amaan_tv/core/widget/gradient_container.dart';
 
+import '../../../../core/widget/tv_click_button.dart';
+
 
 class ShowCategoryItemWidget extends StatefulWidget {
   const ShowCategoryItemWidget({
@@ -25,30 +27,36 @@ class ShowCategoryItemWidget extends StatefulWidget {
 class _ItemsWidgetState extends State<ShowCategoryItemWidget> {
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        Container(
-          height: widget.height,
-          width: widget.width,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(12.r),
-            border: Border.all(color: AppColorsNew.primary, width: 1.r),
-          ),
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(11.r),
-            child: CachedNetworkImageHelper(
-              imageUrl: widget.model.thumbnailImage?.url,
-              cacheKey: widget.model.title,
-              height: double.infinity,
-              width: double.infinity,
+    return TvClickButton(
+      onTap: (){},
+      builder: (context, hasFocus){
+        return Stack(
+          children: [
+            Container(
+              height: widget.height,
+              width: widget.width,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(12.r),
+                border: Border.all(color: hasFocus? AppColorsNew.white:
+                AppColorsNew.primary, width: 2),
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(11.r),
+                child: CachedNetworkImageHelper(
+                  imageUrl: widget.model.thumbnailImage?.url,
+                  cacheKey: widget.model.title,
+                  height: double.infinity,
+                  width: double.infinity,
+                ),
+              ),
             ),
-          ),
-        ),
-        GradientContainer(
-          borderRadius: 12.r,
-        ),
+            GradientContainer(
+              borderRadius: 12.r,
+            ),
 
-      ],
+          ],
+        );
+    }
     );
   }
 }

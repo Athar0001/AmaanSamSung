@@ -11,7 +11,6 @@ import 'package:amaan_tv/Features/quiz/provider/quiz_provider.dart';
 import 'package:amaan_tv/Features/search/presentation/screens/search_screen.dart';
 import 'package:amaan_tv/core/models/characters_model.dart';
 import 'package:amaan_tv/core/utils/route_extra_helper.dart';
-import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:amaan_tv/Features/Home/presentation/screens/home_screen.dart';
@@ -22,6 +21,7 @@ import 'package:amaan_tv/core/injection/injection_imports.dart' as di;
 
 import '../../Features/Home/data/models/home/show_details_model/data.dart';
 import '../../Features/Home/presentation/screens/show_player.dart';
+import 'cash_services/cashe_helper.dart';
 
 // Definition of AppRoutes as an Enum to support .routeName and strict typing
 enum AppRoutes {
@@ -57,7 +57,22 @@ final GlobalKey<NavigatorState> appNavigatorKey = GlobalKey<NavigatorState>();
 
 final GoRouter appRouter = GoRouter(
   navigatorKey: appNavigatorKey,
-  initialLocation:kDebugMode ? '/home': '/qr-login',
+  initialLocation: '/qr-login',
+  redirect: (context, state) {
+    final loginInfo = CacheHelper.getData(key: 'loginInfo');
+
+    final isOnLogin = state.matchedLocation == '/qr-login';
+
+    if (loginInfo != null && isOnLogin) {
+      return '/home';
+    }
+
+    if (loginInfo == null && !isOnLogin) {
+      return '/qr-login';
+    }
+
+    return null;
+  },
   routes: [
     GoRoute(
       path: '/home',

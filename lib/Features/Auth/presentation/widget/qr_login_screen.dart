@@ -37,29 +37,57 @@ class QRLoginScreen extends StatefulWidget {
 class _QRLoginScreenState extends State<QRLoginScreen> {
   Timer? _timer;
   late Duration _remainingTime;
+  bool _isExpired = false;
 
   @override
   void initState() {
     super.initState();
     _remainingTime = widget.expiryDuration;
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<AuthProvider>().generateQr((user){
+      final authProvider = context.read<AuthProvider>();
+      authProvider.generateQr((user) {
         context.goNamed(AppRoutes.home.routeName);
+      }).then((_) {
+        // Update remaining time from server response
+        setState(() {
+          _remainingTime = authProvider.expiryDuration;
+        });
+        _timer?.cancel();
+        _startTimer();
       });
     });
-    _startTimer();
   }
 
   void _startTimer() {
+    setState(() {
+      _isExpired = false;
+    });
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (_remainingTime.inSeconds <= 0) {
         timer.cancel();
+        setState(() {
+          _isExpired = true;
+        });
         widget.onExpired?.call();
       } else {
         setState(() {
           _remainingTime = Duration(seconds: _remainingTime.inSeconds - 1);
         });
       }
+    });
+  }
+
+  void _regenerateQr() {
+    final authProvider = context.read<AuthProvider>();
+    authProvider.generateQr((user) {
+      context.goNamed(AppRoutes.home.routeName);
+    }).then((_) {
+      setState(() {
+        _remainingTime = authProvider.expiryDuration;
+        _isExpired = false;
+      });
+      _timer?.cancel();
+      _startTimer();
     });
   }
 
@@ -130,7 +158,7 @@ class _QRLoginScreenState extends State<QRLoginScreen> {
                         : QrImageView(
                             data: authProvider.qrData,
                             version: QrVersions.auto,
-                            size: 300.r,
+                            size: 450.r,
                             backgroundColor: Colors.white,
                             eyeStyle: const QrEyeStyle(
                               eyeShape: QrEyeShape.square,
@@ -144,41 +172,59 @@ class _QRLoginScreenState extends State<QRLoginScreen> {
                   ),
                   SizedBox(height: 25.r),
 
-                  // Timer
-                  // Text(
-                  //   AppLocalization.strings.qrCodeExpiresIn +
-                  //       " " +
-                  //       _formatDuration(_remainingTime),
-                  //   style: AppTextStylesNew.style18RegularAlmarai.copyWith(
-                  //     color: AppColorsNew.grey1,
-                  //   ),
-                  // ),
-                  // SizedBox(height: 8.r),
-                  //
-                  // // Refresh button (optional)
-                  // if (widget.onRefresh != null)
-                  //   TextButton.icon(
-                  //     onPressed: () {
-                  //       setState(() {
-                  //         _remainingTime = widget.expiryDuration;
-                  //         _timer?.cancel();
-                  //         _startTimer();
-                  //       });
-                  //       widget.onRefresh?.call();
-                  //     },
-                  //     icon: Icon(
-                  //       Icons.refresh,
-                  //       color: AppColorsNew.primary,
-                  //       size: 20.r,
-                  //     ),
-                  //     label: Text(
-                  //       AppLocalization.strings.refreshCode,
-                  //       style: AppTextStylesNew.style14RegularAlmarai.copyWith(
-                  //         color: AppColorsNew.primary,
-                  //       ),
-                  //     ),
-                  //   ),
-                  // SizedBox(height: 20.r),
+                  // Timer or Expired message
+                  if (_isExpired)
+                    Text(
+                      AppLocalization.strings.qrCodeExpired,
+                      style: AppTextStylesNew.style18RegularAlmarai.copyWith(
+                        color: AppColorsNew.red1,
+                      ),
+                    )
+                  else
+                    Text(
+                      AppLocalization.strings.qrCodeExpiresIn +
+                          " " +
+                          _formatDuration(_remainingTime),
+                      style: AppTextStylesNew.style18RegularAlmarai.copyWith(
+                        color: AppColorsNew.grey1,
+                      ),
+                    ),
+                  SizedBox(height: 16.r),
+
+                  // Try Again button (shown when expired)
+                  if (_isExpired)
+                    TvClickButton(
+                      onTap: _regenerateQr,
+                      child: Container(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 24.r,
+                          vertical: 12.r,
+                        ),
+                        decoration: BoxDecoration(
+                          color: AppColorsNew.primary,
+                          borderRadius: BorderRadius.circular(8.r),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              Icons.refresh,
+                              color: Colors.white,
+                              size: 20.r,
+                            ),
+                            SizedBox(width: 8.r),
+                            Text(
+                              AppLocalization.strings.tryAgain,
+                              style:
+                                  AppTextStylesNew.style16BoldAlmarai.copyWith(
+                                color: Colors.white,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  SizedBox(height: 20.r),
 
                   // Navigate to Home button
                   // MainButtonWidget(

@@ -1,3 +1,4 @@
+import 'package:amaan_tv/core/widget/tv_click_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_state_provider/flutter_state_provider.dart';
@@ -24,6 +25,7 @@ import 'package:amaan_tv/Features/Home/provider/show_videos_provider.dart';
 import 'package:amaan_tv/core/utils/widget_sliver_extension.dart';
 import 'package:amaan_tv/core/utils/api/api_service.dart';
 
+import '../../../../core/Themes/app_colors_new.dart';
 import '../../../../core/widget/app_toast.dart';
 import '../../../../core/widget/custom_dialog.dart';
 import '../../../subscription/presentation/dialogs/request_subscription_dialog.dart';
@@ -31,7 +33,27 @@ import '../../functions.dart';
 import '../../provider/time_provider.dart';
 import '../widget/no_video_dialog.dart';
 import '../widget/repeat_dialog.dart';
+enum ShowDetailsTab {
+  episodes,
+  related,
+  suggestions,
+  more,
+}
 
+extension ShowDetailsTabExtension on ShowDetailsTab {
+  String get name {
+    switch (this) {
+      case ShowDetailsTab.episodes:
+        return AppLocalization.strings.episodes;
+      case ShowDetailsTab.related:
+        return AppLocalization.strings.related;
+      case ShowDetailsTab.suggestions:
+        return AppLocalization.strings.suggestions;
+      case ShowDetailsTab.more:
+        return AppLocalization.strings.more;
+    }
+  }
+}
 class ShowDetailsScreen extends StatefulWidget {
   const ShowDetailsScreen({required this.id, super.key, this.fromMinute});
 
@@ -45,7 +67,7 @@ class ShowDetailsScreen extends StatefulWidget {
 class _ShowDetailsScreenState extends State<ShowDetailsScreen> {
   bool get isParent =>
       UserNotifier.instance.userData?.userType.isParent ?? false;
-
+  ShowDetailsTab _selectedTab = ShowDetailsTab.episodes;
   bool get isChild => UserNotifier.instance.userData?.userType.isChild ?? false;
   ScrollController charactersScrollController = ScrollController();
   int page = 1;
@@ -97,157 +119,174 @@ class _ShowDetailsScreenState extends State<ShowDetailsScreen> {
           builder: (context, showDetailsModel, child) {
             final provider = context.read<ShowProvider>();
             final isSeries = showDetailsModel.type == ShowDetailsType.series;
-            final tabs = [
-              if (isSeries) Tab(text: AppLocalization.strings.episodes),
-              Tab(text: AppLocalization.strings.related),
-              Tab(
-                text: AppLocalization.strings.theSuggestions,
-              ), // Using theSuggestions as per mobile
-              Tab(text: AppLocalization.strings.more),
-            ];
-            return DefaultTabController(
-              length: tabs.length,
-              child: CustomScrollView(
-                slivers: [
-                  AppStateBuilder<ShowProvider, AppState>(
-                    initState: (provider) => provider.getAllData(widget.id),
-                    state: (provider) => provider.stateShowDetails,
-                    selector: (provider) => provider.stateGenerateVideoUrl,
-                    builder: (context, state, child) => ShowSeriesPoster(
-                      model: showDetailsModel,
-                      refresh: () => provider.getAllData(widget.id),
-                      isLoading:
-                          provider.stateGenerateVideoUrl == AppState.loading,
-                      onTapShow: () {
-                        final isAllowed = checkIfVideoAllowed(
-                          isFree: showDetailsModel.isFree,
-                          isGuest: showDetailsModel.isGuest,
-                          context: context,
-                        );
+            return CustomScrollView(
+              slivers: [
+                AppStateBuilder<ShowProvider, AppState>(
+                  initState: (provider) => provider.getAllData(widget.id),
+                  state: (provider) => provider.stateShowDetails,
+                  selector: (provider) => provider.stateGenerateVideoUrl,
+                  builder: (context, state, child) => ShowSeriesPoster(
+                    model: showDetailsModel,
+                    refresh: () => provider.getAllData(widget.id),
+                    isLoading:
+                        provider.stateGenerateVideoUrl == AppState.loading,
+                    onTapShow: () {
+                      final isAllowed = checkIfVideoAllowed(
+                        isFree: showDetailsModel.isFree,
+                        isGuest: showDetailsModel.isGuest,
+                        context: context,
+                      );
 
-                        if (isAllowed != null) {
-                          AppToast.show(isAllowed);
-                          return;
-                        } else if (!context
-                            .read<TimeProvider>()
-                            .isValidToContinue) {
-                          AppToast.show(
-                            AppLocalization.strings.watchingNotAllowed,
-                          );
-                          return;
-                        } else if (provider.showVideo?.presignedUrl != null) {
-                          if (showDetailsModel.isRepeat) {
-                            showDialog<int>(
-                              context: context,
-                              builder: (context) {
-                                return CustomDialog(content: RepeatDialog());
-                              },
-                            ).then((value) {
-                              if (value != null)
-                                context.pushNamed(
-                                  AppRoutes.showPlayer.routeName,
-                                  extra: {
-                                    'show': showDetailsModel,
-                                    'url': provider.showVideo!.presignedUrl!,
-                                    'videoId': provider.videoId!,
-                                    'episodesModel':
-                                        provider.showsEpisodesModel?.data,
-                                    'fromMinute': widget.fromMinute,
-                                    'repeatTimes': value,
-                                  },
-                                );
-                            });
-                          } else {
-                            context.pushNamed(
-                              AppRoutes.showPlayer.routeName,
-                              extra: {
-                                'show': showDetailsModel,
-                                'url': provider.showVideo!.presignedUrl!,
-                                'videoId': provider.videoId!,
-                                'episodesModel':
-                                    provider.showsEpisodesModel?.data,
-                                'fromMinute': widget.fromMinute,
-                              },
-                            );
-                          }
-                        } else if (provider.videoId == null) {
-                          showDialog<void>(
+                      if (isAllowed != null) {
+                        AppToast.show(isAllowed);
+                        return;
+                      } else if (!context
+                          .read<TimeProvider>()
+                          .isValidToContinue) {
+                        AppToast.show(
+                          AppLocalization.strings.watchingNotAllowed,
+                        );
+                        return;
+                      } else if (provider.showVideo?.presignedUrl != null) {
+                        if (showDetailsModel.isRepeat) {
+                          showDialog<int>(
                             context: context,
                             builder: (context) {
-                              return CustomDialog(content: NoVideoDialog());
+                              return CustomDialog(content: RepeatDialog());
+                            },
+                          ).then((value) {
+                            if (value != null)
+                              context.pushNamed(
+                                AppRoutes.showPlayer.routeName,
+                                extra: {
+                                  'show': showDetailsModel,
+                                  'url': provider.showVideo!.presignedUrl!,
+                                  'videoId': provider.videoId!,
+                                  'episodesModel':
+                                  provider.showsEpisodesModel?.data,
+                                  'fromMinute': widget.fromMinute,
+                                  'repeatTimes': value,
+                                },
+                              );
+                          });
+                        } else {
+                          context.pushNamed(
+                            AppRoutes.showPlayer.routeName,
+                            extra: {
+                              'show': showDetailsModel,
+                              'url': provider.showVideo!.presignedUrl!,
+                              'videoId': provider.videoId!,
+                              'episodesModel':
+                              provider.showsEpisodesModel?.data,
+                              'fromMinute': widget.fromMinute,
                             },
                           );
-                          return;
-                        } else {
-                          RequestSubscriptionsDialog.show(context);
                         }
-                      },
-                    ),
-                  ).sliver,
-                  24.verticalSpace.sliver,
-                  Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: Constant.paddingLeftRight,
-                    ),
-                    child: Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.all(16),
-                      // decoration: containerDecoration(context), // Check if exists
-                      child: Text(
-                        showDetailsModel.description!,
-                        textAlign: TextAlign.center,
-                        style: AppTextStylesNew.style12BoldAlmarai.copyWith(
-                          fontWeight: FontWeight.w400,
-                        ),
+                      } else if (provider.videoId == null) {
+                        showDialog<void>(
+                          context: context,
+                          builder: (context) {
+                            return CustomDialog(content: NoVideoDialog());
+                          },
+                        );
+                        return;
+                      } else {
+                        RequestSubscriptionsDialog.show(context);
+                      }
+                    },
+                  ),
+                ).sliver,
+                24.verticalSpace.sliver,
+                Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: Constant.paddingLeftRight,
+                  ),
+                  child: Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(16),
+                    // decoration: containerDecoration(context), // Check if exists
+                    child: Text(
+                      showDetailsModel.description!,
+                      textAlign: TextAlign.center,
+                      style: AppTextStylesNew.style12BoldAlmarai.copyWith(
+                        fontWeight: FontWeight.w400,
                       ),
                     ),
-                  ).sliver,
-                  Selector<ShowProvider,
-                      StateProvider<CharactersModel, String>>(
-                    selector: (context, provider) =>
-                        provider.stateCharactersShows,
-                    builder: (context, stateCharacters, child) {
-                      return provider.stateCharactersShows.when<Widget>(
-                          AppCircleProgressHelper.new,
-                          (error) => SizedBox.shrink(), (
-                        data,
-                      ) {
-                        final charactersModel = data;
-                        return provider.charactersModelShows?.data.isEmpty ??
-                                true
-                            ? SizedBox.shrink()
-                            : Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  16.verticalSpace,
-                                  Padding(
-                                    padding: const EdgeInsetsDirectional.only(
-                                      start: Constant.paddingLeftRight,
-                                    ),
-                                    child: Text(
-                                      AppLocalization.strings.characters,
-                                      style:
-                                          AppTextStylesNew.style16BoldAlmarai,
-                                    ),
+                  ),
+                ).sliver,
+                Selector<ShowProvider, StateProvider<CharactersModel, String>>(
+                  selector: (context, provider) =>
+                      provider.stateCharactersShows,
+                  builder: (context, stateCharacters, child) {
+                    return provider.stateCharactersShows.when<
+                      Widget
+                    >(AppCircleProgressHelper.new, (error) => SizedBox.shrink(), (
+                      data,
+                    ) {
+                      final charactersModel = data;
+                      return provider.charactersModelShows?.data.isEmpty ??
+                              true
+                          ? SizedBox.shrink()
+                          : Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                16.verticalSpace,
+                                Padding(
+                                  padding: const EdgeInsetsDirectional.only(
+                                    start: Constant.paddingLeftRight,
                                   ),
-                                  Padding(
-                                    padding: const EdgeInsets.all(8.0),
-                                    child: HerosWidget(
-                                      characters: charactersModel.data,
-                                      charactersScrollController:
-                                          charactersScrollController,
-                                    ),
+                                  child: Text(
+                                    AppLocalization.strings.characters,
+                                    style:
+                                        AppTextStylesNew.style16BoldAlmarai,
                                   ),
-                                ],
-                              );
-                      });
-                    },
-                  ).sliver,
-                  24.verticalSpace.sliver,
-                  PinnedHeaderSliver(child: ShowDetailsTabs(tabs: tabs)),
-                  ShowDetailsTabBarView(showId: widget.id, isSeries: isSeries),
-                ],
-              ),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: HerosWidget(
+                                    characters: charactersModel.data,
+                                    charactersScrollController: // Type mismatch in HerosWidget?
+                                        // Mobile used charactersScrollController, check TV HerosWidget signature
+                                        // If TV HerosWidget doesn't take controller, omit it.
+                                        // Checking TV home_screen.dart usage: HerosWidget(characters: charactersModel.data), no controller.
+                                        null,
+                                  ),
+                                ),
+                              ],
+                            );
+                    });
+                  },
+                ).sliver,
+                24.verticalSpace.sliver,
+                SliverToBoxAdapter(child: Row(
+                  children: List.generate(ShowDetailsTab.values.length,
+                      (index) =>  Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: TvClickButton(
+
+                          onTap: (){
+                            setState(() {
+                              _selectedTab = ShowDetailsTab.values[index];
+                            });
+                          },
+                          child: Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Text(ShowDetailsTab.values[index].name,
+                            style: AppTextStylesNew.style16RegularAlmarai.copyWith(
+                              color: _selectedTab == ShowDetailsTab.values[index]
+                                  ? AppColorsNew.blue1
+                                  : AppColorsNew.white,
+                              fontWeight: _selectedTab == ShowDetailsTab.values[index]?
+                              FontWeight.bold: FontWeight.w500,
+                            ),
+                            ),
+                          ),
+                        ),
+                      ) ),
+                )),
+                ShowDetailsTabBarView(showId: widget.id,
+                    isSeries: isSeries,currentTap: _selectedTab,),
+              ],
             );
           },
         ),

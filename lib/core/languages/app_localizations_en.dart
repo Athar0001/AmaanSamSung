@@ -1616,4 +1616,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get refreshCode => 'Refresh Code';
+
+  @override
+  String get qrCodeExpired => 'QR Code has expired';
 }

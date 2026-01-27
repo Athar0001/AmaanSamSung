@@ -52,20 +52,20 @@ class _ShowWidgetWidgetState extends State<ShowWidget> {
           pathParameters: {'id': id},
         );
       },
-      child: Stack(
-        alignment: Alignment.bottomCenter,
-        children: [
-          ClipRRect(
-            borderRadius: BorderRadius.circular(24.r),
-            child: Container(
-              decoration: BoxDecoration(
-                image: decorationImageHelper(widget.show.thumbnailImage?.url),
+      child: Padding(
+        padding: const EdgeInsets.all(2.0),
+        child: Stack(
+          alignment: Alignment.bottomCenter,
+          children: [
+            ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: Container(
+                decoration: BoxDecoration(
+                  image: decorationImageHelper(widget.show.thumbnailImage?.url),
+                ),
               ),
             ),
-          ),
-          Padding(
-            padding: EdgeInsets.all(1.sp),
-            child: Align(
+            Align(
               child: Container(
                 decoration: BoxDecoration(
                   border: Border.all(
@@ -73,7 +73,7 @@ class _ShowWidgetWidgetState extends State<ShowWidget> {
                     width: 1.sp,
                     color: AppColorsNew.white1.withValues(alpha: 0.3),
                   ),
-                  borderRadius: BorderRadius.circular(24.r),
+                  borderRadius: BorderRadius.circular(8),
                   gradient: LinearGradient(
                     colors: [
                       AppColorsNew.black1.withValues(alpha: 0.2),
@@ -85,22 +85,18 @@ class _ShowWidgetWidgetState extends State<ShowWidget> {
                 ),
               ),
             ),
-          ),
-          if (!widget.show.isReleased ||
-              (checkIfVideoAllowed(
-                    isFree: widget.show.isFree,
-                    isGuest: widget.show.isGuest,
-                  ) !=
-                  null))
-            Align(child: LockWidget())
-          else
-            SizedBox(),
-          PositionedDirectional(
-            end: 0,
-            top: 0,
-            child: FavoriteIconButton(widget.show),
-          ),
-        ],
+            if (!widget.show.isReleased ||
+                (checkIfVideoAllowed(
+                      isFree: widget.show.isFree,
+                      isGuest: widget.show.isGuest,
+                    ) !=
+                    null))
+              Align(child: LockWidget())
+            else
+              SizedBox(),
+
+          ],
+        ),
       ),
     );
   }

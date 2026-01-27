@@ -60,38 +60,35 @@ class _ListViewHeaderState extends State<ListViewHeader> {
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      controller: _scrollController,
-      child: Row(
-        children: widget.items.asMap().entries.map((entry) {
-          final index = entry.key;
-          final category = entry.value;
-          final isSelected = index == widget.selectedIndex;
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.start,
+      children: widget.items.asMap().entries.map((entry) {
+        final index = entry.key;
+        final category = entry.value;
+        final isSelected = index == widget.selectedIndex;
 
-          return TvClickButton(
-            onFocusChange: (hasFocus) {
-              if (hasFocus) {
-                widget.onSelect?.call(index);
-                _scrollToIndex(index);
-              }
-            },
-            onTap: () {
-              widget.onSelect?.call(index);
-              FocusScope.of(context).requestFocus(
-                Focus.of(context).enclosingScope?.focusedChild,
-              ); // Keep or Request Focus logic
-            },
-            builder: (context, isFocused) {
-              return CategoryWidget(
-                category: category,
-                isSelected: isSelected,
-                isFocused: isFocused,
-              );
-            },
-          );
-        }).toList(),
-      ),
+        return TvClickButton(
+          onFocusChange: (hasFocus) {
+            // if (hasFocus) {
+            //   widget.onSelect?.call(index);
+            //   _scrollToIndex(index);
+            // }
+          },
+          onTap: () {
+            widget.onSelect?.call(index);
+            FocusScope.of(context).requestFocus(
+              Focus.of(context).enclosingScope?.focusedChild,
+            ); // Keep or Request Focus logic
+          },
+          builder: (context, isFocused) {
+            return CategoryWidget(
+              category: category,
+              isSelected: isSelected,
+              isFocused: isFocused,
+            );
+          },
+        );
+      }).toList(),
     );
   }
 }

@@ -7,7 +7,8 @@ import 'package:provider/provider.dart';
 import 'banner/tablet_banner_view.dart';
 
 class HomeBannerWidget extends StatefulWidget {
-  const HomeBannerWidget({super.key});
+ final VoidCallback onFocus;
+  const HomeBannerWidget({super.key, required this.onFocus});
 
   @override
   HomeBannerState createState() => HomeBannerState();
@@ -63,7 +64,7 @@ class HomeBannerState extends State<HomeBannerWidget> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 1130.r,
+      height: 1000.r,
       margin: EdgeInsets.symmetric(horizontal: 30.r),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(20.r),
@@ -76,6 +77,7 @@ class HomeBannerState extends State<HomeBannerWidget> {
             return TabletBannerView(
               controller: _controller,
               currentPage: _currentPage,
+              onFocus: widget.onFocus,
               onPageChanged: (index) {
                 setState(() {
                   _currentPage = index;

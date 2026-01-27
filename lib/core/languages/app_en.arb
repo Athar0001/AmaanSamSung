@@ -581,5 +581,6 @@
   "qrLoginTitle": "Login from your mobile using the QR code below",
   "qrLoginSubtitle": "Scan the code from the mobile app and you will be automatically logged in to the screen after a successful operation.",
   "qrCodeExpiresIn": "Code expires in:",
-  "refreshCode": "Refresh Code"
+  "refreshCode": "Refresh Code",
+  "qrCodeExpired": "QR Code has expired"
 }

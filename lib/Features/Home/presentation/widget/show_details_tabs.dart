@@ -19,48 +19,52 @@ import 'package:amaan_tv/core/widget/pagination_widget.dart';
 import 'package:provider/provider.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 
-class ShowDetailsTabs extends StatelessWidget {
-  const ShowDetailsTabs({required this.tabs, super.key});
+import '../screens/show_details_screen.dart';
 
-  final List<Tab> tabs;
-
-  @override
-  Widget build(BuildContext context) {
-    return ColoredBox(
-      color: AppColorsNew.scaffoldDarkColor,
-      child: Padding(
-        padding: EdgeInsets.only(top: 16.r),
-        child: TabBar(
-          tabs: tabs,
-          isScrollable: true,
-          dividerColor: Colors.transparent,
-          indicator: LineTabIndicator(
-            color: AppColorsNew.amber,
-            height: 3.r,
-            width: 25.r,
-            endRadius: 5.r,
-          ),
-          tabAlignment: TabAlignment.center,
-          labelColor: AppColorsNew.blue1,
-          labelStyle: AppTextStylesNew.style14RegularAlmarai.copyWith(
-            color: AppColorsNew.darkGrey1,
-          ),
-          unselectedLabelColor: Theme.of(context).textTheme.bodyMedium?.color,
-        ),
-      ),
-    );
-  }
-}
+// class ShowDetailsTabs extends StatelessWidget {
+//   const ShowDetailsTabs({required this.tabs, super.key});
+//
+//   final List<Tab> tabs;
+//
+//   @override
+//   Widget build(BuildContext context) {
+//     return ColoredBox(
+//       color: AppColorsNew.scaffoldDarkColor,
+//       child: Padding(
+//         padding: EdgeInsets.only(top: 16.r),
+//         child: TabBar(
+//           tabs: tabs,
+//           isScrollable: true,
+//           dividerColor: Colors.transparent,
+//           indicator: LineTabIndicator(
+//             color: AppColorsNew.amber,
+//             height: 3.r,
+//             width: 25.r,
+//             endRadius: 5.r,
+//           ),
+//           tabAlignment: TabAlignment.center,
+//           labelColor: AppColorsNew.blue1,
+//           labelStyle: AppTextStylesNew.style14RegularAlmarai.copyWith(
+//             color: AppColorsNew.darkGrey1,
+//           ),
+//           unselectedLabelColor: Theme.of(context).textTheme.bodyMedium?.color,
+//         ),
+//       ),
+//     );
+//   }
+// }
 
 class ShowDetailsTabBarView extends StatefulWidget {
   const ShowDetailsTabBarView({
     required this.showId,
     required this.isSeries,
+    required this.currentTap,
     super.key,
   });
 
   final String showId;
   final bool isSeries;
+  final ShowDetailsTab currentTap;
 
   @override
   State<ShowDetailsTabBarView> createState() => _ShowDetailsTabBarViewState();
@@ -69,10 +73,8 @@ class ShowDetailsTabBarView extends StatefulWidget {
 class _ShowDetailsTabBarViewState extends State<ShowDetailsTabBarView> {
   @override
   Widget build(BuildContext context) {
-    return SliverTabBarView(
-      children: [
-        if (widget.isSeries)
-          AppStateBuilder<ShowProvider, List<Details>>(
+    return widget.isSeries && widget.currentTap == ShowDetailsTab.episodes
+        ? AppStateBuilder<ShowProvider, List<Details>>(
             isSliver: true,
             initState: (provider) => provider.getShowsEpisodesProvide(),
             selector: (provider) => provider.showsEpisodesModel?.data,
@@ -95,52 +97,73 @@ class _ShowDetailsTabBarViewState extends State<ShowDetailsTabBarView> {
                 ),
               );
             },
-          ),
-        PaginationWidget(
-          isSliver: true,
-          paginationMixin: context.read<ShowPromosProvider>(),
-          loadInitialData: true,
-          itemBuilder: (context, index, promo) => PromoWidget(model: promo),
-          loadingBuilder: (context, index) =>
-              Skeletonizer(child: PromoWidget(model: ReelModel.dummy())),
-          emptyStateBuilder: (context) => SizedBox(
-            height: 300.r,
-            child: Center(
-              child: Text(
-                AppLocalization.strings.emptyStateMessage,
-                style: AppTextStylesNew.style24BoldAlmarai,
-              ),
-            ),
-          ),
-          listBuilder: (context, length, builder) {
-            return SliverPadding(
-              padding: epsPadding(),
-              sliver: SliverGrid(
-                gridDelegate: epsGrid(),
-                delegate: SliverChildBuilderDelegate(
-                  childCount: length,
-                  (context, index) => builder(context, index),
-                ),
-              ),
-            );
-          },
-        ),
-        AppStateBuilder<ShowProvider, RelatedModel>(
-          isSliver: true,
-          initState: (provider) => provider.getRelatedShowsProvide(),
-          state: (provider) => provider.stateRelatedShows,
-          selector: (provider) => provider.relatedModel,
-          builder: (context, data, child) {
-            return SuggestionsWidget(relatedModel: data);
-          },
-        ),
-        MoreWidget(
-          model: context.read<ShowProvider>().showDetailsModel!,
-          seasons: context.read<ShowProvider>().seasonsModel?.data?.length,
-          epsNum: context.read<ShowProvider>().showsEpisodesModel?.data?.length,
-        ).sliver,
-      ],
-    );
+          ) :
+
+        // PaginationWidget(
+        //   isSliver: true,
+        //   paginationMixin: context.read<ShowPromosProvider>(),
+        //   loadInitialData: true,
+        //   itemBuilder: (context, index, promo) => PromoWidget(model: promo),
+        //   loadingBuilder: (context, index) =>
+        //       Skeletonizer(child: PromoWidget(model: ReelModel.dummy())),
+        //   emptyStateBuilder: (context) => SizedBox(
+        //     height: 300.r,
+        //     child: Center(
+        //       child: Text(
+        //         AppLocalization.strings.emptyStateMessage,
+        //         style: AppTextStylesNew.style24BoldAlmarai,
+        //       ),
+        //     ),
+        //   ),
+        //   listBuilder: (context, length, builder) {
+        //     return SliverPadding(
+        //       padding: epsPadding(),
+        //       sliver: SliverGrid(
+        //         gridDelegate: epsGrid(),
+        //         delegate: SliverChildBuilderDelegate(
+        //           childCount: length,
+        //           (context, index) => builder(context, index),
+        //         ),
+        //       ),
+        //     );
+        //   },
+        // ),
+        widget.currentTap == ShowDetailsTab.related
+            ? AppStateBuilder<ShowProvider, RelatedModel>(
+                isSliver: true,
+                initState: (provider) => provider.getRelatedShowsProvide(),
+                state: (provider) => provider.stateRelatedShows,
+                selector: (provider) => provider.relatedModel,
+                builder: (context, data, child) {
+                  return SuggestionsWidget(relatedModel: data);
+                },
+              )
+            : widget.currentTap == ShowDetailsTab.suggestions
+                ? AppStateBuilder<ShowProvider, RelatedModel>(
+                    isSliver: true,
+                    initState: (provider) =>
+                        provider.getRelatedShowsProvide(),
+                    state: (provider) => provider.stateRelatedShows,
+                    selector: (provider) => provider.relatedModel,
+                    builder: (context, data, child) {
+                      return SuggestionsWidget(relatedModel: data);
+                    },
+                  )
+                : widget.currentTap == ShowDetailsTab.more
+                    ? MoreWidget(
+                        model: context.read<ShowProvider>().showDetailsModel!,
+                        seasons: context
+                            .read<ShowProvider>()
+                            .seasonsModel
+                            ?.data
+                            ?.length,
+                        epsNum: context
+                            .read<ShowProvider>()
+                            .showsEpisodesModel
+                            ?.data
+                            ?.length,
+                      ).sliver
+                    : SizedBox.shrink().sliver;
   }
 
   EdgeInsets epsPadding() {
