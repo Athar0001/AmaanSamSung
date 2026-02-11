@@ -45,7 +45,7 @@ class _AppNavigationBarState extends State<AppNavigationBar> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 60.h,
+      height: 70.h,
       padding: EdgeInsets.symmetric(horizontal: 12.w),
       decoration: BoxDecoration(
         gradient: LinearGradient(
@@ -122,34 +122,37 @@ class _AppNavigationBarState extends State<AppNavigationBar> {
           const Spacer(),
 
           /// SEARCH
-          TvClick(
-            id: FocusKeys.searchTab,
-            leftId: FocusKeys.logoutTab,
-            rightId: FocusKeys.favTab,
-            dynamicDownId: () {
-              if (_selectedTabIndex == 0) {
-                return FocusKeys.watchNow;
-              }
-              if (_selectedTabIndex == 1) {
-                return FocusId.list(FocusKeys.seriesCategory, 0);
-              }
-              return FocusId.list(FocusKeys.favCategory, 0);
-            },
-            onSelect: () {
-              _onTabSelected(3);
-              context.pushNamed(AppRoutes.search.routeName).then((value){
-                if (context.mounted) {
-                  context.setFocus(FocusKeys.homeTab);
-                  _onTabSelected(0);
+          Padding(
+            padding: const EdgeInsets.all(5),
+            child: TvClick(
+              id: FocusKeys.searchTab,
+              leftId: FocusKeys.logoutTab,
+              rightId: FocusKeys.favTab,
+              dynamicDownId: () {
+                if (_selectedTabIndex == 0) {
+                  return FocusKeys.watchNow;
                 }
-              });
-            },
-            child: Padding(
-              padding: EdgeInsets.all(8.r),
-              child: Icon(
-                Icons.search,
-                color: AppColorsNew.white,
-                size: 24.r,
+                if (_selectedTabIndex == 1) {
+                  return FocusId.list(FocusKeys.seriesCategory, 0);
+                }
+                return FocusId.list(FocusKeys.favCategory, 0);
+              },
+              onSelect: () {
+                _onTabSelected(3);
+                context.pushNamed(AppRoutes.search.routeName).then((value){
+                  if (context.mounted) {
+                    context.setFocus(FocusKeys.homeTab);
+                    _onTabSelected(0);
+                  }
+                });
+              },
+              child: Padding(
+                padding: EdgeInsets.all(5),
+                child: Icon(
+                  Icons.search,
+                  color: AppColorsNew.white,
+                  size: 25,
+                ),
               ),
             ),
           ),
@@ -157,33 +160,36 @@ class _AppNavigationBarState extends State<AppNavigationBar> {
           8.horizontalSpace,
 
           /// LOGOUT
-          TvClick(
-            id: FocusKeys.logoutTab,
-            rightId: FocusKeys.searchTab,
-            dynamicDownId: () {
-              if (_selectedTabIndex == 0) {
-                return FocusKeys.watchNow;
-              }
-              if (_selectedTabIndex == 1) {
-                return FocusId.list(FocusKeys.seriesCategory, 0);
-              }
-              return FocusId.list(FocusKeys.favCategory, 0);
-            },
-            onSelect: () async {
-              await context.read<UserNotifier>().logout();
-              await CacheHelper.removeAllData();
-              context.read<TimeProvider>().resetVideoLogDataAndTime();
-              if (context.mounted) {
-                context.goNamed(AppRoutes.qrLogin.routeName);
-              }
-            },
-            child: Padding(
-              padding: EdgeInsets.all(8.r),
-              child: SVGImage(
-                path: Assets.images.loginSvg.path,
-                color: AppColorsNew.red2,
-                width: 24.r,
-                height: 24.r,
+          Padding(
+            padding: const EdgeInsets.all(5),
+            child: TvClick(
+              id: FocusKeys.logoutTab,
+              rightId: FocusKeys.searchTab,
+              dynamicDownId: () {
+                if (_selectedTabIndex == 0) {
+                  return FocusKeys.watchNow;
+                }
+                if (_selectedTabIndex == 1) {
+                  return FocusId.list(FocusKeys.seriesCategory, 0);
+                }
+                return FocusId.list(FocusKeys.favCategory, 0);
+              },
+              onSelect: () async {
+                await context.read<UserNotifier>().logout();
+                await CacheHelper.removeAllData();
+                context.read<TimeProvider>().resetVideoLogDataAndTime();
+                if (context.mounted) {
+                  context.goNamed(AppRoutes.qrLogin.routeName);
+                }
+              },
+              child: Padding(
+                padding: EdgeInsets.all(5),
+                child: SVGImage(
+                  path: Assets.images.loginSvg.path,
+                  color: AppColorsNew.red2,
+                  width: 35.r,
+                  height: 35.r,
+                ),
               ),
             ),
           ),
@@ -220,26 +226,31 @@ class _HeaderTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     print('$isSelected $id');
-    return TvClick(
-      id: id,
-      autoFocus: autoFocus,
-      leftId: leftId,
-      rightId: rightId,
-      dynamicDownId: dynamicDownId,
-      onSelect: onTap,
-      radius: 50.r,
-      child: Container(
-        padding: EdgeInsets.symmetric(horizontal: 30.w, vertical: 8.h),
-        decoration: BoxDecoration(
-          color: isSelected ? AppColorsNew.primary : Colors.transparent,
-          borderRadius: BorderRadius.circular(50.r),
-        ),
-        child: Text(
-          title,
-          style: AppTextStylesNew.style14BoldAlmarai.copyWith(
-            color: AppColorsNew.white,
-            fontSize: 14.r,
-            fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: TvClick(
+        id: id,
+        autoFocus: autoFocus,
+        leftId: leftId,
+        rightId: rightId,
+        dynamicDownId: dynamicDownId,
+        onSelect: onTap,
+        radius: 50.r,
+        child: Container(
+          padding: EdgeInsets.symmetric(horizontal: 30.w,),
+          decoration: BoxDecoration(
+            color: isSelected ? AppColorsNew.primary : Colors.transparent,
+            borderRadius: BorderRadius.circular(50.r),
+          ),
+          child: Center(
+            child: Text(
+              title,
+              style: AppTextStylesNew.style14BoldAlmarai.copyWith(
+                color: AppColorsNew.white,
+                fontSize: 12,
+                fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+              ),
+            ),
           ),
         ),
       ),
