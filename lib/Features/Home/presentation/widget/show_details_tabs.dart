@@ -1,23 +1,15 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:amaan_tv/Features/Home/data/models/home/reals_model.dart';
-import 'package:amaan_tv/Features/Home/presentation/widget/promo_widget.dart';
-import 'package:amaan_tv/Features/Home/presentation/widget/sliver_tab_view.dart';
-import 'package:amaan_tv/Features/Home/provider/show_videos_provider.dart';
-import 'package:amaan_tv/core/Themes/app_colors_new.dart';
-import 'package:amaan_tv/core/Themes/app_text_styles_new.dart';
 import 'package:amaan_tv/Features/Home/data/models/home/related_model/related_model.dart';
 import 'package:amaan_tv/Features/Home/data/models/home/show_details_model/data.dart';
 import 'package:amaan_tv/Features/Home/presentation/widget/Suggestions_widget.dart';
 import 'package:amaan_tv/Features/Home/presentation/widget/episode_widget.dart';
 import 'package:amaan_tv/Features/Home/presentation/widget/more_widget.dart';
 import 'package:amaan_tv/Features/Home/provider/show_provider.dart';
-import 'package:amaan_tv/core/utils/app_localiztion.dart';
 import 'package:amaan_tv/core/utils/widget_sliver_extension.dart';
 import 'package:amaan_tv/core/widget/app_state_builder.dart';
-import 'package:amaan_tv/core/widget/pagination_widget.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
-import 'package:skeletonizer/skeletonizer.dart';
+import 'package:amaan_tv/core/utils/focus_helper.dart';
 
 import '../screens/show_details_screen.dart';
 
@@ -92,6 +84,8 @@ class _ShowDetailsTabBarViewState extends State<ShowDetailsTabBarView> {
                     (context, index) => EpisodeWidget(
                       model: episodes[index],
                       episodesModel: episodes,
+                      index: index,
+                      totalEpisodes: episodes.length,
                     ),
                   ),
                 ),
@@ -135,7 +129,10 @@ class _ShowDetailsTabBarViewState extends State<ShowDetailsTabBarView> {
                 state: (provider) => provider.stateRelatedShows,
                 selector: (provider) => provider.relatedModel,
                 builder: (context, data, child) {
-                  return SuggestionsWidget(relatedModel: data);
+                  return SuggestionsWidget(
+                    relatedModel: data,
+                    focusKeyBase: FocusKeys.detailsRelated,
+                  );
                 },
               )
             : widget.currentTap == ShowDetailsTab.suggestions
@@ -146,7 +143,10 @@ class _ShowDetailsTabBarViewState extends State<ShowDetailsTabBarView> {
                     state: (provider) => provider.stateRelatedShows,
                     selector: (provider) => provider.relatedModel,
                     builder: (context, data, child) {
-                      return SuggestionsWidget(relatedModel: data);
+                      return SuggestionsWidget(
+                        relatedModel: data,
+                        focusKeyBase: FocusKeys.detailsSuggestions,
+                      );
                     },
                   )
                 : widget.currentTap == ShowDetailsTab.more

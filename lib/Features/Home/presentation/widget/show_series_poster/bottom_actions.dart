@@ -1,16 +1,6 @@
-import 'package:flutter/material.dart';
 import 'package:amaan_tv/Features/Home/data/models/home/show_details_model/data.dart';
-import 'package:amaan_tv/Features/Home/presentation/widget/seasons_bottom_sheet.dart';
-import 'package:amaan_tv/Features/Home/presentation/widget/share_button.dart';
-import 'package:amaan_tv/Features/Home/presentation/widget/share_show_widget.dart';
-import 'package:amaan_tv/Features/Home/provider/show_provider.dart';
-import 'package:amaan_tv/Features/family/provider/family_provider.dart';
-import 'package:amaan_tv/core/utils/app_localiztion.dart';
-import 'package:amaan_tv/core/utils/asset_manager.dart';
 import 'package:amaan_tv/core/utils/constant.dart';
-import 'package:amaan_tv/core/widget/SVG_Image/svg_img.dart';
-import 'package:provider/provider.dart';
-import 'package:amaan_tv/Features/Auth/provider/user_notifier.dart';
+import 'package:flutter/material.dart';
 
 class BottomActions extends StatelessWidget {
 
@@ -40,17 +30,7 @@ class BottomActions extends StatelessWidget {
             //     }
             //   },
             // ),
-            if (context.read<UserNotifier>().userData?.userType.isParent == true &&
-                    model?.type.isEpisode == false) Consumer<FamilyProvider>(
-                    builder: (context, fmailyProvider, child) => ShareButton(
-                      text: AppLocalization.strings.share,
-                      icon: SVGImage(path: Assets.imagesShare),
-                      onTap: () {
-                        shareBottomSheet(context, model!.id);
-                      },
-                    ),
-                  ) else SizedBox(),
-          ],
+        ],
         ),
       ),
     );

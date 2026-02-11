@@ -5,6 +5,7 @@ import 'package:amaan_tv/Features/Home/presentation/widget/lock_widget.dart';
 import 'package:amaan_tv/Features/favorite/presentation/widgets/favorite_icon_button.dart';
 import 'package:amaan_tv/Features/favorite/provider/get_favorites_shows_provider.dart';
 import 'package:amaan_tv/core/widget/circle_progress_helper.dart';
+import 'package:amaan_tv/core/widget/tv_click.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
@@ -12,6 +13,7 @@ import '../../../../core/Themes/app_colors_new.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/injection/injection_imports.dart' as di;
 import '../../../../core/utils/enum.dart';
+import '../../../../core/utils/focus_helper.dart';
 import '../../../../core/utils/grid_config.dart';
 import '../../../../core/widget/cached network image/cached_network_image.dart';
 import 'empty_favorite_widget.dart';
@@ -53,89 +55,113 @@ class _FavoriteShowsWidgetState extends State<FavoriteShowsWidget> {
                             final show = favoriteShowProvider
                                 .favoriteShowsModel?.favoriteShows?[index];
 
-                            return GestureDetector(
-                              onTap: () async {
-                                final isFav = await context.pushNamed(
-                                  'showDetails',
-                                  pathParameters: {
-                                    'id': show.showId.toString()
-                                  },
-                                );
-                                if (isFav == false) {
-                                  log(
-                                    isFav.toString(),
-                                    name: 'ShowSeriesScreen isFav',
+                            int columns =
+                                GridConfig.getDefaultGridDelegate().crossAxisCount;
+                            final int row = index ~/ columns;
+                            final int col = index % columns;
+                            final int totalItems =
+                                favoriteShowProvider
+                                    .favoriteShowsModel!.favoriteShows!.length;
+                            final int totalRows = (totalItems / columns).ceil();
+                            return Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: TvClick(
+                                id: FocusId.grid(FocusKeys.favShows, row, col),
+                                listBaseId: FocusKeys.favShows,
+                                radius: 12.r,
+                                rightId: col > 0
+                                    ? FocusId.grid(FocusKeys.favShows, row, col - 1)
+                                    : null,
+                                leftId: (col < columns - 1 &&
+                                    (row * columns + col + 1) < totalItems)
+                                    ? FocusId.grid(FocusKeys.favShows, row, col + 1)
+                                    : null,
+                                upId: row > 0
+                                    ? FocusId.grid(FocusKeys.favShows, row - 1, col)
+                                    : FocusId.list(FocusKeys.favCategory, 0),
+                                downId: (row + 1) < totalRows &&
+                                    ((row + 1) * columns + col) < totalItems
+                                    ? FocusId.grid(FocusKeys.favShows, row + 1, col)
+                                    : null,
+                                onSelect: () async {
+                                  final isFav = await context.pushNamed(
+                                    'showDetails',
+                                    pathParameters: {
+                                      'id': show.showId.toString()
+                                    },
                                   );
-                                  favoriteShowProvider.removeShow(
-                                    e: favoriteShowProvider.favoriteShowsModel!
-                                        .favoriteShows![index],
-                                  );
-                                }
-                              },
-                              child: Stack(
-                                alignment: Alignment.center,
-                                children: [
-                                  Container(
-                                    decoration: BoxDecoration(
-                                      image: decorationImageHelper(
-                                        show?.show?.thumbnailImage?.url ?? '',
-                                      ),
-                                      border: Border.all(
-                                          color: AppColorsNew.primary),
-                                      gradient: LinearGradient(
-                                        colors: [
-                                          Color(0xff164B80),
-                                          Color(0xff2C4D6D),
-                                        ],
-                                      ),
-                                      boxShadow: [
-                                        BoxShadow(
-                                          color: Color(0xff93a7b7),
-                                          blurRadius: 4,
+                                  if (isFav == false) {
+                                    log(
+                                      isFav.toString(),
+                                      name: 'ShowSeriesScreen isFav',
+                                    );
+                                    favoriteShowProvider.removeShow(
+                                      e: favoriteShowProvider.favoriteShowsModel!
+                                          .favoriteShows![index],
+                                    );
+                                  }
+                                },
+                                child: Stack(
+                                  alignment: Alignment.center,
+                                  children: [
+                                    Container(
+                                      decoration: BoxDecoration(
+                                        image: decorationImageHelper(
+                                          show?.show?.thumbnailImage?.url ?? '',
                                         ),
-                                      ],
-                                      borderRadius: BorderRadius.circular(12.r),
+                                        border: Border.all(
+                                            color: AppColorsNew.primary),
+                                        gradient: LinearGradient(
+                                          colors: [
+                                            Color(0xff164B80),
+                                            Color(0xff2C4D6D),
+                                          ],
+                                        ),
+                                        boxShadow: [
+                                          BoxShadow(
+                                            color: Color(0xff93a7b7),
+                                            blurRadius: 4,
+                                          ),
+                                        ],
+                                        borderRadius: BorderRadius.circular(12.r),
+                                      ),
                                     ),
-                                  ),
-                                  if (!show!.show!.isReleased ||
-                                      (checkIfVideoAllowed(
-                                            isFree: show.show?.isFree,
-                                            isGuest: show.show?.isGuest,
-                                          ) !=
-                                          null))
-                                    Align(child: LockWidget())
-                                  else
-                                    SizedBox(),
-                                  Padding(
-                                    padding: EdgeInsets.all(1.sp),
-                                    child: Align(
-                                      child: Container(
-                                        decoration: BoxDecoration(
-                                          borderRadius:
-                                              BorderRadius.circular(12.r),
-                                          gradient: LinearGradient(
-                                            colors: [
-                                              AppColorsNew.black1.withValues(
-                                                alpha: 0.0,
-                                              ),
-                                              AppColorsNew.black1.withValues(
-                                                alpha: 0.2,
-                                              ),
-                                            ],
-                                            stops: const [0, 1],
-                                            begin: Alignment.bottomCenter,
-                                            end: Alignment.topCenter,
+                                    if (!show!.show!.isReleased ||
+                                        (checkIfVideoAllowed(
+                                              isFree: show.show?.isFree,
+                                              isGuest: show.show?.isGuest,
+                                            ) !=
+                                            null))
+                                      Align(child: LockWidget())
+                                    else
+                                      SizedBox(),
+                                    Padding(
+                                      padding: EdgeInsets.all(1.sp),
+                                      child: Align(
+                                        child: Container(
+                                          decoration: BoxDecoration(
+                                            borderRadius:
+                                                BorderRadius.circular(12.r),
+                                            gradient: LinearGradient(
+                                              colors: [
+                                                AppColorsNew.black1.withValues(
+                                                  alpha: 0.0,
+                                                ),
+                                                AppColorsNew.black1.withValues(
+                                                  alpha: 0.2,
+                                                ),
+                                              ],
+                                              stops: const [0, 1],
+                                              begin: Alignment.bottomCenter,
+                                              end: Alignment.topCenter,
+                                            ),
                                           ),
                                         ),
                                       ),
                                     ),
-                                  ),
-                                  PositionedDirectional(
-                                    top: 1,
-                                    end: 1,
-                                    child: FavoriteIconButton(show.show!),
-                                  ),
-                                ],
+
+                                  ],
+                                ),
                               ),
                             );
                           },

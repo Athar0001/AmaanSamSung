@@ -1,3 +1,4 @@
+import 'package:amaan_tv/core/widget/tv_click.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:amaan_tv/core/Themes/app_text_styles_new.dart';
@@ -11,12 +12,12 @@ class NoVideoDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 280.r,
+      height: 320.r,
       child: Stack(
         clipBehavior: Clip.none,
         children: [
           Container(
-            height: 280.r,
+            height: 320.r,
             padding: EdgeInsets.only(
               left: 24.r,
               right: 24.r,
@@ -44,13 +45,17 @@ class NoVideoDialog extends StatelessWidget {
                 ),
                 Spacer(),
                 // Close Button
-                MainButtonWidget(
-                  label: AppLocalization.strings.ok,
-                  isCenter: false,
-                  width: 120.r,
-                  onTap: () {
+                TvClick(
+                  id: '1',
+                  autoFocus: true,
+                  onSelect: () {
                     Navigator.of(context).pop();
                   },
+                  child: MainButtonWidget(
+                    label: AppLocalization.strings.ok,
+                    isCenter: false,
+                    width: 120.r,
+                  ),
                 ),
                 // 24.verticalSpace,
               ],

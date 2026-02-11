@@ -99,6 +99,4 @@ mixin CacheHelper {
     return false;
   }
 
-  //TODO: remove this and use it direct from the user notifier
-  static UserData? get currentUser => UserNotifier.instance.userData;
 }

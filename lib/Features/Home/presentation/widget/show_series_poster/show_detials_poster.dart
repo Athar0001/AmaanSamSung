@@ -8,6 +8,8 @@ import 'package:amaan_tv/core/Themes/app_colors_new.dart';
 import 'package:amaan_tv/Features/Home/presentation/widget/release_countdown.dart';
 import 'package:amaan_tv/Features/Home/presentation/widget/show_series_poster/mobile_layout.dart';
 import 'package:amaan_tv/Features/Home/presentation/widget/show_series_poster/tablet_layout.dart';
+import 'package:amaan_tv/core/widget/tv_click.dart';
+import 'package:amaan_tv/core/utils/focus_helper.dart';
 
 class ShowSeriesPoster extends StatefulWidget {
   const ShowSeriesPoster({
@@ -58,10 +60,19 @@ class _ShowSeriesPosterState extends State<ShowSeriesPoster> {
                 bottom: 0.r,
                 right: 0,
                 left: 0,
-                child: AnimatedShowButton(
-                  model: widget.model,
-                  isLoading: widget.isLoading,
-                  onTapShow: widget.onTapShow,
+                child: TvClick(
+                  id: FocusKeys.detailsWatchButton,
+                  autoFocus: true,
+                  downId: FocusId.list(FocusKeys.detailsCharacters, 0),
+                  radius: 50.r,
+                  onSelect: widget.onTapShow,
+                  upId: FocusKeys.detailsBack,
+                  isCircle: true,
+                  child: AnimatedShowButton(
+                    model: widget.model,
+                    isLoading: widget.isLoading,
+                    onTapShow: widget.onTapShow,
+                  ),
                 ),
               ),
             ],

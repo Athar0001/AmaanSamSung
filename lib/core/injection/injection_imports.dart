@@ -1,7 +1,6 @@
 import 'package:amaan_tv/Features/search/data/data_source/search_service.dart';
 import 'package:amaan_tv/Features/search/provider/search_provider.dart';
 import 'package:get_it/get_it.dart';
-import 'package:amaan_tv/Features/Home/provider/bottom_bar_provider.dart';
 import 'package:amaan_tv/Features/Auth/provider/user_notifier.dart';
 import 'package:amaan_tv/Features/Home/provider/show_provider.dart';
 import 'package:amaan_tv/Features/family/provider/family_provider.dart';
@@ -41,7 +40,6 @@ void init() {
     sl.registerSingleton<UserNotifier>(UserNotifier(sl()));
   }
 
-  sl.registerFactory(() => BottomBarProvider(sl()));
   sl.registerFactory(() => ShowProvider(sl(), sl()));
   sl.registerFactory(() => FamilyProvider());
   sl.registerFactory(() => SearchProvider(sl(), sl()));

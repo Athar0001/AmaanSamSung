@@ -10,8 +10,10 @@ import 'package:amaan_tv/Features/Home/data/data_source/home_service.dart';
 import 'package:amaan_tv/core/utils/api/api_service.dart';
 import 'package:amaan_tv/core/utils/app_localiztion.dart';
 import 'package:amaan_tv/core/utils/app_router.dart';
+import 'package:amaan_tv/core/utils/tv_focus_manager.dart';
 import 'package:amaan_tv/core/utils/cash_services/cashe_helper.dart';
 import 'package:amaan_tv/core/languages/app_localizations.dart';
+import 'package:simple_tv_navigation/simple_tv_navigation.dart';
 import 'package:tizen_log/tizen_log.dart';
 import 'package:toastification/toastification.dart';
 
@@ -30,15 +32,40 @@ const String appFlavor = String.fromEnvironment(
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await CacheHelper.init();
   di.init();
-
+  final userNotifier = di.sl<UserNotifier>();
+  userNotifier.init();
   AppFlavor.flavor = Flavor.values.firstWhere(
     (flavor) => flavor.name == appFlavor,
     orElse: () => Flavor.dev,
   );
-  await CacheHelper.init();
-  runApp(const AmaanTVApp());
+  runApp( TvNavigationProvider(
+    child: MultiProvider(
+        providers: [
+          ChangeNotifierProvider(create: (_) => userNotifier),
+          Provider<ApiService>(create: (_) => ApiService.getInstance()),
+          ChangeNotifierProvider(create: (_) => di.sl<TimeProvider>()),
+          ChangeNotifierProvider(create: (_) => di.sl<ShowPlayerProvider>()),
+          ChangeNotifierProvider(create: (_) => di.sl<AuthProvider>()),
+          ChangeNotifierProxyProvider2<ApiService, UserNotifier,
+              HomeProvider>(
+            create: (context) => HomeProvider(
+              HomeService(ApiService.getInstance(), userNotifier),
+              userNotifier,
+            ),
+            update: (context, apiService, _, previous) =>
+            previous ??
+                HomeProvider(
+                  HomeService(apiService, userNotifier),
+                  userNotifier,
+                ),
+          ),
+        ],
+        child: const AmaanTVApp()),
+  ));
 }
+
 
 class AmaanTVApp extends StatelessWidget {
   const AmaanTVApp({super.key});
@@ -53,54 +80,54 @@ class AmaanTVApp extends StatelessWidget {
       minTextAdapt: true,
       splitScreenMode: true,
       builder: (context, child) {
-        return MultiProvider(
-          providers: [
-            ChangeNotifierProvider(create: (_) => UserNotifier.instance),
-            Provider<ApiService>(create: (_) => ApiService.getInstance()),
-            ChangeNotifierProvider(create: (_) => di.sl<TimeProvider>()),
-            ChangeNotifierProvider(create: (_) => di.sl<ShowPlayerProvider>()),
-            ChangeNotifierProvider(create: (_) => di.sl<AuthProvider>()),
-            ChangeNotifierProxyProvider2<ApiService, UserNotifier,
-                HomeProvider>(
-              create: (context) => HomeProvider(
-                HomeService(ApiService.getInstance(), UserNotifier.instance),
-                UserNotifier.instance,
-              ),
-              update: (context, apiService, userNotifier, previous) =>
-                  previous ??
-                  HomeProvider(
-                    HomeService(apiService, userNotifier),
-                    userNotifier,
-                  ),
-            ),
-          ],
-          child: ToastificationWrapper(
-            child: MaterialApp.router(
-              title: 'Amaan TV',
-              debugShowCheckedModeBanner: false,
-              // Localization Setup
-              supportedLocales: const [Locale('en'), Locale('ar')],
-              localizationsDelegates: const [
-                AppLocalizations.delegate,
-                GlobalMaterialLocalizations.delegate,
-                GlobalWidgetsLocalizations.delegate,
-                GlobalCupertinoLocalizations.delegate,
-              ],
-              locale: const Locale('ar'),
-              // Default to Arabic as per typical requirement, or en
-              builder: (context, widget) {
-                // Initialize AppLocalization helper
-                if (widget != null) {
-                  AppLocalization.initialize(context);
-                }
-                return widget!;
-              },
-              themeMode: ThemeMode.dark,
-              // themeMode: provider.themeMode,
-              theme: KidsAppTheme.instance.lightTheme(),
-              darkTheme: KidsAppTheme.instance.darkTheme(),
-              routerConfig: appRouter,
-            ),
+        return ToastificationWrapper(
+          child: MaterialApp.router(
+            title: 'Amaan TV',
+            debugShowCheckedModeBanner: false,
+            // Localization Setup
+            supportedLocales: const [Locale('en'), Locale('ar')],
+            localizationsDelegates: const [
+              AppLocalizations.delegate,
+              GlobalMaterialLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
+            ],
+            locale: const Locale('ar'),
+            // Default to Arabic as per typical requirement, or en
+            builder: (context, widget) {
+              if (widget != null) {
+                AppLocalization.initialize(context);
+              }
+              // final wrapped = Shortcuts(
+              //   shortcuts: <LogicalKeySet, Intent>{
+              //     LogicalKeySet(LogicalKeyboardKey.arrowLeft): const DirectionalFocusIntent(TraversalDirection.left),
+              //     LogicalKeySet(LogicalKeyboardKey.arrowRight): const DirectionalFocusIntent(TraversalDirection.right),
+              //     LogicalKeySet(LogicalKeyboardKey.arrowUp): const DirectionalFocusIntent(TraversalDirection.up),
+              //     LogicalKeySet(LogicalKeyboardKey.arrowDown): const DirectionalFocusIntent(TraversalDirection.down),
+              //     LogicalKeySet(LogicalKeyboardKey.select): const ActivateIntent(),
+              //     LogicalKeySet(LogicalKeyboardKey.enter): const ActivateIntent(),
+              //   },
+              //   child: Actions(
+              //     actions: <Type, Action<Intent>>{
+              //       DirectionalFocusIntent: DirectionalFocusAction(),
+              //     },
+              //     child: widget!,
+              //   ),
+              // );
+              //
+              // WidgetsBinding.instance.addPostFrameCallback((_) {
+              //   if (FocusManager.instance.primaryFocus == null) {
+              //     TvFocusManager.instance.restoreFocus(context);
+              //   }
+              // });
+
+              return widget!;
+            },
+            themeMode: ThemeMode.dark,
+            // themeMode: provider.themeMode,
+            theme: KidsAppTheme.instance.lightTheme(),
+            darkTheme: KidsAppTheme.instance.darkTheme(),
+            routerConfig: appRouter,
           ),
         );
       },

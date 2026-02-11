@@ -50,7 +50,6 @@ final GoRouter appRouter = GoRouter(
   initialLocation: '/qr-login',
   redirect: (context, state) {
     final loginInfo = CacheHelper.getData(key: 'loginInfo');
-
     final isOnLogin = state.matchedLocation == '/qr-login';
 
     if (loginInfo != null && isOnLogin) {
@@ -82,12 +81,12 @@ final GoRouter appRouter = GoRouter(
         return ShowDetailsScreen(id: id);
       },
     ),
-    GoRoute(
-      path: '/categories',
-      name: AppRoutes.categories.routeName,
-      builder: (context, state) =>
-          CategoriesScreen(category: state.extra as Category),
-    ),
+    // GoRoute(
+    //   path: '/categories',
+    //   name: AppRoutes.categories.routeName,
+    //   builder: (context, state) =>
+    //       CategoriesScreen(category: state.extra as Category),
+    // ),
     GoRoute(
       path: '/soonRadio',
       name: AppRoutes.soonRadio.routeName,
@@ -147,6 +146,8 @@ final GoRouter appRouter = GoRouter(
         final url = RouteExtraHelper.getString(state.extra, 'url');
         final videoId = RouteExtraHelper.getString(state.extra, 'videoId');
         final show = RouteExtraHelper.getValue<Details>(state.extra, 'show');
+        final VoidCallback onNavigateBack = RouteExtraHelper.getValue<VoidCallback>(state.extra,
+            'onNavigateBack')!;
         final repeatTimes =
             RouteExtraHelper.getNullableInt(state.extra, 'repeatTimes');
         final episodeId =
@@ -172,6 +173,7 @@ final GoRouter appRouter = GoRouter(
               fromMinute: fromMinute,
               episodesModel: episodesModel,
               showRate: showRate,
+              onNavigateBack: onNavigateBack,
             ),
           );
         }

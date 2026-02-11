@@ -1,5 +1,6 @@
 import 'dart:ui';
 
+import 'package:amaan_tv/core/utils/focus_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:amaan_tv/core/widget/tv_click_button.dart';
 import 'package:flutter/services.dart';
@@ -11,6 +12,11 @@ import 'package:amaan_tv/core/utils/app_router.dart';
 import 'package:amaan_tv/core/Themes/app_text_styles_new.dart';
 import 'package:amaan_tv/core/widget/cached%20network%20image/cached_network_image.dart';
 import 'package:amaan_tv/gen/assets.gen.dart';
+import 'package:provider/provider.dart';
+import 'package:simple_tv_navigation/simple_tv_navigation.dart';
+
+import '../../../../../core/widget/tv_click.dart';
+import '../../../../Auth/provider/user_notifier.dart';
 
 class TabletBannerView extends StatelessWidget {
   const TabletBannerView({
@@ -30,8 +36,7 @@ class TabletBannerView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bannerData =
-        currentPage == 0 ? null : provider.bannerModel?.data?[currentPage - 1];
+    final bannerData =provider.bannerModel?.data?[currentPage];
 
     return Stack(
       alignment: AlignmentDirectional.topCenter,
@@ -41,26 +46,25 @@ class TabletBannerView extends StatelessWidget {
         PageView.builder(
           controller: controller,
           onPageChanged: onPageChanged,
-          physics: NeverScrollableScrollPhysics(), // Disable manual swiping
-          itemCount: (provider.bannerModel?.data?.length ?? 0) + 1,
+          itemCount: (provider.bannerModel?.data?.length ?? 0),
           itemBuilder: (context, index) {
-            final banner =
-                index == 0 ? null : provider.bannerModel?.data?[index - 1];
+            final banner = provider.bannerModel?.data?[index];
 
             return Stack(
               alignment: AlignmentDirectional.topCenter,
               children: [
-                if (index == 0)
-                  // First item shows cover image
-                  Center(
-                    child: Image.asset(
-                      Assets.images.coverImageJpg.path,
-                      fit: BoxFit.fill,
-                      width: 1.sw,
-                      height: 850,
-                    ),
-                  )
-                else if (banner?.show.bannerThumbnailImage?.url != null)
+                // if (index == 0)
+                //   // First item shows cover image
+                //   Center(
+                //     child: Image.asset(
+                //       Assets.images.coverImageJpg.path,
+                //       fit: BoxFit.fill,
+                //       width: 1.sw,
+                //       height: 850,
+                //     ),
+                //   )
+                // else
+                  if (banner?.show.bannerThumbnailImage?.url != null)
                   CachedNetworkImageHelper(
                     imageUrl: banner!.show.bannerThumbnailImage!.url!,
                     fit: BoxFit.fill,
@@ -77,25 +81,14 @@ class TabletBannerView extends StatelessWidget {
                   ),
                 ),
 
-                // Background image
-                if (index == 0)
-                  // First item shows cover image
-                  Center(
-                    child: Image.asset(
-                      Assets.images.coverImageJpg.path,
-                      fit: BoxFit.fill,
-                      width: 0.45.sw,
-                      height: 400,
-                    ),
-                  )
-                else if (banner?.show.bannerThumbnailImage?.url != null)
+                if (banner?.show.bannerThumbnailImage?.url != null)
                   PositionedDirectional(
-                    top: 100.r,
+                    top: 0.r,
                     child: CachedNetworkImageHelper(
                       imageUrl: banner!.show.bannerThumbnailImage!.url!,
                       fit: BoxFit.fill,
                       width: 0.45.sw,
-                      height: 400,
+                      height: 320,
                     ),
                   )
                 else
@@ -140,6 +133,7 @@ class TabletBannerView extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+
                 // Title
                 Text(
                   bannerData.show.title,
@@ -171,221 +165,163 @@ class TabletBannerView extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
                     // Watch Now button
-                    TvClickButton(
-                      onTap: () {
+                    TvClick(
+                      id: FocusKeys.watchNow,
+                      downId: FocusId.list(FocusKeys.banner, 0),
+                      upId: FocusKeys.homeTab,
+                      radius: 30.r,
+                      onSelect: () {
                         context.pushNamed(
                           AppRoutes.showDetails.routeName,
                           pathParameters: {'id': bannerData.show.id},
                           extra: bannerData.show,
-                        );
+                        ).then((value){
+                          context.setFocus(FocusKeys.homeTab);
+                        });
                       },
-                      builder: (context, focused) {
-                        return Container(
-                          padding: EdgeInsets.symmetric(
-                            horizontal: 24.w,
-                            vertical: 12.h,
-                          ),
-                          decoration: BoxDecoration(
-                            color: AppColorsNew.primary,
-                            borderRadius: BorderRadius.circular(
-                                30.r), // Rounded pill shape
-                            border: focused
-                                ? Border.all(
-                                    color: AppColorsNew.white, width: 2)
-                                : null,
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(Icons.play_arrow_rounded,
-                                  size: 24.r, color: AppColorsNew.white),
-                              8.horizontalSpace,
-                              Text(
-                                'شاهد الآن',
-                                style: AppTextStylesNew.style14BoldAlmarai
-                                    .copyWith(
-                                  color: AppColorsNew.white,
-                                  fontSize: 16.r,
-                                ),
+                      child: Container(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 24.w,
+                          vertical: 12.h,
+                        ),
+                        decoration: BoxDecoration(
+                          color: AppColorsNew.primary,
+                          borderRadius: BorderRadius.circular(
+                              30.r), // Rounded pill shape
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(Icons.play_arrow_rounded,
+                                size: 24.r, color: AppColorsNew.white),
+                            8.horizontalSpace,
+                            Text(
+                              'شاهد الآن',
+                              style: AppTextStylesNew.style14BoldAlmarai
+                                  .copyWith(
+                                color: AppColorsNew.white,
+                                fontSize: 16.r,
                               ),
-                            ],
-                          ),
-                        );
-                      },
+                            ),
+                          ],
+                        ),
+                      ),
                     ),
-                    16.horizontalSpace,
+                    // 16.horizontalSpace,
 
                     // Trailer Button ("الإعلان")
-                    TvClickButton(
-                      onTap: () {
-                        // TODO: Implement trailer action
-                      },
-                      builder: (context, focused) {
-                        return Container(
-                          padding: EdgeInsets.symmetric(
-                            horizontal: 24.w,
-                            vertical: 12.h,
-                          ),
-                          decoration: BoxDecoration(
-                            color: Colors.white
-                                .withOpacity(0.2), // Transparent/Glassy
-                            borderRadius: BorderRadius.circular(30.r),
-                            border: focused
-                                ? Border.all(
-                                    color: AppColorsNew.white, width: 2)
-                                : null,
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(
-                                  Icons
-                                      .info_outline_rounded, // Using info icon as placeholder for trailer/details if needed or just play circle
-                                  size: 24.r,
-                                  color: AppColorsNew.white),
-                              8.horizontalSpace,
-                              Text(
-                                'الإعلان',
-                                style: AppTextStylesNew.style14BoldAlmarai
-                                    .copyWith(
-                                  color: AppColorsNew.white,
-                                  fontSize: 16.r,
-                                ),
-                              ),
-                            ],
-                          ),
-                        );
-                      },
-                    ),
+                    // TvClickButton(
+                    //   onTap: () {
+                    //     // TODO: Implement trailer action
+                    //   },
+                    //   builder: (context, focused) {
+                    //     return Container(
+                    //       padding: EdgeInsets.symmetric(
+                    //         horizontal: 24.w,
+                    //         vertical: 12.h,
+                    //       ),
+                    //       decoration: BoxDecoration(
+                    //         color: Colors.white
+                    //             .withOpacity(0.2), // Transparent/Glassy
+                    //         borderRadius: BorderRadius.circular(30.r),
+                    //         border: focused
+                    //             ? Border.all(
+                    //                 color: AppColorsNew.white, width: 2)
+                    //             : null,
+                    //       ),
+                    //       child: Row(
+                    //         mainAxisSize: MainAxisSize.min,
+                    //         children: [
+                    //           Icon(
+                    //               Icons
+                    //                   .info_outline_rounded, // Using info icon as placeholder for trailer/details if needed or just play circle
+                    //               size: 24.r,
+                    //               color: AppColorsNew.white),
+                    //           8.horizontalSpace,
+                    //           Text(
+                    //             'الإعلان',
+                    //             style: AppTextStylesNew.style14BoldAlmarai
+                    //                 .copyWith(
+                    //               color: AppColorsNew.white,
+                    //               fontSize: 16.r,
+                    //             ),
+                    //           ),
+                    //         ],
+                    //       ),
+                    //     );
+                    //   },
+                    // ),
                   ],
                 ),
               ],
             ),
           ),
-
         // Thumbnails Carousel at bottom
         if (provider.bannerModel?.data?.isNotEmpty ?? false)
           PositionedDirectional(
-            bottom: 0,
-            start: 0,
-            end: 0,
-            height: 330.r,
-            child: FocusTraversalGroup(
-              policy: ReadingOrderTraversalPolicy(),
-              child: ListView.builder(
-                scrollDirection: Axis.horizontal,
-                padding: EdgeInsetsDirectional.only(start: 24.w, bottom: 24.r),
-                itemCount: provider.bannerModel!.data!.length,
-                physics: NeverScrollableScrollPhysics(),
-                itemBuilder: (context, index) {
-                  final show = provider.bannerModel!.data![index];
-                  // Since index is 0-based for list, but pageview has cover at 0
-                  // Banner data starts from index 1 in pageview
-                  final pageIndex = index + 1;
-                  final isSelected = currentPage == pageIndex;
-                  return TvClickButton(
-                    onTap: () {
-                      controller.animateToPage(
-                        pageIndex,
-                        duration: Duration(milliseconds: 300),
-                        curve: Curves.easeInOut,
-                      );
-                    },
-                    builder: (context, hasFocus) {
-                      if(hasFocus) {
-                        onFocus.call();
-                        controller.animateToPage(
-                          pageIndex,
-                          duration: Duration(milliseconds: 300),
-                          curve: Curves.easeInOut,
-                        );
-                      }
-                      return Container(
-                        width: 232.r,
-                        margin: EdgeInsetsDirectional.only(end: 30),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(12.r),
-                          border: isSelected || hasFocus
-                              ? Border.all(
-                                  color: AppColorsNew.white,
-                                  width: hasFocus ? 4 : 2,
-                                )
-                              : null,
-                          boxShadow: isSelected || hasFocus
-                              ? [
-                                  BoxShadow(
-                                    color: Colors.black.withOpacity(0.3),
-                                    blurRadius: 8,
-                                    offset: Offset(0, 4),
-                                  ),
-                                ]
-                              : null,
-                        ),
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(10.r),
-                          child: show.show.thumbnailImage?.url != null
-                              ? CachedNetworkImageHelper(
-                                  imageUrl: show.show.thumbnailImage!.url!,
-                                  fit: BoxFit.cover,
-                                  width: 232.r,
-                                  height: 330.r,
-                                  borderRadius: 0,
-                                )
-                              : Container(color: Colors.grey[800]),
-                        ),
-                      );
-                    },
-                  );
-                },
-              ),
-            ),
-          )
+           bottom: 0,
+           start: 0,
+           end: 0,
+           height: 300.r,
+           child: ListView.builder(
+             scrollDirection: Axis.horizontal,
+             padding: EdgeInsetsDirectional.only(start: 24.w, bottom: 24.r),
+             itemCount: provider.bannerModel!.data!.length,
+             itemBuilder: (context, index) {
+               final show = provider.bannerModel!.data![index];
+               return Padding(
+                 padding: const EdgeInsets.all(12.0),
+                 child: TvClick(
+                   id: FocusId.list(FocusKeys.banner, index),
+                   rightId: index > 0
+                       ? FocusId.list(FocusKeys.banner, index - 1)
+                       : null,
+                   leftId: index < provider.bannerModel!.data!.length - 1
+                       ? FocusId.list(FocusKeys.banner, index + 1)
+                       : FocusId.list(FocusKeys.banner, 0),
+                   downId: (provider.continueWatchingModel?.data?.isNotEmpty ?? false)
+                       ? FocusId.list(FocusKeys.continueWatching, 0)
+                       : FocusId.list(FocusKeys.whatIsNew, 0),
+                   upId: FocusKeys.watchNow,
+                   radius: 10.r,
+                   onFocus: (){
+                     if(!Scrollable.of(context).mounted) {
+                       Scrollable.ensureVisible(
+                       context,
+                       alignment: 0.0,
+                       duration: Duration(milliseconds: 300),
+                       curve: Curves.easeInOut,
+                     );
+                     }
+                  controller.animateToPage(
+                       index,
+                       duration: Duration(milliseconds: 300),
+                       curve: Curves.easeInOut,
+                     );
+                   },
+                   child: Container(
+                     width: 200.r,
+                     child: ClipRRect(
+                       borderRadius: BorderRadius.circular(10.r),
+                       child: show.show.thumbnailImage?.url != null
+                           ? CachedNetworkImageHelper(
+                         imageUrl: show.show.thumbnailImage!.url!,
+                         fit: BoxFit.cover,
+                         width: 200.r,
+                         height: 300.r,
+                         borderRadius: 0,
+                       )
+                           : Container(color: Colors.grey[800]),
+                     ),
+                   ),
+                 ),
+               );
+             },
+           ),
+                      )
       ],
     );
   }
 }
 
-// Action Button Widget
-class _ActionButton extends StatelessWidget {
-  final IconData icon;
-  final String? label;
-  final VoidCallback onTap;
 
-  const _ActionButton({required this.icon, this.label, required this.onTap});
-
-  @override
-  Widget build(BuildContext context) {
-    return TvClickButton(
-      onTap: onTap,
-      child: Container(
-        padding: EdgeInsets.symmetric(
-          horizontal: label != null ? 16.w : 12.w,
-          vertical: 10.h,
-        ),
-        decoration: BoxDecoration(
-          color: Colors.black.withOpacity(0.5),
-          borderRadius: BorderRadius.circular(8.r),
-          border: Border.all(
-            color: AppColorsNew.white.withOpacity(0.3),
-            width: 1,
-          ),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(icon, color: AppColorsNew.white, size: 20.r),
-            if (label != null) ...[
-              8.horizontalSpace,
-              Text(
-                label!,
-                style: AppTextStylesNew.style14RegularAlmarai.copyWith(
-                  color: AppColorsNew.white,
-                ),
-              ),
-            ],
-          ],
-        ),
-      ),
-    );
-  }
-}

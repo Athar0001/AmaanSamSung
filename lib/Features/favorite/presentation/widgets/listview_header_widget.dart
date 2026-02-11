@@ -1,7 +1,9 @@
-import 'package:amaan_tv/Features/stories/widgets/category_widget.dart';
-import 'package:amaan_tv/core/widget/tv_click_button.dart';
+
 import 'package:flutter/material.dart';
-import '../../Home/data/models/home_categories_model/categories.dart';
+import '../../../../core/utils/focus_helper.dart';
+import '../../../../core/widget/tv_click.dart';
+import '../../../Home/data/models/home_categories_model/categories.dart';
+import '../../../Home/presentation/widget/category_widget.dart';
 
 class ListViewHeader extends StatefulWidget {
   const ListViewHeader({
@@ -33,18 +35,20 @@ class _ListViewHeaderState extends State<ListViewHeader> {
 
           return Padding(
             padding: const EdgeInsets.all(8.0),
-            child: TvClickButton(
-              onTap: () {
+            child: TvClick(
+              id: FocusId.list(FocusKeys.favCategory, currentStoreIndex),
+              isList: true,
+              index: currentStoreIndex,
+              length: widget.items.length,
+              downId: FocusId.favGridEntryKey(widget.selectedIndex!),
+              upId: FocusKeys.homeTab,
+              onSelect: () {
                 widget.onSelect?.call(currentStoreIndex);
               },
-              builder: (context, hasFocus){
-                return CategoryWidget(
-                  category: category,
-                  isSelected: isSelected,
-                  fromAssets: widget.fromAssets,
-                  hasFocus: hasFocus,
-                );
-              },
+              child: CategoryWidget(
+                category: category,
+                isSelected: isSelected,
+              ),
             ),
           );
         },

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../core/utils/cash_services/cashe_helper.dart';
 import '../../../core/utils/funcation.dart';
 import '../../../core/widget/app_toast.dart';
+import '../../Auth/provider/user_notifier.dart';
 import '../data/data_source/home_service.dart';
 
 class TimeProvider with ChangeNotifier {
@@ -14,7 +15,7 @@ class TimeProvider with ChangeNotifier {
 
   bool _isValidToContinue = true;
   bool get isValidToContinue {
-    return CacheHelper.currentUser?.userType.isChild != true ||
+    return UserNotifier.instance.userData?.userType.isChild != true ||
         _isValidToContinue;
   }
 
@@ -74,7 +75,7 @@ class TimeProvider with ChangeNotifier {
   }
 
   Future<void> validateVideoTime() async {
-    final currentUser = CacheHelper.currentUser;
+    final currentUser = UserNotifier.instance.userData;
     if (currentUser != null && currentUser.userType.isChild) {
       (await homeService.validateVideoTime(id: currentUser.userId!))
           .fold((failure) {}, (data) {

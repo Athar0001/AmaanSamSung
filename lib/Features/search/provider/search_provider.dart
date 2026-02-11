@@ -41,12 +41,12 @@ class SearchProvider extends ChangeNotifier {
   AppState stateRecentSearch = AppState.init;
   RecentSearchModel? _recentSearchModel;
 
-  RecentSearchModel get recentSearchModel => _recentSearchModel!;
+  RecentSearchModel? get recentSearchModel => _recentSearchModel;
 
   Future recentSearch() async {
     stateRecentSearch = AppState.loading;
     notifyListeners();
-    CacheHelper.currentUser != null
+    UserNotifier.instance.userData != null
         ? (await _searchService.recentSearch()).fold(
             (failure) {
               stateRecentSearch = AppState.error;

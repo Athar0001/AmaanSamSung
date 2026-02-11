@@ -1,3 +1,4 @@
+
 import 'package:amaan_tv/Features/Home/presentation/widget/heros_widget.dart';
 import 'package:amaan_tv/Features/characters/presentation/screens/characters_screen.dart';
 import 'package:amaan_tv/Features/favorite/presentation/screens/favorite_screen.dart';
@@ -20,9 +21,11 @@ import 'package:amaan_tv/core/widget/scaffold_gradient_background.dart';
 import 'package:amaan_tv/core/widget/app_navigation_bar.dart';
 import 'package:flutter_state_provider/flutter_state_provider.dart';
 import 'package:provider/provider.dart';
+import 'package:simple_tv_navigation/simple_tv_navigation.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 import '../../../../core/utils/enum.dart';
-import '../widget/carousel_silder_home_item.dart';
+import '../../../../core/utils/focus_helper.dart';
+
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -32,14 +35,10 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  int _selectedTabIndex = 0;
+
   final ScrollController scrollController = ScrollController();
 
-  void _onTabChanged(int index) {
-    setState(() {
-      _selectedTabIndex = index;
-    });
-  }
+
 
   @override
   void initState() {
@@ -48,6 +47,7 @@ class _HomeScreenState extends State<HomeScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (context.read<UserNotifier>().userData != null) {
         context.read<HomeProvider>().getAllHomeData();
+        context.setFocus(FocusKeys.homeTab);
       }
     });
   }
@@ -55,38 +55,42 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return ScaffoldGradientBackground(
-      body: Stack(
-        children: [
-          // Content area with padding for navigation bar
-          Padding(
-            padding: EdgeInsets.only(
-              top: 60.h + MediaQuery.of(context).padding.top,
-            ),
-            child: IndexedStack(
-              index: _selectedTabIndex,
-              children: [
-                // Tab 0: Home Content
-                _buildHomeContent(),
-                // Tab 1: Series Content
-                SeriesContentView(),
-                // Tab 2: Favorites Content
-                _buildFavoritesContent(),
-              ],
-            ),
-          ),
-          // Navigation Bar
-          Positioned(
-            top: 0,
-            left: 0,
-            right: 0,
-            child: SafeArea(
-              child: AppNavigationBar(
-                selectedIndex: _selectedTabIndex,
-                onTabChanged: _onTabChanged,
+      body: Consumer<HomeProvider>(
+        builder: (context, provider, child) {
+          return Stack(
+            children: [
+              // Content area with padding for navigation bar
+              Padding(
+                padding: EdgeInsets.only(
+                  top: 60.h + MediaQuery.of(context).padding.top,
+                ),
+                child: IndexedStack(
+                  index: provider.selectedTabIndex,
+                  children: [
+                    // Tab 0: Home Content
+                    _buildHomeContent(),
+                    // Tab 1: Series Content
+                    SeriesContentView(),
+                    // Tab 2: Favorites Content
+                    _buildFavoritesContent(),
+                  ],
+                ),
               ),
-            ),
-          ),
-        ],
+              // Navigation Bar
+              Positioned(
+                top: 0,
+                left: 0,
+                right: 0,
+                child: SafeArea(
+                  child: AppNavigationBar(
+                    selectedIndex: provider.selectedTabIndex,
+                    onTabChanged: provider.onTabChanged,
+                  ),
+                ),
+              ),
+            ],
+          );
+        }
       ),
     );
   }
@@ -94,28 +98,27 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget _buildHomeContent() {
     return Consumer<HomeProvider>(
       builder: (context, provider, child) {
-        return ListView(
-          controller: scrollController,
-          cacheExtent: 1000,
+        return  ListView(
           children: [
+            20.verticalSpace,
             SizedBox(
-              height: 350,
+              height: 500,
               child: Skeletonizer(
                 enabled: provider.stateBanner == AppState.loading,
                 child: HomeBannerWidget(
                   onFocus: (){
-                    scrollController.animateTo(
-                      0,
-                      duration: const Duration(milliseconds: 300),
-                      curve: Curves.easeInOut,
-                    );
+                    // Scrollable.of(context)..animateTo(
+                    //   0,
+                    //   duration: const Duration(milliseconds: 300),
+                    //   curve: Curves.easeInOut,
+                    // );
 
                   },
                 ),
               ),
             ),
             30.verticalSpace,
-            if (context.read<UserNotifier>().userData != null) ...[
+            // if (context.read<UserNotifier>().userData != null) ...[
               Skeletonizer(
                 enabled: provider.stateContinueWatching ==
                     AppState.loading,
@@ -126,6 +129,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     ? Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+
                     Padding(
                       padding: const EdgeInsetsDirectional.only(
                         start: Constant.paddingLeftRight,
@@ -147,7 +151,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     : SizedBox(),
               ),
               24.verticalSpace,
-            ],
+            // ],
 
             ////////////////////////////////<---- whatIsNew  -->//////////////////////////////////////
             Skeletonizer(
@@ -170,7 +174,6 @@ class _HomeScreenState extends State<HomeScreen> {
                           style: AppTextStylesNew.style16BoldAlmarai,
                         ),
                       ),
-                      16.verticalSpace,
                       TopTenWidget(
                         topTenModel: latest,
                         isTopTenWidget: false,
@@ -197,7 +200,6 @@ class _HomeScreenState extends State<HomeScreen> {
                       style: AppTextStylesNew.style16BoldAlmarai,
                     ),
                   ),
-                  16.verticalSpace,
                   TopTenWidget(
                     topTenModel:
                     provider.topTenModel!.data!.topShows!,
@@ -229,7 +231,6 @@ class _HomeScreenState extends State<HomeScreen> {
                         AppTextStylesNew.style16BoldAlmarai,
                       ),
                     ),
-                    16.verticalSpace,
                     TopTenWidget(
                       topTenModel:
                       provider.suggestedSearchModel.data!,
@@ -285,7 +286,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           ),
                         ),
                         16.verticalSpace,
-                        HerosWidget(characters: charactersModel.data),
+                        HerosWidgetHome(characters: charactersModel.data),
                       ],
                     );
                   },

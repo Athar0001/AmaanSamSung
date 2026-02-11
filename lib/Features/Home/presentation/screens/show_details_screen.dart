@@ -1,11 +1,11 @@
 import 'package:amaan_tv/core/widget/tv_click_button.dart';
+import 'package:amaan_tv/core/widget/tv_click.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_state_provider/flutter_state_provider.dart';
 import 'package:amaan_tv/Features/Auth/provider/user_notifier.dart';
 import 'package:amaan_tv/Features/Home/data/models/home/show_details_model/data.dart';
 import 'package:amaan_tv/Features/Home/presentation/widget/heros_widget.dart';
-import 'package:amaan_tv/Features/Home/presentation/widget/show_details_tabs.dart';
 import 'package:amaan_tv/Features/Home/presentation/widget/show_series_poster/show_detials_poster.dart';
 import 'package:amaan_tv/Features/Home/provider/show_provider.dart';
 import 'package:amaan_tv/Features/family/provider/family_provider.dart';
@@ -24,15 +24,18 @@ import 'package:amaan_tv/core/utils/app_router.dart';
 import 'package:amaan_tv/Features/Home/provider/show_videos_provider.dart';
 import 'package:amaan_tv/core/utils/widget_sliver_extension.dart';
 import 'package:amaan_tv/core/utils/api/api_service.dart';
+import 'package:amaan_tv/core/utils/focus_helper.dart';
+import 'package:simple_tv_navigation/simple_tv_navigation.dart';
 
 import '../../../../core/Themes/app_colors_new.dart';
 import '../../../../core/widget/app_toast.dart';
 import '../../../../core/widget/custom_dialog.dart';
-import '../../../subscription/presentation/dialogs/request_subscription_dialog.dart';
 import '../../functions.dart';
 import '../../provider/time_provider.dart';
 import '../widget/no_video_dialog.dart';
 import '../widget/repeat_dialog.dart';
+import '../widget/show_details_tabs.dart';
+
 enum ShowDetailsTab {
   episodes,
   related,
@@ -54,6 +57,7 @@ extension ShowDetailsTabExtension on ShowDetailsTab {
     }
   }
 }
+
 class ShowDetailsScreen extends StatefulWidget {
   const ShowDetailsScreen({required this.id, super.key, this.fromMinute});
 
@@ -70,6 +74,7 @@ class _ShowDetailsScreenState extends State<ShowDetailsScreen> {
   ShowDetailsTab _selectedTab = ShowDetailsTab.episodes;
   bool get isChild => UserNotifier.instance.userData?.userType.isChild ?? false;
   ScrollController charactersScrollController = ScrollController();
+  ScrollController scrollController = ScrollController();
   int page = 1;
 
   @override
@@ -120,6 +125,7 @@ class _ShowDetailsScreenState extends State<ShowDetailsScreen> {
             final provider = context.read<ShowProvider>();
             final isSeries = showDetailsModel.type == ShowDetailsType.series;
             return CustomScrollView(
+              controller: scrollController,
               slivers: [
                 AppStateBuilder<ShowProvider, AppState>(
                   initState: (provider) => provider.getAllData(widget.id),
@@ -163,12 +169,16 @@ class _ShowDetailsScreenState extends State<ShowDetailsScreen> {
                                   'url': provider.showVideo!.presignedUrl!,
                                   'videoId': provider.videoId!,
                                   'episodesModel':
-                                  provider.showsEpisodesModel?.data,
+                                      provider.showsEpisodesModel?.data,
                                   'fromMinute': widget.fromMinute,
                                   'repeatTimes': value,
+                                  'onNavigateBack': (){
+                                    context.setFocus(FocusKeys.detailsWatchButton);
+                                  }
                                 },
                               );
                           });
+                          context.setFocus(FocusKeys.detailsWatchButton);
                         } else {
                           context.pushNamed(
                             AppRoutes.showPlayer.routeName,
@@ -177,8 +187,11 @@ class _ShowDetailsScreenState extends State<ShowDetailsScreen> {
                               'url': provider.showVideo!.presignedUrl!,
                               'videoId': provider.videoId!,
                               'episodesModel':
-                              provider.showsEpisodesModel?.data,
+                                  provider.showsEpisodesModel?.data,
                               'fromMinute': widget.fromMinute,
+                              'onNavigateBack': (){
+                                context.setFocus(FocusKeys.detailsWatchButton);
+                              }
                             },
                           );
                         }
@@ -188,10 +201,10 @@ class _ShowDetailsScreenState extends State<ShowDetailsScreen> {
                           builder: (context) {
                             return CustomDialog(content: NoVideoDialog());
                           },
-                        );
+                        ).then((value) {
+                          context.setFocus(FocusKeys.detailsWatchButton);
+                        });
                         return;
-                      } else {
-                        RequestSubscriptionsDialog.show(context);
                       }
                     },
                   ),
@@ -218,14 +231,13 @@ class _ShowDetailsScreenState extends State<ShowDetailsScreen> {
                   selector: (context, provider) =>
                       provider.stateCharactersShows,
                   builder: (context, stateCharacters, child) {
-                    return provider.stateCharactersShows.when<
-                      Widget
-                    >(AppCircleProgressHelper.new, (error) => SizedBox.shrink(), (
+                    return provider.stateCharactersShows.when<Widget>(
+                        AppCircleProgressHelper.new,
+                        (error) => SizedBox.shrink(), (
                       data,
                     ) {
                       final charactersModel = data;
-                      return provider.charactersModelShows?.data.isEmpty ??
-                              true
+                      return provider.charactersModelShows?.data.isEmpty ?? true
                           ? SizedBox.shrink()
                           : Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -237,19 +249,14 @@ class _ShowDetailsScreenState extends State<ShowDetailsScreen> {
                                   ),
                                   child: Text(
                                     AppLocalization.strings.characters,
-                                    style:
-                                        AppTextStylesNew.style16BoldAlmarai,
+                                    style: AppTextStylesNew.style16BoldAlmarai,
                                   ),
                                 ),
                                 Padding(
                                   padding: const EdgeInsets.all(8.0),
                                   child: HerosWidget(
                                     characters: charactersModel.data,
-                                    charactersScrollController: // Type mismatch in HerosWidget?
-                                        // Mobile used charactersScrollController, check TV HerosWidget signature
-                                        // If TV HerosWidget doesn't take controller, omit it.
-                                        // Checking TV home_screen.dart usage: HerosWidget(characters: charactersModel.data), no controller.
-                                        null,
+                                    charactersScrollController: null,
                                   ),
                                 ),
                               ],
@@ -258,34 +265,79 @@ class _ShowDetailsScreenState extends State<ShowDetailsScreen> {
                   },
                 ).sliver,
                 24.verticalSpace.sliver,
-                SliverToBoxAdapter(child: Row(
-                  children: List.generate(ShowDetailsTab.values.length,
-                      (index) =>  Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: TvClickButton(
-
-                          onTap: (){
-                            setState(() {
-                              _selectedTab = ShowDetailsTab.values[index];
-                            });
-                          },
-                          child: Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Text(ShowDetailsTab.values[index].name,
-                            style: AppTextStylesNew.style16RegularAlmarai.copyWith(
-                              color: _selectedTab == ShowDetailsTab.values[index]
-                                  ? AppColorsNew.blue1
-                                  : AppColorsNew.white,
-                              fontWeight: _selectedTab == ShowDetailsTab.values[index]?
-                              FontWeight.bold: FontWeight.w500,
-                            ),
-                            ),
-                          ),
-                        ),
-                      ) ),
+                SliverToBoxAdapter(
+                    child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                  child: Row(
+                    children: List.generate(
+                        ShowDetailsTab.values.length,
+                        (index) => Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: TvClick(
+                                id: FocusId.list(FocusKeys.detailsTab, index),
+                                isList: true,
+                                index: index,
+                                length: ShowDetailsTab.values.length,
+                                listBaseId: FocusKeys.detailsTab,
+                                dynamicDownId: () {
+                                  if (_selectedTab == ShowDetailsTab.episodes &&
+                                      isSeries) {
+                                    return FocusId.grid(
+                                        FocusKeys.detailsEpisodes, 0, 0);
+                                  } else if (_selectedTab ==
+                                          ShowDetailsTab.related ||
+                                      _selectedTab ==
+                                          ShowDetailsTab.suggestions) {
+                                    return FocusId.grid(
+                                        _selectedTab == ShowDetailsTab.related
+                                            ? FocusKeys.detailsRelated
+                                            : FocusKeys.detailsSuggestions,
+                                        0,
+                                        0);
+                                  }
+                                  return null;
+                                },
+                                upId: FocusId.list(
+                                    FocusKeys.detailsCharacters, 0),
+                                radius: 8.r,
+                                onSelect: () {
+                                  setState(() {
+                                    scrollController.animateTo(
+                                        scrollController
+                                                .position.maxScrollExtent +
+                                            100,
+                                        duration: Duration(milliseconds: 300),
+                                        curve: Curves.bounceIn);
+                                    _selectedTab = ShowDetailsTab.values[index];
+                                  });
+                                },
+                                child: Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Text(
+                                    ShowDetailsTab.values[index].name,
+                                    style: AppTextStylesNew
+                                        .style16RegularAlmarai
+                                        .copyWith(
+                                      color: _selectedTab ==
+                                              ShowDetailsTab.values[index]
+                                          ? AppColorsNew.blue1
+                                          : AppColorsNew.white,
+                                      fontWeight: _selectedTab ==
+                                              ShowDetailsTab.values[index]
+                                          ? FontWeight.bold
+                                          : FontWeight.w500,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            )),
+                  ),
                 )),
-                ShowDetailsTabBarView(showId: widget.id,
-                    isSeries: isSeries,currentTap: _selectedTab,),
+                ShowDetailsTabBarView(
+                  showId: widget.id,
+                  isSeries: isSeries,
+                  currentTap: _selectedTab,
+                ),
               ],
             );
           },

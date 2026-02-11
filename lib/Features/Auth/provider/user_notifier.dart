@@ -73,10 +73,7 @@ class UserNotifier with ChangeNotifier {
   }
 
   void login(UserData data) {
-    developer.log(
-      'Login successful for user: ${data.userId}',
-      name: 'UserNotifier',
-    );
+    print('Login successful for user: ${data.userId}',);
     userData = data;
     _saveCurrentUser(data);
   }
@@ -247,7 +244,7 @@ class UserNotifier with ChangeNotifier {
 
   UserData? get _currentCachedUser {
     //get cached user data
-    final loginInfo = CacheHelper.getData<String>(key: _loginInfoKey);
+    final loginInfo = CacheHelper.getData(key: _loginInfoKey);
     try {
       if (loginInfo != null && loginInfo.isNotEmpty) {
         return UserData.fromString(loginInfo);
@@ -259,7 +256,7 @@ class UserNotifier with ChangeNotifier {
   }
 
   Future<void> _saveCurrentUser(UserData user) async {
-    await CacheHelper.saveData(key: _loginInfoKey, value: user.toString());
+    CacheHelper.saveData(key: _loginInfoKey, value: user.toString());
   }
 
   Future<void> _removeCurrentUser() async {

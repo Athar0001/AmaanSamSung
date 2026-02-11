@@ -1,3 +1,5 @@
+
+import 'package:amaan_tv/core/widget/tv_click.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
@@ -6,6 +8,8 @@ import 'package:amaan_tv/Features/Home/presentation/widget/listview_header_widge
 import 'package:amaan_tv/Features/Home/presentation/widget/show_category_item.dart';
 import 'package:amaan_tv/core/widget/circle_progress_helper.dart';
 import 'package:amaan_tv/core/utils/enum.dart';
+
+import '../../../../core/utils/focus_helper.dart';
 
 class SeriesContentView extends StatefulWidget {
   const SeriesContentView({super.key});
@@ -128,7 +132,7 @@ class _SeriesContentViewState extends State<SeriesContentView> {
                 )
               else
                 SliverPadding(
-                  padding: EdgeInsets.all(8.w),
+                  padding: EdgeInsets.all(16),
                   sliver: SliverGrid(
                     gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: 6,
@@ -138,10 +142,37 @@ class _SeriesContentViewState extends State<SeriesContentView> {
                     ),
                     delegate: SliverChildBuilderDelegate((context, index) {
                       final show = provider.showsModel!.data![index];
-                      return ShowCategoryItemWidget(
-                        model: show,
-                        height: double.infinity,
-                        width: double.infinity,
+                      const columns = 6;
+                      final row = index ~/ columns;
+                      final col = index % columns;
+                      final totalItems = provider.showsModel!.data!.length;
+                      final totalRows = (totalItems / columns).ceil();
+
+                      return Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: TvClick(
+                          id: FocusId.grid(FocusKeys.seriesEpisodes, row, col),
+                          listBaseId: FocusKeys.seriesEpisodes,
+                          rightId: col > 0
+                              ? FocusId.grid(FocusKeys.seriesEpisodes, row, col - 1)
+                              : null,
+                          leftId: col < columns - 1 &&
+                              (row * columns + col + 1) < totalItems
+                              ? FocusId.grid(FocusKeys.seriesEpisodes, row, col + 1)
+                              : null,
+                          upId: row > 0
+                              ? FocusId.grid(FocusKeys.seriesEpisodes, row - 1, col)
+                              : FocusId.list(FocusKeys.seriesCategory, 0),
+                          downId: (row + 1) < totalRows &&
+                              ((row + 1) * columns + col) < totalItems
+                              ? FocusId.grid(FocusKeys.seriesEpisodes, row + 1, col)
+                              : null,
+                          child: ShowCategoryItemWidget(
+                            model: show,
+                            height: double.infinity,
+                            width: double.infinity,
+                          ),
+                        ),
                       );
                     }, childCount: provider.showsModel?.data?.length ?? 0),
                   ),

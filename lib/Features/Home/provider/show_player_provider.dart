@@ -16,6 +16,7 @@ import '../../../core/utils/cash_services/cashe_helper.dart';
 import '../../../core/utils/enum.dart';
 import '../../../core/utils/funcation.dart';
 import '../../../core/widget/app_toast.dart';
+import '../../Auth/provider/user_notifier.dart';
 import '../data/data_source/home_service.dart';
 import '../data/models/home/show_details_model/data.dart';
 import '../data/models/rate_model.dart';
@@ -90,7 +91,7 @@ class ShowPlayerProvider extends ChangeNotifier {
     this.showRate = showRate;
     this.trailerDuration = trailerDuration;
     this.closingDuration = closingDuration;
-    userId = CacheHelper.currentUser?.userId;
+    userId = UserNotifier.instance.userData?.userId;
 
     getReview();
 
@@ -444,7 +445,7 @@ class ShowPlayerProvider extends ChangeNotifier {
 
   Future<void> _handlePostCompletionActions(BuildContext context) async {
     if (repeatCounter == 1) {
-      final currentUser = CacheHelper.currentUser;
+      final currentUser = UserNotifier.instance.userData;
       if (currentUser == null) return;
       try {
         if (showRate) {

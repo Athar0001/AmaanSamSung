@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:amaan_tv/Features/Auth/presentation/widget/request_login_dialog.dart';
-import 'package:amaan_tv/Features/subscription/presentation/dialogs/request_subscription_dialog.dart';
 import 'package:amaan_tv/core/utils/app_localiztion.dart';
 import 'package:amaan_tv/core/utils/app_router.dart';
 import 'package:amaan_tv/core/utils/cash_services/cashe_helper.dart';
@@ -28,7 +27,7 @@ String? checkIfVideoAllowed({
   }
   if (!isShowFree && isUserFree) {
     if (context != null) {
-      RequestSubscriptionsDialog.show(context);
+      // RequestSubscriptionsDialog.show(context);
       //workaround to not show toast message
       // and return string to notify not valid to play
       return '';

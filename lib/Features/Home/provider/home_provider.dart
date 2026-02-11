@@ -268,6 +268,7 @@ class HomeProvider extends ChangeNotifier with APICalls {
 
   //need to change end point to top ten
   Future getContinueWatchingProvide() async {
+    _cotinueWatchingModel?.data?.clear();
     stateContinueWatching = AppState.loading;
     notifyListeners();
     (await homeService.getInCompletedShows(module: module)).fold(
@@ -283,6 +284,12 @@ class HomeProvider extends ChangeNotifier with APICalls {
         notifyListeners();
       },
     );
+  }
+
+  int selectedTabIndex = 0;
+  void onTabChanged(int index) {
+      selectedTabIndex = index;
+      notifyListeners();
   }
 
   /////////////////////////////////////////////////////////////////////////////////

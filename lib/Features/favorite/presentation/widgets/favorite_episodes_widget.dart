@@ -11,11 +11,13 @@ import 'package:amaan_tv/core/widget/cached%20network%20image/cached_network_ima
 import 'package:amaan_tv/core/widget/circle_progress_helper.dart';
 import 'package:amaan_tv/core/widget/custom_dialog.dart';
 import 'package:amaan_tv/core/widget/icon_widget.dart';
+import 'package:amaan_tv/core/widget/tv_click.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/utils/enum.dart';
+import '../../../../core/utils/focus_helper.dart';
 import '../../../Home/presentation/widget/repeat_dialog.dart';
 
 class FavoriteEpisodesWidget extends StatefulWidget {
@@ -63,145 +65,149 @@ class _FavoriteEpisodesWidgetState extends State<FavoriteEpisodesWidget> {
                                       isGuest: episode.isGuest,
                                     ) !=
                                     null);
-                            return GestureDetector(
-                              onTap: () {
-                                if (episode.presignedUrl != null && !isLock) {
-                                  if (episode.isRepeat) {
-                                    showDialog(
-                                      context: context,
-                                      builder: (context) {
-                                        return CustomDialog(
-                                            content: RepeatDialog());
-                                      },
-                                    ).then((value) {
-                                      if (value != null)
-                                        context.pushNamed(
-                                          'showPlayer',
-                                          extra: {
-                                            'url': episode.presignedUrl!,
-                                            'show': episode,
-                                            'videoId': episode.episodeVideos!
-                                                    .firstWhere(
-                                                      (element) =>
-                                                          element.videoTypeId ==
-                                                          '1',
-                                                    )
-                                                    .id ??
-                                                '',
-                                            'repeatTimes': value,
-                                            'episodeId': episode.id,
-                                            'closingDuration': episode
-                                                    .episodeVideos
-                                                    ?.firstWhere(
-                                                      (element) =>
-                                                          element.videoTypeId ==
-                                                          '1',
-                                                    )
-                                                    .closingDuration ??
-                                                episode.closingDuration,
-                                          },
-                                        );
-                                    });
-                                  } else {
-                                    context.pushNamed(
-                                      'showPlayer',
-                                      extra: {
-                                        'url': episode.presignedUrl!,
-                                        'show': episode,
-                                        'videoId': episode.episodeVideos!
-                                                .firstWhere(
-                                                  (element) =>
-                                                      element.videoTypeId ==
-                                                      '1',
-                                                )
-                                                .id ??
-                                            '',
-                                        'episodeId': episode.id,
-                                        'closingDuration': episode.episodeVideos
-                                                ?.firstWhere(
-                                                  (element) =>
-                                                      element.videoTypeId ==
-                                                      '1',
-                                                )
-                                                .closingDuration ??
-                                            episode.closingDuration,
-                                      },
-                                    );
+                                 int columns =
+                                    GridConfig.getDefaultGridDelegate().crossAxisCount;
+                                final int row = index ~/ columns;
+                                final int col = index % columns;
+                                final int totalItems =
+                                    favoriteProvider.childFavoriteModel!.favoriteShow!.length;
+                                final int totalRows = (totalItems / columns).ceil();
+                            return Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: TvClick(
+                                id: FocusId.grid(FocusKeys.favEpisodes, row, col),
+                                listBaseId: FocusKeys.favEpisodes,
+                                radius: 12.r,
+                                rightId: col > 0
+                                    ? FocusId.grid(FocusKeys.favEpisodes, row, col - 1)
+                                    : null,
+                                leftId: (col < columns - 1 &&
+                                    (row * columns + col + 1) < totalItems)
+                                    ? FocusId.grid(FocusKeys.favEpisodes, row, col + 1)
+                                    : null,
+                                upId: row > 0
+                                    ? FocusId.grid(FocusKeys.favEpisodes, row - 1, col)
+                                    : FocusId.list(FocusKeys.favCategory, 0),
+                                downId: (row + 1) < totalRows &&
+                                    ((row + 1) * columns + col) < totalItems
+                                    ? FocusId.grid(FocusKeys.favEpisodes, row + 1, col)
+                                    : null,
+                                onSelect: () {
+                                  if (episode.presignedUrl != null && !isLock) {
+                                    if (episode.isRepeat) {
+                                      showDialog(
+                                        context: context,
+                                        builder: (context) {
+                                          return CustomDialog(
+                                              content: RepeatDialog());
+                                        },
+                                      ).then((value) {
+                                        if (value != null)
+                                          context.pushNamed(
+                                            'showPlayer',
+                                            extra: {
+                                              'url': episode.presignedUrl!,
+                                              'show': episode,
+                                              'videoId': episode.episodeVideos!
+                                                      .firstWhere(
+                                                        (element) =>
+                                                            element.videoTypeId ==
+                                                            '1',
+                                                      )
+                                                      .id ??
+                                                  '',
+                                              'repeatTimes': value,
+                                              'episodeId': episode.id,
+                                              'closingDuration': episode
+                                                      .episodeVideos
+                                                      ?.firstWhere(
+                                                        (element) =>
+                                                            element.videoTypeId ==
+                                                            '1',
+                                                      )
+                                                      .closingDuration ??
+                                                  episode.closingDuration,
+                                            },
+                                          );
+                                      });
+                                    } else {
+                                      context.pushNamed(
+                                        'showPlayer',
+                                        extra: {
+                                          'url': episode.presignedUrl!,
+                                          'show': episode,
+                                          'videoId': episode.episodeVideos!
+                                                  .firstWhere(
+                                                    (element) =>
+                                                        element.videoTypeId ==
+                                                        '1',
+                                                  )
+                                                  .id ??
+                                              '',
+                                          'episodeId': episode.id,
+                                          'closingDuration': episode.episodeVideos
+                                                  ?.firstWhere(
+                                                    (element) =>
+                                                        element.videoTypeId ==
+                                                        '1',
+                                                  )
+                                                  .closingDuration ??
+                                              episode.closingDuration,
+                                        },
+                                      );
+                                    }
                                   }
-                                }
-                              },
-                              child: Stack(
-                                alignment: Alignment.center,
-                                children: [
-                                  Container(
-                                    decoration: BoxDecoration(
-                                      image: decorationImageHelper(
-                                        episode.thumbnailImage?.url,
+                                },
+                                child: Stack(
+                                  alignment: Alignment.center,
+                                  children: [
+                                    Container(
+                                      decoration: BoxDecoration(
+                                        image: decorationImageHelper(
+                                          episode.thumbnailImage?.url,
+                                        ),
+                                        border: Border.all(
+                                            color: AppColorsNew.primary),
+                                        borderRadius: BorderRadius.circular(12.r),
                                       ),
-                                      border: Border.all(
-                                          color: AppColorsNew.primary),
-                                      borderRadius: BorderRadius.circular(12.r),
                                     ),
-                                  ),
-                                  Padding(
-                                    padding: EdgeInsets.all(1.sp),
-                                    child: Align(
-                                      child: Container(
-                                        decoration: BoxDecoration(
-                                          border: Border.all(
-                                            strokeAlign:
-                                                BorderSide.strokeAlignOutside,
-                                            width: 1.sp,
-                                            color:
-                                                AppColorsNew.white1.withOpacity(
-                                              0.3,
+                                    Padding(
+                                      padding: EdgeInsets.all(1.sp),
+                                      child: Align(
+                                        child: Container(
+                                          decoration: BoxDecoration(
+                                            border: Border.all(
+                                              strokeAlign:
+                                                  BorderSide.strokeAlignOutside,
+                                              width: 1.sp,
+                                              color:
+                                                  AppColorsNew.white1.withOpacity(
+                                                0.3,
+                                              ),
                                             ),
-                                          ),
-                                          borderRadius:
-                                              BorderRadius.circular(12.r),
-                                          gradient: LinearGradient(
-                                            colors: [
-                                              AppColorsNew.black1
-                                                  .withOpacity(0.2),
-                                              AppColorsNew.black1
-                                                  .withOpacity(0.0),
-                                            ],
-                                            stops: const [1.0, 0.3],
-                                            begin: Alignment.bottomCenter,
-                                            end: Alignment.topCenter,
+                                            borderRadius:
+                                                BorderRadius.circular(12.r),
+                                            gradient: LinearGradient(
+                                              colors: [
+                                                AppColorsNew.black1
+                                                    .withOpacity(0.2),
+                                                AppColorsNew.black1
+                                                    .withOpacity(0.0),
+                                              ],
+                                              stops: const [1.0, 0.3],
+                                              begin: Alignment.bottomCenter,
+                                              end: Alignment.topCenter,
+                                            ),
                                           ),
                                         ),
                                       ),
                                     ),
-                                  ),
-                                  if (isLock)
-                                    Align(child: LockWidget())
-                                  else
-                                    SizedBox(),
-                                  PositionedDirectional(
-                                    top: 1,
-                                    end: 1,
-                                    child: GestureDetector(
-                                      onTap: () {
-                                        favoriteProvider.removeEpisode(
-                                          favoriteProvider.childFavoriteModel!
-                                              .favoriteShow![index],
-                                        );
-                                      },
-                                      child: IconWidget(
-                                        isBlack: false,
-                                        iconHeight: 18.h,
-                                        iconWidth: 18.w,
-                                        path: episode.isFavorite != false
-                                            ? Assets.imagesTrueHeart
-                                            : Assets.imagesTrueHeart,
-                                        iconColor: episode.isFavorite != false
-                                            ? AppColorsNew.primary
-                                            : AppColorsNew.white,
-                                      ),
-                                    ),
-                                  ),
-                                ],
+                                    if (isLock)
+                                      Align(child: LockWidget())
+                                    else
+                                      SizedBox(),
+                                  ],
+                                ),
                               ),
                             );
                           },

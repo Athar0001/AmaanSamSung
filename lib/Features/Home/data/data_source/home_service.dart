@@ -211,15 +211,15 @@ class HomeService {
   Future<Either<Failure, TopTenShowsModel>> topTen({
     Module module = Module.video,
   }) async {
-    try {
+    // try {
       final response = await serverConstants.makeGetRequest(
         EndPoint.getTop,
         query: {'ModuleId': module.id},
       );
       return Right(TopTenShowsModel.fromJson(response.data));
-    } catch (error) {
-      return Left(ErrorHandler.handle(error).failure);
-    }
+    // } catch (error) {
+    //   return Left(ErrorHandler.handle(error).failure);
+    // }
   }
 
   //////////////////////////////////////////////////////////////////////////////////
@@ -243,16 +243,16 @@ class HomeService {
   }) async {
     final userId =  UserNotifier.instance.userData?.userId;
     //
-    try {
+    // try {
       final response = await serverConstants.makeGetRequest(
         EndPoint.getInCompletedShows,
         query: {'userId': userId, 'ModuleId': module.id},
       );
       return Right(ContinueWatchingModel.fromJson(response.data));
-    } catch (error, st) {
-      log(st.toString());
-      return Left(ErrorHandler.handle(error, st).failure);
-    }
+    // } catch (error, st) {
+    //   log(st.toString());
+    //   return Left(ErrorHandler.handle(error, st).failure);
+    // }
     // } else {
     //   return Left(DataSource.NO_INTERNET_CONNECTION.getFailure());
     // }
@@ -443,7 +443,7 @@ class HomeService {
     //
     try {
       final response = await serverConstants.makeGetRequest(
-        '${EndPoint.review}?ShowId=$id&UserId=${CacheHelper.currentUser!.userId}',
+        '${EndPoint.review}?ShowId=$id&UserId=${UserNotifier.instance.userData!.userId}',
       );
       final responseModel = ResponseModel.fromJson(
         response.data,

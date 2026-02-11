@@ -33,25 +33,22 @@ class IconWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: EdgeInsets.all(8.r),
-      child: TvClickButton(
-        onTap: onTap ?? () {},
-        child: Center(
-          child: ClipRRect(
+      child: Center(
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(borderRadius ?? 10.r),
+          child: BlurryContainer(
+            padding: EdgeInsets.all(padding ?? 7.r),
+            color: isBlack
+                ? AppColorsNew.black2.withValues(alpha: .4)
+                : Theme.of(context).brightness == Brightness.dark
+                ? AppColorsNew.white.withValues(alpha: .1)
+                : AppColorsNew.white.withValues(alpha: 0.5),
             borderRadius: BorderRadius.circular(borderRadius ?? 10.r),
-            child: BlurryContainer(
-              padding: EdgeInsets.all(padding ?? 7.r),
-              color: isBlack
-                  ? AppColorsNew.black2.withValues(alpha: .4)
-                  : Theme.of(context).brightness == Brightness.dark
-                      ? AppColorsNew.white.withValues(alpha: .1)
-                      : AppColorsNew.white.withValues(alpha: 0.5),
-              borderRadius: BorderRadius.circular(borderRadius ?? 10.r),
-              child: SVGImage(
-                color: iconColor,
-                path: path,
-                height: iconHeight ?? 24.r,
-                width: iconWidth ?? 24.r,
-              ),
+            child: SVGImage(
+              color: iconColor,
+              path: path,
+              height: iconHeight ?? 24.r,
+              width: iconWidth ?? 24.r,
             ),
           ),
         ),

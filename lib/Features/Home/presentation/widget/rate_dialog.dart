@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:amaan_tv/core/utils/focus_helper.dart';
 import 'package:amaan_tv/core/widget/tv_click_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -8,9 +9,12 @@ import 'package:amaan_tv/Features/Home/data/models/rate_model.dart';
 import 'package:amaan_tv/core/utils/app_localiztion.dart';
 
 import 'package:amaan_tv/core/widget/circle_progress_helper.dart';
+import 'package:simple_tv_navigation/simple_tv_navigation.dart';
 import '../../../../core/Themes/app_text_styles_new.dart';
 import '../../../../core/widget/buttons/main_button.dart';
 import 'package:amaan_tv/core/languages/app_localizations.dart';
+
+import '../../../../core/widget/tv_click.dart';
 
 enum VideoRate {
   one(1),
@@ -65,6 +69,11 @@ class _RateDialogState extends State<RateDialog> {
       initRate == null ? null : VideoRate.fromRate(initRate!);
 
   bool isLoading = false;
+  @override
+  void initState() {
+    context.setFocus(FocusKeys.rateDialogOk);
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -109,35 +118,41 @@ class _RateDialogState extends State<RateDialog> {
                         ],
                       ),
                     ),
-                    MainButtonWidget(
-                      label: AppLocalization.strings.review,
-                      fontSize: 16,
-                      onTap: () async {
-                        if (widget.rateModel.rate == videoRate?.rate ||
-                            isLoading ||
-                            videoRate == null) {
-                          return;
-                        }
-                        setState(() {
-                          isLoading = true;
-                        });
-                        try {
-                          await widget.onTap.call(
-                            widget.rateModel.copyWith(rate: videoRate?.rate),
-                          );
-                          if (context.mounted) {
-                            Navigator.pop(context);
+                    TvClick(
+                      id: FocusKeys.rateDialogOk,
+                      leftId: FocusKeys.rateDialogCancel,
+                      child: MainButtonWidget(
+                        label: AppLocalization.strings.review,
+                        fontSize: 16,
+                        onTap: () async {
+                          if (widget.rateModel.rate == videoRate?.rate ||
+                              isLoading ||
+                              videoRate == null) {
+                            return;
                           }
-                        } finally {
                           setState(() {
-                            isLoading = false;
+                            isLoading = true;
                           });
-                        }
-                      },
+                          try {
+                            await widget.onTap.call(
+                              widget.rateModel.copyWith(rate: videoRate?.rate),
+                            );
+                            if (context.mounted) {
+                              Navigator.pop(context);
+                            }
+                          } finally {
+                            setState(() {
+                              isLoading = false;
+                            });
+                          }
+                        },
+                      ),
                     ),
                     Gap(10.r),
-                    TvClickButton(
-                      onTap: () => Navigator.pop(context),
+                    TvClick(
+                      id: FocusKeys.rateDialogCancel,
+                      rightId: FocusKeys.rateDialogOk,
+                      onSelect: () => Navigator.pop(context),
                       child: Text(
                         AppLocalization.strings.noThanks,
                         style: AppTextStylesNew.style14BoldAlmarai,
@@ -178,9 +193,7 @@ class _RateEmojiWidget extends StatelessWidget {
       width: isSelected ? 84.r : 60.r,
       height: isSelected ? 84.r : 60.r,
       duration: Durations.medium1,
-      child: TvClickButton(
-        onTap: onTap,
-        child: ColorFiltered(
+      child:  ColorFiltered(
           colorFilter: isSelected
               ? ColorFilter.mode(Colors.transparent, BlendMode.multiply)
               : ColorFilter.matrix([
@@ -207,7 +220,7 @@ class _RateEmojiWidget extends StatelessWidget {
                 ]),
           child: rate.image,
         ),
-      ),
+
     );
   }
 }

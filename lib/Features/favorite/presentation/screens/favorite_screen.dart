@@ -4,12 +4,13 @@ import 'package:amaan_tv/Features/Home/data/models/home_categories_model/categor
 import 'package:amaan_tv/Features/Home/data/models/sub_categories_model/image.dart';
 import 'package:amaan_tv/Features/favorite/presentation/widgets/favorite_shows_widget.dart';
 import 'package:amaan_tv/Features/favorite/presentation/widgets/favorites_characters_widget.dart';
-import 'package:amaan_tv/Features/stories/widgets/listview_header_widget.dart';
 import 'package:amaan_tv/core/utils/app_localiztion.dart';
 import 'package:amaan_tv/core/widget/scaffold_gradient_background.dart';
 import 'package:amaan_tv/gen/assets.gen.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
+import '../../../Home/presentation/widget/listview_header_widget.dart';
 import '../widgets/favorite_episodes_widget.dart';
 
 class FavoriteScreen extends StatefulWidget {
@@ -43,6 +44,7 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
         FavoritesCharactersWidget(childId: widget.childId),
       ];
 
+
   @override
   Widget build(BuildContext context) {
     log(widget.childId.toString(), name: 'FavoriteScreen');
@@ -50,9 +52,9 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
     return ScaffoldGradientBackground(
       body: Column(
         children: [
-          ListViewHeader(
+          20.verticalSpace,
+          ListViewHeaderFavorite(
             items: categories,
-            fromAssets: true,
             selectedIndex: selectedIndex,
             onSelect: (index) {
               setState(() {

@@ -1,10 +1,12 @@
 import 'dart:async';
 import 'dart:developer';
+import 'package:amaan_tv/core/utils/focus_helper.dart';
 import 'package:amaan_tv/core/widget/tv_click_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
+import 'package:simple_tv_navigation/simple_tv_navigation.dart';
 import 'package:video_player/video_player.dart';
 import '../../../../core/Themes/app_colors_new.dart';
 import '../../../../core/Themes/app_text_styles_new.dart';
@@ -13,6 +15,7 @@ import '../../../../core/utils/app_localiztion.dart';
 import '../../../../core/utils/asset_manager.dart';
 import '../../../../core/widget/SVG_Image/svg_img.dart';
 import '../../../../core/widget/buttons/main_button.dart';
+import '../../../../core/widget/tv_click.dart';
 import '../../data/models/home/show_details_model/data.dart';
 import '../../data/models/video_transaction_model.dart';
 import '../../provider/show_player_provider.dart';
@@ -23,6 +26,7 @@ class ShowPlayerScreen extends StatefulWidget {
     required this.url,
     required this.show,
     required this.videoId,
+    required this.onNavigateBack,
     super.key,
     this.fromMinute,
     this.episodeId,
@@ -40,6 +44,7 @@ class ShowPlayerScreen extends StatefulWidget {
   final bool showRate;
   final int? repeatTimes;
   final int? closingDuration;
+  final VoidCallback onNavigateBack;
 
   @override
   State<ShowPlayerScreen> createState() => _ShowPlayerScreenState();
@@ -56,23 +61,24 @@ class _ShowPlayerScreenState extends State<ShowPlayerScreen>
   void _showControls() {
     if (!_controlsVisible) {
       setState(() => _controlsVisible = true);
-
-      // ✅ MOVE FOCUS TO CONTROLS
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) {
-          _controlsFocusScope.requestFocus();
-        }
-      });
     }
+    //
+    // _hideControlsTimer?.cancel();
 
-    _hideControlsTimer?.cancel();
-    _hideControlsTimer = Timer(const Duration(seconds: 5), () {
-      if (mounted) {
-        setState(() => _controlsVisible = false);
-        FocusManager.instance.primaryFocus?.unfocus();
-      }
+    Future.delayed(Duration(seconds: 5),(){
+      if (!mounted) return;
+      // context.setFocus(FocusKeys.playerScreen);
+      setState(() => _controlsVisible = false);
     });
+
+    //     Timer(const Duration(seconds: 5), () {
+    //   if (!mounted) return;
+    //   context.setFocus(FocusKeys.playerScreen);
+    //   setState(() => _controlsVisible = false);
+    // });
   }
+
+
 
   @override
   void dispose() {
@@ -116,7 +122,7 @@ class _ShowPlayerScreenState extends State<ShowPlayerScreen>
         showRate: widget.showRate,
         repeatTimes: widget.repeatTimes,
       );
-    WidgetsBinding.instance.addObserver(this);
+    context.setFocus(FocusKeys.playerScreen);
   }
 
   @override
@@ -131,31 +137,41 @@ class _ShowPlayerScreenState extends State<ShowPlayerScreen>
               if (!provider.isTransactionCompleted) {
                 context.read<TimeProvider>().sendVideoLog();
                 final endTime = provider.claculateEndTime();
+
                 provider.stopAndDispose();
                 if (endTime != null) {
                   context.read<TimeProvider>().continueWatching(
-                        widget.videoId,
-                        endTime,
-                      );
+                    widget.videoId,
+                    endTime,
+                  );
                 }
                 provider.sendVideoTransaction(VideoTransactionType.closePage);
               }
-
+            widget.onNavigateBack.call();
               // SystemChrome.setPreferredOrientations([
               //   DeviceOrientation.portraitUp,
               // ]);
             },
-            child: Focus(
-              autofocus: true,
-              onKeyEvent: (node, event) {
-                if (event is KeyDownEvent) {
+            child:  Scaffold(
+              backgroundColor: Colors.black,
+              body: TvClick(
+                id: FocusKeys.playerScreen,
+                upId: FocusKeys.playerBack,
+                hasBorder: false,
+                dynamicDownId: (){
                   _showControls();
-                }
-                return KeyEventResult.ignored;
-              },
-              child: Scaffold(
-                backgroundColor: Colors.black,
-                body: SafeArea(
+                  return FocusKeys.playerPlayPause;
+                },
+                dynamicRightId: (){
+                  _showControls();
+                  return FocusKeys.playerForward;
+                },
+                dynamicLeftId: (){
+                  _showControls();
+                  return FocusKeys.playerBackward;
+                },
+                onSelect: _showControls,
+                child: SafeArea(
                   child: Stack(
                     children: [
                       if (provider.videoPlayerController != null)
@@ -172,6 +188,8 @@ class _ShowPlayerScreenState extends State<ShowPlayerScreen>
                         child: VideoTitleWidget(
                           title: provider.showTitle,
                           url: widget.url,
+                          onShowControllers: _showControls,
+                          onNavigateBack: widget.onNavigateBack,
                         ),
                       ),
                       if (provider.videoPlayerController != null && !provider.isLoading)
@@ -181,9 +199,9 @@ class _ShowPlayerScreenState extends State<ShowPlayerScreen>
                               opacity: _controlsVisible ? 1.0 : 0.0,
                               duration: const Duration(milliseconds: 250),
                               child: FocusScope(
-                              node: _controlsFocusScope,
-                              child: _PlayerControls(),
-                            ),
+                                node: _controlsFocusScope,
+                                child: _PlayerControls(),
+                              ),
                             )),
                     ],
                   ),
@@ -232,74 +250,128 @@ class _PlayerControls extends StatelessWidget {
                 textDirection: TextDirection.ltr,
                 children: [
                   // Backward,
-                  TvClickButton(
-                    onTap: () => provider.seekBackward(),
-                    builder: (context, hasFocus){
-                      return Icon(Icons.replay_10_outlined, size: 40.r,
-                          color: hasFocus?
-                          AppColorsNew.primary:
-                          AppColorsNew.white);
+                  TvClick(
+                    onSelect: () => provider.seekBackward(),
+                    id: FocusKeys.playerBackward,
+                    rightId: FocusKeys.playerPlayPause,
+                    upId: FocusKeys.playerBack,
+                    dynamicDownId: (){
+                      final position = provider.videoPlayerController!.value.position;
+                      final duration = provider.videoPlayerController!.value.duration;
+                      final trailerDuration = provider.trailerDuration;
+                      final isNearEnd = duration.inSeconds > 0 &&
+                          (duration.inSeconds - position.inSeconds) < 20;
+
+                      final nextEpisode =
+                      isNearEnd ? _findNextEpisode(provider) : null;
+                      final showNextEpisode = nextEpisode != null;
+                      if(trailerDuration != null &&
+                          position.inSeconds < trailerDuration &&
+                          trailerDuration > 0) {
+                        return FocusKeys.playerSkipIntro;
+                      } else if(showNextEpisode) {
+                        return FocusKeys.playerNextEpisode;
+                      } else {
+                        return FocusKeys.playerProgress;
+                      }
                     },
+                    child: Icon(Icons.replay_10_outlined, size: 40.r,
+                        color: AppColorsNew.white),
                   ),
                   SizedBox(width: 20.w),
                   // Play/Pause
-                  TvClickButton(
-                    onTap: () => provider.togglePlay(),
-                    builder: (context, hasFocus){
-                      return provider.isFinished
-                          ? Icon(Icons.replay, size: 42,
-                          color: hasFocus?
-                          AppColorsNew.primary:
-                          AppColorsNew.white)
-                          : Container(
-                        height: 0.15.sh,
-                        width: 0.15.sh,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                            color: hasFocus?
-                                !provider.isPlaying?
-                            AppColorsNew.white:
-                                AppColorsNew.primary:
-                            Colors.transparent,
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.all(5),
-                          child: Builder(
-                            builder: (context) {
-                              try {
-                                return SVGImage(
-                                  noTheme: true,
-                                  path: provider.isPlaying
-                                      ? Assets.imagesPauseVideo
-                                      : Assets.imagesCirclePause,
-                                );
-                              } catch (e) {
-                                // Fallback to Material Icons if SVG fails
-                                return Icon(
-                                  provider.isPlaying ? Icons.pause : Icons.play_arrow,
-                                  color:
-                                  hasFocus?
-                                  AppColorsNew.primary:
-                                  AppColorsNew.white,
-                                  size: 30,
-                                );
-                              }
-                            },
-                          ),
-                        ),
-                      );
+                  TvClick(
+                    id: FocusKeys.playerPlayPause,
+                    rightId: FocusKeys.playerForward,
+                    leftId: FocusKeys.playerBackward,
+                    onSelect: () => provider.togglePlay(),
+                    upId: FocusKeys.playerBack,
+                    dynamicDownId: (){
+                      final position = provider.videoPlayerController!.value.position;
+                      final duration = provider.videoPlayerController!.value.duration;
+                      final trailerDuration = provider.trailerDuration;
+                      final isNearEnd = duration.inSeconds > 0 &&
+                          (duration.inSeconds - position.inSeconds) < 20;
+
+                      final nextEpisode =
+                      isNearEnd ? _findNextEpisode(provider) : null;
+                      final showNextEpisode = nextEpisode != null;
+                      if(trailerDuration != null &&
+                          position.inSeconds < trailerDuration &&
+                          trailerDuration > 0) {
+                        return FocusKeys.playerSkipIntro;
+                      } else if(showNextEpisode) {
+                        return FocusKeys.playerNextEpisode;
+                      }
+                      return FocusKeys.playerProgress;
                     },
+                    child: provider.isFinished
+                        ? Icon(Icons.replay, size: 42,
+                        color: AppColorsNew.white)
+                        : Container(
+                      height: 0.15.sh,
+                      width: 0.15.sh,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: !provider.isPlaying?
+                        AppColorsNew.primary:
+                        Colors.transparent,
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(5),
+                        child: Builder(
+                          builder: (context) {
+                            try {
+                              return SVGImage(
+                                noTheme: true,
+                                path: provider.isPlaying
+                                    ? Assets.imagesPauseVideo
+                                    : Assets.imagesCirclePause,
+                              );
+                            } catch (e) {
+                              // Fallback to Material Icons if SVG fails
+                              return Icon(
+                                provider.isPlaying ? Icons.pause : Icons.play_arrow,
+                                color:
+                                AppColorsNew.white,
+                                size: 30,
+                              );
+                            }
+                          },
+                        ),
+                      ),
+                    ),
                   ),
                   SizedBox(width: 20.w),
                   // Forward
-                  TvClickButton(
-                    onTap: () => provider.seekForward(),
-                    builder: (context, hasFocus){
-                      return Icon(Icons.forward_10_outlined, size: 40.r,
-                          color: hasFocus?
-                          AppColorsNew.primary:
-                          AppColorsNew.white);
+                  TvClick(
+                    id: FocusKeys.playerForward,
+                    leftId: FocusKeys.playerPlayPause,
+                    onSelect: () => provider.seekForward(),
+                    upId: FocusKeys.playerBack,
+                    dynamicDownId: (){
+                      final position = provider.videoPlayerController!.value.position;
+                      final duration = provider.videoPlayerController!.value.duration;
+                      final trailerDuration = provider.trailerDuration;
+                      final isNearEnd = duration.inSeconds > 0 &&
+                          (duration.inSeconds - position.inSeconds) < 20;
+
+                      final nextEpisode =
+                      isNearEnd ? _findNextEpisode(provider) : null;
+                      final showNextEpisode = nextEpisode != null;
+                      if(trailerDuration != null &&
+                          position.inSeconds < trailerDuration &&
+                          trailerDuration > 0) {
+                        return FocusKeys.playerSkipIntro;
+                      } else if(showNextEpisode) {
+                        return FocusKeys.playerNextEpisode;
+                      } else {
+                        return FocusKeys.playerProgress;
+                      }
                     },
+                    child: Icon(Icons.forward_10_outlined, size: 40.r,
+                        color:
+                        AppColorsNew.white),
                   ),
                 ],
               ),
@@ -326,7 +398,7 @@ class _PlayerControls extends StatelessWidget {
                       (duration.inSeconds - position.inSeconds) < 20;
 
                   final nextEpisode =
-                      isNearEnd ? _findNextEpisode(provider) : null;
+                  isNearEnd ? _findNextEpisode(provider) : null;
                   final showNextEpisode = nextEpisode != null;
 
                   if (!showSkipIntro && !showNextEpisode) {
@@ -359,9 +431,9 @@ class _PlayerControls extends StatelessWidget {
                               context: context,
                               showId: provider.showId,
                               videoId: nextEpisode.episodeVideos
-                                      ?.firstWhere(
-                                          (element) => element.videoTypeId == '1')
-                                      .id ??
+                                  ?.firstWhere(
+                                      (element) => element.videoTypeId == '1')
+                                  .id ??
                                   '',
                               showTitle: nextEpisode.title,
                               addQuiz: nextEpisode.hasExam &&
@@ -407,11 +479,17 @@ class _SkipIntroButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MainButtonWidget(
-      onTap: onSkip,
-      width: 250,
-      borderWidth: 1,
-      label: AppLocalization.strings.skipIntro,
+    return TvClick(
+      id: FocusKeys.playerSkipIntro,
+      onSelect: onSkip,
+      upId: FocusKeys.playerPlayPause,
+      downId: FocusKeys.playerProgress,
+      child: MainButtonWidget(
+        onTap: onSkip,
+        width: 250,
+        borderWidth: 1,
+        label: AppLocalization.strings.skipIntro,
+      ),
     );
   }
 }
@@ -423,8 +501,8 @@ class _NextEpisodeOverlay extends StatelessWidget {
 
   const _NextEpisodeOverlay(
       {required this.nextEpisode,
-      required this.onPlayNext,
-      required this.onCancel});
+        required this.onPlayNext,
+        required this.onCancel});
 
   @override
   Widget build(BuildContext context) {
@@ -440,11 +518,16 @@ class _NextEpisodeOverlay extends StatelessWidget {
           ]),
         ),
         SizedBox(height: 10.h),
-        MainButtonWidget(
-          onTap: onPlayNext,
-          width: 250,
-          borderWidth: 1,
-          label: AppLocalization.strings.nextEpisode,
+        TvClick(
+          id: FocusKeys.playerNextEpisode,
+          downId: FocusKeys.playerProgress,
+          onSelect: onPlayNext,
+          upId: FocusKeys.playerPlayPause,
+          child: MainButtonWidget(
+            width: 250,
+            borderWidth: 1,
+            label: AppLocalization.strings.nextEpisode,
+          ),
         )
       ],
     );
@@ -509,67 +592,58 @@ class _FocusableVideoProgressBarState
 
   @override
   Widget build(BuildContext context) {
-    return Focus(
+    return KeyboardListener(
       focusNode: _focusNode,
-      onKeyEvent: (node, event) {
-        if (event is KeyDownEvent) {
-          if (event.logicalKey == LogicalKeyboardKey.arrowRight) {
+      onKeyEvent: (event) {
+
+
+        /// RIGHT pressed
+        if (event.logicalKey == LogicalKeyboardKey.arrowRight) {
+          if (event is KeyDownEvent && _seekTimer == null) {
             _startSeeking(true);
-            return KeyEventResult.handled;
           }
 
-          if (event.logicalKey == LogicalKeyboardKey.arrowLeft) {
-            _startSeeking(false);
-            return KeyEventResult.handled;
-          }
-
-          if (event.logicalKey == LogicalKeyboardKey.enter ||
-              event.logicalKey == LogicalKeyboardKey.select) {
-            widget.provider.togglePlay();
-            return KeyEventResult.handled;
-          }
-        }
-
-        if (event is KeyUpEvent) {
-          if (event.logicalKey == LogicalKeyboardKey.arrowRight ||
-              event.logicalKey == LogicalKeyboardKey.arrowLeft) {
+          if (event is KeyUpEvent) {
             _stopSeeking();
-            return KeyEventResult.handled;
           }
         }
 
-        return KeyEventResult.ignored;
-      },
-      child: Builder(
-        builder: (context) {
-          final hasFocus = Focus.of(context).hasFocus;
+        /// LEFT pressed
+        if (event.logicalKey == LogicalKeyboardKey.arrowLeft) {
+          if (event is KeyDownEvent && _seekTimer == null) {
+            _startSeeking(false);
+          }
 
-          return AnimatedContainer(
-            duration: const Duration(milliseconds: 150),
-            padding: EdgeInsets.symmetric(vertical: 6.h),
-            decoration: BoxDecoration(
-              border: Border.all(
-                color:
-                hasFocus ? AppColorsNew.primary : Colors.transparent,
-                width: 2,
-              ),
-              borderRadius: BorderRadius.circular(6.r),
-            ),
-            child: Directionality(
-              textDirection: TextDirection.ltr,
-              child: VideoProgressIndicator(
-                widget.controller,
-                allowScrubbing: false,
-                colors: VideoProgressColors(
-                  playedColor: AppColorsNew.primary,
-                  bufferedColor: Colors.white24,
-                  backgroundColor:
-                  Colors.white10.withOpacity(0.3),
-                ),
-              ),
-            ),
-          );
+          if (event is KeyUpEvent) {
+            _stopSeeking();
+          }
+        }
+      },
+      child: TvClick(
+        id: FocusKeys.playerProgress,
+        upId: FocusKeys.playerPlayPause,
+        dynamicRightId: (){
+          _startSeeking(true);
+          return null;
         },
+        dynamicLeftId: (){
+          _startSeeking(true);
+          return null;
+        },
+
+        child: Directionality(
+          textDirection: TextDirection.ltr,
+          child: VideoProgressIndicator(
+            widget.controller,
+            allowScrubbing: false,
+            colors: VideoProgressColors(
+              playedColor: AppColorsNew.primary,
+              bufferedColor: Colors.white24,
+              backgroundColor:
+              Colors.white10.withOpacity(0.3),
+            ),
+          ),
+        ),
       ),
     );
   }
@@ -578,10 +652,12 @@ class _FocusableVideoProgressBarState
 
 
 class VideoTitleWidget extends StatefulWidget {
-  VideoTitleWidget({required this.title, required this.url, super.key});
+  VideoTitleWidget({required this.title, required this.url,required this.onNavigateBack,required this.onShowControllers, super.key});
 
   final String title;
   final String url;
+  final VoidCallback onShowControllers;
+  final VoidCallback  onNavigateBack;
 
   @override
   State<VideoTitleWidget> createState() => _VideoTitleWidgetState();
@@ -590,55 +666,63 @@ class VideoTitleWidget extends StatefulWidget {
 class _VideoTitleWidgetState extends State<VideoTitleWidget> {
   @override
   Widget build(BuildContext context) {
-    final isLandscape =
-        (MediaQuery.of(context).orientation == Orientation.landscape);
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        TvClickButton(
+    return SafeArea(
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+             Row(
+               crossAxisAlignment: CrossAxisAlignment.start,
+               children: [
+                 Container(
+                   padding: EdgeInsets.only(
+                     top: 10,
+                     bottom: 10,
+                     right: 20,
+                     left: 10,
+                   ),
+                   // child: Icon(
+                   //   Icons.arrow_back_ios,
+                   //   size: 30.r,
+                   //   color: isLandscape
+                   //       ? AppColorsNew.white
+                   //       : Theme.of(context).textTheme.bodyMedium?.color,
+                   // ),
+                 ),
+                 Container(
+                   width: 0.9.sw,
+                   child: Text(
+                     widget.title,
+                     style: AppTextStylesNew.style16BoldAlmarai.copyWith(
+                         fontSize: 20,
+                         color: AppColorsNew.white ),
+                   ),
+                 ),
 
-          onTap: () {
-            if (isLandscape) {
-              Navigator.pop(context);
-              //  Navigator.pop(context);
-            } else {
-              Navigator.pop(context);
-            }
-          },
-          builder: (context, hasFocus){
-            return Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Container(
-                  padding: EdgeInsets.only(
-                    top: 10,
-                    bottom: 10,
-                    right: 20,
-                    left: 10,
-                  ),
-                  // child: Icon(
-                  //   Icons.arrow_back_ios,
-                  //   size: 30.r,
-                  //   color: isLandscape
-                  //       ? AppColorsNew.white
-                  //       : Theme.of(context).textTheme.bodyMedium?.color,
-                  // ),
-                ),
-                Container(
-                  width: 0.9.sw,
-                  child: Text(
-                    widget.title,
-                    style: AppTextStylesNew.style16BoldAlmarai.copyWith(
-                      fontSize: 20,
-                      color: hasFocus? AppColorsNew.primary : AppColorsNew.white ),
-                  ),
-                ),
-              ],
-            );
-          },
+               ],
+             ),
+
+            Spacer(),
+
+            TvClick(
+                id: FocusKeys.playerBack,
+                dynamicDownId: (){
+                  widget.onShowControllers.call();
+                  return FocusKeys.playerPlayPause;
+                },
+                upId: FocusKeys.playerScreen,
+                radius: 5,
+                onSelect: () {
+                  // context.setFocus(FocusKeys.detailsWatchButton);
+                  Navigator.pop(context);
+                  widget.onNavigateBack.call();
+                },
+                child: Icon(Icons.arrow_forward_ios, size: 30.r, color: AppColorsNew.white,))
+
+          ],
         ),
-        Spacer(),
-      ],
+      ),
     );
   }
 }

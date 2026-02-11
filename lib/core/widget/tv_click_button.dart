@@ -31,23 +31,12 @@ class TvClickButton extends StatelessWidget {
   final double focusBorderWidth;
   final FocusNode? focusNode;
 
+
   @override
   Widget build(BuildContext context) {
     return Focus(
       focusNode: focusNode,
-      // onFocusChange: onFocusChange,
-      onFocusChange: (hasFocus) {
-        onFocusChange?.call(hasFocus);
-        if (hasFocus) {
-          Scrollable.ensureVisible(
-            context,
-            alignment: 0.5,
-            duration: const Duration(milliseconds: 300),
-            curve: Curves.easeInOut,
-          );
-        }
-        onFocusChange?.call(hasFocus);
-      },
+      onFocusChange: onFocusChange,
       onKeyEvent: (node, event) {
         if (event is KeyDownEvent &&
             (event.logicalKey == LogicalKeyboardKey.enter ||

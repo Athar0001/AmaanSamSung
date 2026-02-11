@@ -19,8 +19,10 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+import 'package:simple_tv_navigation/simple_tv_navigation.dart';
 
-import '../../../Home/presentation/screens/soon_screen.dart';
+import '../../../../core/utils/focus_helper.dart';
+import '../../../../core/widget/tv_click.dart';
 
 class CharacterScreen extends StatefulWidget {
   const CharacterScreen({required this.character, super.key});
@@ -40,19 +42,28 @@ class _CharacterScreenState extends State<CharacterScreen> {
       context.read<HomeProvider>().getShowsCategoryProvide(
             characterId: widget.character.id,
           );
+      context.setFocus(FocusId.list(FocusKeys.charactersTab, 0),);
     });
   }
 
   @override
   Widget build(BuildContext context) {
     return ScaffoldGradientBackground(
-      appBar: AppBar(
-        centerTitle: true,
-        leading: BackButtonWidget(),
-        actions: [FavoriteIconButton(widget.character)],
-      ),
       body: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: TvClick(
+                id: FocusKeys.charactersBack,
+                downId: FocusId.list(FocusKeys.charactersTab, 0),
+                onSelect: (){
+                  Navigator.pop(context);
+                },
+                child: BackButtonWidget()),
+          ),
+          24.verticalSpace,
           DecoratedBox(
             decoration: BoxDecoration(
               borderRadius: BorderRadius.vertical(
@@ -124,6 +135,9 @@ class _CharacterScreenState extends State<CharacterScreen> {
             height: 50,
             child: RowButtonsWidget(
               selectedIndex: currentIndex,
+              focusKeyBase: FocusKeys.charactersTab,
+              downId: FocusId.grid(FocusKeys.charactersList, 0, 0),
+              upId: FocusKeys.charactersBack,
               items: [
                 AppLocalization.strings.series,
                 AppLocalization.strings.programes,
@@ -152,32 +166,59 @@ class _CharacterScreenState extends State<CharacterScreen> {
                                   padding: GridConfig.getDefaultPadding(),
                                   gridDelegate:
                                       GridConfig.getDefaultGridDelegate(),
-                                  itemBuilder: (context, index) =>
-                                      GestureDetector(
-                                    onTap: () async {
-                                      final showData =
-                                          provider.showsModel?.data?[index];
-                                      if (showData?.id != null) {
-                                        context.pushNamed(
-                                          'showDetails',
-                                          pathParameters: {
-                                            'id': showData!.id.toString(),
-                                          },
-                                        );
-                                      }
-                                    },
-                                    child: ShowCategoryItemWidget(
-                                      model: provider.showsModel!.data![index],
-                                    ),
-                                  ),
+                                  itemBuilder: (context, index) {
+                                    const columns = 6;
+                                    final row = index ~/ columns;
+                                    final col = index % columns;
+                                    final totalRows = (provider.showsModel!.data!.length / columns).ceil();
+                                     return Padding(
+                                       padding: const EdgeInsets.all(8.0),
+                                       child: TvClick(
+                                            id: FocusId.grid(
+                                                FocusKeys.charactersList, row, col),
+                                         listBaseId: FocusKeys.charactersList,
+                                         rightId: col > 0
+                                             ? FocusId.grid(FocusKeys.charactersList, row, col - 1)
+                                             : null,
+                                         leftId: col < columns - 1 && (row * columns + col + 1) < provider.showsModel!.data!.length
+                                             ? FocusId.grid(FocusKeys.charactersList, row, col + 1)
+                                             : null,
+                                         upId: row > 0
+                                             ? FocusId.grid(FocusKeys.charactersList, row - 1, col)
+                                             : FocusId.list(FocusKeys.charactersTab, 0),
+                                         downId: row < totalRows - 1 && ((row + 1) * columns + col) < provider.showsModel!.data!.length
+                                             ? FocusId.grid(FocusKeys.charactersList, row + 1, col)
+                                             : null,
+                                         radius: 12.r,
+                                         onSelect: () async {
+                                           final showData =
+                                           provider.showsModel?.data?[index];
+                                           if (showData?.id != null) {
+                                             context.pushNamed(
+                                               'showDetails',
+                                               pathParameters: {
+                                                 'id': showData!.id
+                                                     .toString(),
+                                               },
+                                             );
+                                           }
+                                         },
+                                            child: ShowCategoryItemWidget(
+                                              model: provider.showsModel!
+                                                  .data![index],
+                                            ),
+                                          ),
+                                     );
+                                  },
                                   itemCount:
                                       provider.showsModel?.data?.length ?? 0,
                                 ),
                               );
               },
             ),
-          ] else
-            Expanded(child: SoonScreen(backButton: false)),
+          ]
+          // else
+          //   Expanded(child: SoonScreen(backButton: false)),
         ],
       ),
     );

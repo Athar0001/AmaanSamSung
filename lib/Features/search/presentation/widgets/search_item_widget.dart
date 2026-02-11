@@ -7,13 +7,15 @@ import 'package:amaan_tv/core/widget/gradient_container.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
+import 'package:simple_tv_navigation/simple_tv_navigation.dart';
 import '../../../../core/Themes/app_colors_new.dart';
 import '../../../../core/models/content_type.dart';
+import '../../../../core/utils/focus_helper.dart';
+import '../../../../core/widget/tv_click.dart';
 import '../../data/model/search_model.dart';
 
 class SearchItemWidget extends StatefulWidget {
   const SearchItemWidget({required this.searchModel, super.key});
-
   final SearchModel searchModel;
 
   @override
@@ -33,38 +35,69 @@ class _SearchItemWidgetState extends State<SearchItemWidget> {
       gridDelegate: GridConfig.getDefaultGridDelegate(),
       itemBuilder: (context, index) {
         final item = widget.searchModel.searchList![index];
-        return TvClickButton(
-          onTap: () {
-            final id = item.id;
-            final contentType = item.contentType;
-            switch (contentType) {
-              case ContentType.character:
-                {
-                  context.pushNamed('character', extra: item.toCharacterData);
-                }
+        final int columns = GridConfig.getDefaultGridDelegate().crossAxisCount;
 
-              case ContentType.show:
-                {
-                  context.pushNamed('showDetails', pathParameters: {'id': id});
-                }
-              case ContentType.audio:
-                {}
-              case ContentType.episode:
-                {
-                  context.pushNamed(
-                    'showDetails',
-                    pathParameters: {'id': item.showId!},
-                  );
-                }
-            }
-          },
-          builder: (context, hasFocus) {
-            return Stack(
+        final int row = index ~/ columns;
+        final int col = index % columns;
+        final int totalItems = widget.searchModel.searchList!.length;
+        final int totalRows = (totalItems / columns).ceil();
+
+        return Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: TvClick(
+            id: FocusId.grid(FocusKeys.searchResults, row, col),
+            listBaseId: FocusKeys.searchResults,
+            rightId: col > 0
+                ? FocusId.grid(FocusKeys.searchResults, row, col - 1)
+                : null,
+            leftId: (col < columns - 1 && (row * columns + col + 1) < totalItems)
+                ? FocusId.grid(FocusKeys.searchResults, row, col + 1)
+                : null,
+            upId: row > 0
+                ? FocusId.grid(FocusKeys.searchResults, row - 1, col)
+                : FocusKeys.searchInput,
+            downId:
+                (row + 1) < totalRows && ((row + 1) * columns + col) < totalItems
+                    ? FocusId.grid(FocusKeys.searchResults, row + 1, col)
+                    : null,
+
+            onSelect: () {
+              final id = item.id;
+              final contentType = item.contentType;
+
+              print(contentType.toString());
+              switch (contentType) {
+                case ContentType.character:
+                  {
+                    context.pushNamed('character', extra: item.toCharacterData).then((value){
+                      context.setFocus(FocusKeys.searchInput);
+                    });
+                  }
+
+                case ContentType.show:
+                  {
+                    context.pushNamed('showDetails', pathParameters: {'id': id}).then((value){
+                      context.setFocus(FocusKeys.searchInput);
+                    });;
+                  }
+                case ContentType.audio:
+                  {}
+                case ContentType.episode:
+                  {
+                    context.pushNamed(
+                      'showDetails',
+                      pathParameters: {'id': item.showId!},
+                    ).then((value){
+                      context.setFocus(FocusKeys.searchInput);
+                    });;
+                  }
+              }
+            },
+            child: Stack(
               children: [
                 DecoratedBox(
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(12.r),
-                    border: Border.all(color: hasFocus? AppColorsNew.white: AppColorsNew.primary, width: 2.r),
                   ),
                   child: Padding(
                     padding: const EdgeInsets.all(2.0),
@@ -82,8 +115,8 @@ class _SearchItemWidgetState extends State<SearchItemWidget> {
                 GradientContainer(borderRadius: 12.r),
                 if (item.isReleased) SizedBox() else LockWidget(),
               ],
-            );
-          }
+            ),
+          ),
         );
       },
     );

@@ -1,3 +1,5 @@
+import 'package:amaan_tv/core/utils/focus_helper.dart';
+import 'package:amaan_tv/core/widget/tv_click.dart';
 import 'package:flutter/material.dart';
 import 'package:amaan_tv/Features/Home/data/models/home/show_details_model/data.dart';
 import 'package:amaan_tv/Features/favorite/presentation/widgets/favorite_icon_button.dart';
@@ -21,14 +23,23 @@ class PosterHeader extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.end,
       children: [
         8.horizontalSpace,
-        BackButtonWidget(isBlack: true),
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: TvClick(
+            id: FocusKeys.detailsBack,
+              downId: FocusKeys.detailsWatchButton,
+              onSelect: (){
+                Navigator.pop(context);
+              },
+              child: BackButtonWidget(isBlack: true)),
+        ),
         Spacer(),
         if (model.type.isEpisode != true && isSuggested)
           IconWidget(
             path: Assets.imagesPlus,
             iconColor: AppColorsNew.white,
           ),
-        FavoriteIconButton(model),
+        // FavoriteIconButton(model),
         6.horizontalSpace,
       ],
     );

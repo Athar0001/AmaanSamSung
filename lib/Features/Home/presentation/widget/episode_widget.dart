@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:developer';
 
 import 'package:amaan_tv/core/widget/tv_click_button.dart';
+import 'package:amaan_tv/core/widget/tv_click.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -19,21 +20,27 @@ import 'package:amaan_tv/core/widget/radio%20button/radio_button_multi_select_pa
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:amaan_tv/core/utils/app_router.dart';
+import 'package:simple_tv_navigation/simple_tv_navigation.dart';
 
 import '../../provider/time_provider.dart';
 import '../../../../core/utils/app_localiztion.dart';
 import '../../../../core/widget/app_toast.dart';
 import '../../functions.dart';
+import '../../../../core/utils/focus_helper.dart';
 
 class EpisodeWidget extends StatefulWidget {
   const EpisodeWidget({
     required this.model,
     required this.episodesModel,
     super.key,
+    required this.index,
+    this.totalEpisodes,
   });
 
   final Details model;
   final List<Details> episodesModel;
+  final int index;
+  final int? totalEpisodes;
 
   @override
   State<EpisodeWidget> createState() => _EpisodeWidgetState();
@@ -83,6 +90,9 @@ class _EpisodeWidgetState extends State<EpisodeWidget> {
                 'repeatTimes': value,
                 'closingDuration':
                     mainVideo?.closingDuration ?? widget.model.closingDuration,
+                'onNavigateBack': (){
+                  context.setFocus(FocusKeys.detailsWatchButton);
+                },
               },
             );
           }
@@ -96,6 +106,9 @@ class _EpisodeWidgetState extends State<EpisodeWidget> {
             'episodeId': widget.model.id,
             'episodesModel': widget.episodesModel,
             'videoId': mainVideo?.id ?? '',
+            'onNavigateBack': (){
+             context.setFocus(FocusKeys.detailsWatchButton);
+            },
             'closingDuration':
                 mainVideo?.closingDuration ?? widget.model.closingDuration,
           },
@@ -106,78 +119,107 @@ class _EpisodeWidgetState extends State<EpisodeWidget> {
 
   @override
   Widget build(BuildContext context) {
+    if (widget.totalEpisodes == null) {
+      // Fallback to old behavior without TvClick
+      return _buildEpisodeContent(context);
+    }
+
+    const columns = 4;
+    final row = widget.index ~/ columns;
+    final col = widget.index % columns;
+    final totalRows = (widget.totalEpisodes! / columns).ceil();
+
+    return TvClick(
+      id: FocusId.grid(FocusKeys.detailsEpisodes, row, col),
+      listBaseId: FocusKeys.detailsEpisodes,
+      rightId: col > 0
+          ? FocusId.grid(FocusKeys.detailsEpisodes, row, col - 1)
+          : null,
+      leftId: col < columns - 1 && (row * columns + col + 1) < widget.totalEpisodes!
+          ? FocusId.grid(FocusKeys.detailsEpisodes, row, col + 1)
+          : null,
+      upId: row > 0
+          ? FocusId.grid(FocusKeys.detailsEpisodes, row - 1, col)
+          : FocusId.list(FocusKeys.detailsTab, 0),
+      downId: row < totalRows - 1 && ((row + 1) * columns + col) < widget.totalEpisodes!
+          ? FocusId.grid(FocusKeys.detailsEpisodes, row + 1, col)
+          : null,
+      radius: 12.r,
+      onSelect: onTapShow,
+      child: _buildEpisodeContent(context),
+    );
+  }
+
+  Widget _buildEpisodeContent(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
-        return TvClickButton(
-          onTap: onTapShow,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                child: Stack(
-                  alignment: AlignmentDirectional.center,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.all(3.0),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(12.r),
-                        child: CachedNetworkImageHelper(
-                          width: double.infinity,
-                          height: double.infinity,
-                          imageUrl: widget.model.thumbnailImage?.url,
-                        ),
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              child: Stack(
+                alignment: AlignmentDirectional.center,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.all(3.0),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(12.r),
+                      child: CachedNetworkImageHelper(
+                        width: double.infinity,
+                        height: double.infinity,
+                        imageUrl: widget.model.thumbnailImage?.url,
                       ),
                     ),
-                    GradientHomePoster(
-                      height: double.infinity,
-                      borderRadius: 0,
-                    ),
-                    if (widget.model.isReleased == false &&
-                        widget.model.releaseDateTime != null)
-                      Align(
-                        child: CountdownWidget(
-                          releaseDateTime: widget.model.releaseDateTime,
+                  ),
+                  GradientHomePoster(
+                    height: double.infinity,
+                    borderRadius: 0,
+                  ),
+                  if (widget.model.isReleased == false &&
+                      widget.model.releaseDateTime != null)
+                    Align(
+                      child: CountdownWidget(
+                        releaseDateTime: widget.model.releaseDateTime,
+                      ),
+                    )
+                  else if (checkIfVideoAllowed(
+                        isFree: widget.model.isFree,
+                        isGuest: widget.model.isGuest,
+                      ) !=
+                      null)
+                    Align(child: LockWidget()),
+                  PositionedDirectional(
+                    start: 0,
+                    bottom: 0,
+                    width: constraints.maxWidth,
+                    child: Padding(
+                      padding: EdgeInsets.all(16.r),
+                      child: Text(
+                        widget.model.title,
+                        textAlign: TextAlign.start,
+                        style: AppTextStylesNew.style14RegularAlmarai.copyWith(
+                          color: AppColorsNew.white,
+                          fontWeight: FontWeight.w800,
                         ),
-                      )
-                    else if (checkIfVideoAllowed(
-                          isFree: widget.model.isFree,
-                          isGuest: widget.model.isGuest,
-                        ) !=
-                        null)
-                      Align(child: LockWidget()),
-                    PositionedDirectional(
-                      start: 0,
-                      bottom: 0,
-                      width: constraints.maxWidth,
-                      child: Padding(
-                        padding: EdgeInsets.all(16.r),
-                        child: Text(
-                          widget.model.title,
-                          textAlign: TextAlign.start,
-                          style: AppTextStylesNew.style14RegularAlmarai.copyWith(
-                            color: AppColorsNew.white,
-                            fontWeight: FontWeight.w800,
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ),
+                  ),
 
-                  ],
-                ),
+                ],
               ),
-              Padding(
-                padding: EdgeInsets.all(16.r),
-                child: Text(
-                  widget.model.description ?? 'no description',
-                  style: AppTextStylesNew.style12RegularAlmarai,
-                  maxLines: 3,
-                  overflow: TextOverflow.ellipsis,
-                ),
+            ),
+            Padding(
+              padding: EdgeInsets.all(16.r),
+              child: Text(
+                widget.model.description ?? 'no description',
+                style: AppTextStylesNew.style12RegularAlmarai,
+                maxLines: 3,
+                overflow: TextOverflow.ellipsis,
               ),
-            ],
-          ),
+            ),
+          ],
         );
       },
     );

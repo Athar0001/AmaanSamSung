@@ -10,13 +10,11 @@ class CategoryWidget extends StatelessWidget {
   const CategoryWidget({
     required this.category,
     required this.isSelected,
-    required this.isFocused,
     super.key,
   });
 
   final Category category;
   final bool isSelected;
-  final bool isFocused;
 
   @override
   Widget build(BuildContext context) {
@@ -35,33 +33,23 @@ class CategoryWidget extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Container(
-            height: isFocused ? 130.h : 110.h,
-            width: isFocused ? 130.h : 110.h, // Keep aspect ratio roughly
-            decoration: isFocused
-                ? BoxDecoration(
-                    shape: BoxShape.circle,
-                    border: Border.all(color: AppColorsNew.primary, width: 3),
-                    boxShadow: [
-                      BoxShadow(
-                        color: AppColorsNew.primary.withOpacity(0.5),
-                        blurRadius: 10,
-                        spreadRadius: 2,
-                      ),
-                    ],
-                  )
-                : null,
+            height:  110.h,
+            width:  110.h, // Keep aspect ratio roughly
             child: Stack(
               alignment: Alignment.center,
               children: [
                 // Background Circle
                 Container(
-                  height: isFocused ? 100.h : 90.h,
-                  width: isFocused ? 100.h : 90.h,
+                  height:  90.h,
+                  width:  90.h,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     image: DecorationImage(
                       scale: 0.1, // Adjust as needed
-                      image: NetworkImage(backgroundUrl),
+                      image:
+                      backgroundUrl.contains('assets') ?
+                          AssetImage(backgroundUrl):
+                      NetworkImage(backgroundUrl),
                       fit: BoxFit.cover,
                     ),
                   ),
@@ -71,7 +59,10 @@ class CategoryWidget extends StatelessWidget {
                   duration: const Duration(milliseconds: 200),
                   height: isSelected ? 110.h : 90.h,
                   width: isSelected ? 110.h : 90.h,
-                  child: CachedNetworkImageHelper(
+                  child:
+                  imageUrl.contains('asset')?
+                      Image.asset(imageUrl):
+                  CachedNetworkImageHelper(
                     showShimmer: false,
                     imageUrl: imageUrl,
                   ),
@@ -82,11 +73,7 @@ class CategoryWidget extends StatelessWidget {
           Gap(5.r),
           Text(
             category.name ?? '',
-            style: isFocused
-                ? AppTextStylesNew.style24BoldAlmarai.copyWith(
-                    color: AppColorsNew.primary,
-                  )
-                : AppTextStylesNew.style18RegularAlmarai,
+            style:  AppTextStylesNew.style18RegularAlmarai,
           ),
         ],
       ),

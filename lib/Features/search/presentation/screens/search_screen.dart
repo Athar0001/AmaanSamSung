@@ -1,4 +1,5 @@
 import 'package:amaan_tv/Features/Auth/provider/user_notifier.dart';
+import 'package:amaan_tv/Features/Home/provider/home_provider.dart';
 import 'package:amaan_tv/core/widget/buttons/back_button.dart';
 import 'package:amaan_tv/core/widget/tv_click_button.dart';
 import 'package:amaan_tv/Features/search/provider/search_provider.dart';
@@ -11,14 +12,19 @@ import 'package:amaan_tv/core/widget/circle_progress_helper.dart';
 import 'package:amaan_tv/core/widget/max_width_widget.dart';
 import 'package:amaan_tv/core/widget/radio%20button/radio_button_multi_select_package.dart';
 import 'package:amaan_tv/core/widget/scaffold_gradient_background.dart';
+import 'package:couchkeys/couchkeys.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
+import 'package:simple_tv_navigation/simple_tv_navigation.dart';
 import '../../../../core/Themes/app_text_styles_new.dart';
 import '../../../../core/utils/constant.dart';
+import '../../../../core/utils/focus_helper.dart';
 import '../../../../core/widget/Text Field/text_field_widget.dart';
 import '../../../../core/utils/enum.dart';
+import '../../../../core/widget/keyboard_widget.dart';
+import '../../../../core/widget/tv_click.dart';
 import '../widgets/empty_search_widget.dart';
 import '../widgets/search_item_widget.dart';
 import 'dart:async'; // Import for Timer
@@ -34,20 +40,20 @@ class _SearchScreenState extends State<SearchScreen> {
   final searchController = TextEditingController();
   Timer? _debounce;
   late SearchProvider searchProvider;
-  final FocusNode _searchFocusNode = FocusNode();
-
+  final FocusNode _searchInputFocus = FocusNode();
   @override
   void dispose() {
     _debounce
         ?.cancel(); // Cancel the debounce timer when the widget is disposed
     searchController.dispose();
-    _searchFocusNode.dispose();
+    _searchInputFocus.dispose();
     super.dispose();
   }
 
   @override
   void initState() {
     super.initState();
+    context.setFocus(FocusKeys.searchInput);
     searchProvider = sl<SearchProvider>()
       ..recentSearch()
       ..getSuggestedData();
@@ -77,6 +83,8 @@ class _SearchScreenState extends State<SearchScreen> {
     });
   }
 
+
+
   @override
   Widget build(BuildContext context) {
     return ScaffoldGradientBackground(
@@ -95,7 +103,19 @@ class _SearchScreenState extends State<SearchScreen> {
                   children: [
                     Align(
                       alignment: Alignment.topRight,
-                      child: BackButtonWidget(),
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: TvClick(
+                          id: FocusKeys.searchBack,
+                          downId: FocusKeys.searchInput,
+                          onSelect: (){
+                            Navigator.pop(context);
+                          },
+                          child: BackButtonWidget(
+                            onPressed: (){},
+                          ),
+                        ),
+                      ),
                     ),
                     12.verticalSpace,
                     Center(
@@ -106,32 +126,81 @@ class _SearchScreenState extends State<SearchScreen> {
                     ),
                     12.verticalSpace,
                     MaxWidthWidget(
-                      child: TvClickButton(
-                        onTap: (){
-                          _searchFocusNode.requestFocus();
-                          SystemChannels.textInput.invokeMethod('TextInput.show');
-                        },
-                        builder: (context, hasFocus) => Container(
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(40.r),
-                            border: Border.all(
-                              color: hasFocus? AppColorsNew.primary: AppColorsNew.white1.withOpacity(0.2)
-                            )
+                      child: TvClick(
+                        id: FocusKeys.searchInput,
+                        upId: FocusKeys.searchBack,
+                        dynamicDownId: () {
 
-                          ),
-                          child: TextFieldWidget(
-                            onChanged: _onSearchChanged,
-                            borderRadius: 40.r,
-                            focusNode: _searchFocusNode,
-                            readOnly: false, // <-- IMPORTANT
-                            enableInteractiveSelection: true,
-                            inputFormatters: [
-                              LengthLimitingTextInputFormatter(30),
-                            ],
-                            hintText: AppLocalization.strings.search,
-                            prefixIcon: SVGImage(path: Assets.imagesSearch),
-                            controller: searchController,
-                          ),
+
+                          if (searchController.text.isEmpty &&
+                              provider.recentSearchModel?.data?.isNotEmpty == true) {
+                            return FocusKeys.searchDeleteHistory;
+                          }
+
+                         else if (provider.searchModel?.searchList?.isNotEmpty == true) {
+                            return FocusId.grid(FocusKeys.searchResults, 0, 0);
+                          }
+
+                          else if (provider.suggestedSearchModel.searchList?.isNotEmpty == true) {
+                            return FocusId.list(FocusKeys.searchSuggestions, 0);
+                          }
+
+                          return FocusKeys.searchDeleteHistory;
+                        },
+                        radius:  40.r,
+                        onSelect: () {
+                          showModalBottomSheet(
+                            context: context,
+                            isScrollControlled: true,
+                            backgroundColor: Colors.transparent,
+                            barrierColor: Colors.transparent,
+                            constraints: BoxConstraints(
+                              minWidth:  1.sw,
+                              minHeight: 200
+                            ),
+                            builder: (_) {
+                              return TvKeyboardOverlay(
+                              controller: searchController,
+                              initialArabic: true,
+                              onDone: () {
+                                Navigator.pop(context);
+                                context.setFocus(FocusKeys.searchInput);
+                              },
+                              onSearch: () async {
+                                await provider.searchData(searchText: searchController.text);
+                                provider.recentSearch();
+                                Navigator.pop(context);
+                                context.setFocus(FocusId.grid(FocusKeys.searchResults, 0, 0));
+                              },
+                                                             );
+                            },
+                          ).then((value){
+                            if(provider.searchModel!.searchList?.isEmpty == true){
+                              context.setFocus(FocusKeys.searchInput);
+                            }
+                          });
+                        },
+
+                        child: TextFieldWidget(
+                          onChanged: _onSearchChanged,
+                          focusNode: _searchInputFocus,
+                          borderRadius: 40.r,
+                          readOnly: false,
+                          enableInteractiveSelection: true,
+                          onFieldSubmitted: (value) {
+                            _searchInputFocus.unfocus();
+                            SystemChannels.textInput.invokeMethod('TextInput.hide');
+
+                            // optional: run search
+                            _onSearchChanged(value);
+                          },
+                          textInputAction: TextInputAction.search,
+                          inputFormatters: [
+                            LengthLimitingTextInputFormatter(30),
+                          ],
+                          hintText: AppLocalization.strings.search,
+                          prefixIcon: SVGImage(path: Assets.imagesSearch),
+                          controller: searchController,
                         ),
                       ),
                     ),
@@ -153,27 +222,34 @@ class _SearchScreenState extends State<SearchScreen> {
                                       style:
                                           AppTextStylesNew.style20BoldAlmarai,
                                     ),
-                                    TvClickButton(
-                                      onTap: () {
+                                    if(provider.recentSearchModel?.data?.isNotEmpty == true)
+                                    TvClick(
+                                      id: FocusKeys.searchDeleteHistory,
+                                      upId: FocusKeys.searchInput,
+                                      downId: FocusId.list(FocusKeys.searchHistory, 0),
+                                      onSelect: () {
                                         provider.deleteRecentSearch();
                                       },
-                                      child: Row(
-                                        children: [
-                                          Text(
-                                            AppLocalization
-                                                .strings.clearHistory,
-                                            style: AppTextStylesNew
-                                                .style12BoldAlmarai
-                                                .copyWith(
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(8.0),
+                                        child: Row(
+                                          children: [
+                                            Text(
+                                              AppLocalization
+                                                  .strings.clearHistory,
+                                              style: AppTextStylesNew
+                                                  .style12BoldAlmarai
+                                                  .copyWith(
+                                                color: AppColorsNew.red3,
+                                              ),
+                                            ),
+                                            SizedBox(width: 8),
+                                            SVGImage(
+                                              path: Assets.imagesTrash,
                                               color: AppColorsNew.red3,
                                             ),
-                                          ),
-                                          SizedBox(width: 8),
-                                          SVGImage(
-                                            path: Assets.imagesTrash,
-                                            color: AppColorsNew.red3,
-                                          ),
-                                        ],
+                                          ],
+                                        ),
                                       ),
                                     ),
                                   ],
@@ -185,46 +261,63 @@ class _SearchScreenState extends State<SearchScreen> {
                                 else
                                   provider.stateRecentSearch == AppState.error
                                       ? const SizedBox()
-                                      : provider.recentSearchModel.data!
-                                              .isNotEmpty
+                                      : (provider.recentSearchModel?.data?.isNotEmpty ?? true)
                                           ? Wrap(
-                                              children: provider
-                                                  .recentSearchModel.data!
-                                                  .map((e) {
-                                                return TvClickButton(
-                                                  onTap: () {
-                                                    searchController.text =
-                                                        e.text ?? '';
-                                                    provider.searchData(
-                                                      searchText:
-                                                          searchController.text,
-                                                    );
-                                                    provider.recentSearch();
-                                                  },
-                                                  child: Container(
-                                                    margin:
-                                                        EdgeInsetsDirectional
-                                                            .only(
-                                                      end: 11.5,
-                                                      bottom: 10,
-                                                    ),
-                                                    padding:
-                                                        EdgeInsets.symmetric(
-                                                      horizontal: 18.w,
-                                                      vertical: 7.h,
-                                                    ),
-                                                    decoration:
-                                                        containerDecoration(
-                                                      context,
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                        20.r,
+                                              children: (provider
+                                                  .recentSearchModel?.data ?? []).asMap()
+                                                  .entries
+                                                  .map((entry) {
+                                                final index = entry.key;
+                                                final e = entry.value;
+                                                return Padding(
+                                                  padding: const EdgeInsets.all(8.0),
+                                                  child: TvClick(
+                                                    id: FocusId.list(FocusKeys.searchHistory, index),
+                                                    isList: true,
+                                                    listBaseId: FocusKeys.searchHistory,
+                                                    index: index,
+                                                    length: provider.recentSearchModel?.data?.length ?? 0,
+                                                    upId: FocusKeys.searchDeleteHistory,
+                                                    dynamicDownId: () {
+                                                      if (provider.searchModel?.searchList?.isNotEmpty == true) {
+                                                        return FocusId.list(FocusKeys.searchResults, 0);
+                                                      }
+                                                      if (provider.suggestedSearchModel.searchList?.isNotEmpty == true) {
+                                                        return FocusId.list(FocusKeys.searchSuggestions, 0);
+                                                      }
+                                                      return null;
+                                                    },
+
+                                                    onSelect: () {
+                                                      searchController.text =
+                                                          e.text ?? '';
+                                                      provider.searchData(
+                                                        searchText:
+                                                            searchController.text,
+                                                      );
+                                                      provider.recentSearch();
+                                                      context.setFocus(FocusKeys.searchInput);
+                                                    },
+                                                    child: Container(
+
+                                                      padding:
+                                                          EdgeInsets.symmetric(
+                                                        horizontal: 18.w,
+                                                        vertical: 7.h,
                                                       ),
-                                                    ),
-                                                    child: Text(
-                                                      e.text ?? '',
-                                                      style: AppTextStylesNew
-                                                          .style12RegularAlmarai,
+                                                      decoration:
+                                                          containerDecoration(
+                                                        context,
+                                                        borderRadius:
+                                                            BorderRadius.circular(
+                                                          20.r,
+                                                        ),
+                                                      ),
+                                                      child: Text(
+                                                        e.text ?? '',
+                                                        style: AppTextStylesNew
+                                                            .style12RegularAlmarai,
+                                                      ),
                                                     ),
                                                   ),
                                                 );
@@ -253,7 +346,7 @@ class _SearchScreenState extends State<SearchScreen> {
                               AppLocalization.strings.suggestionsForYou,
                               style: AppTextStylesNew.style20BoldAlmarai,
                             ),
-                            30.verticalSpace,
+                            50.verticalSpace,
                             if (provider.suggestedSearchState ==
                                 AppState.loading)
                               const AppCircleProgressHelper()

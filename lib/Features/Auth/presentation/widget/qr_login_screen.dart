@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:amaan_tv/Features/Auth/provider/auth_provider.dart';
 import 'package:amaan_tv/core/Themes/app_colors_new.dart';
 import 'package:amaan_tv/core/Themes/app_text_styles_new.dart';
+import 'package:amaan_tv/core/utils/focus_helper.dart';
 import 'package:amaan_tv/core/widget/buttons/main_button.dart';
 import 'package:amaan_tv/core/widget/scaffold_gradient_background.dart';
 import 'package:flutter/material.dart';
@@ -11,9 +12,11 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:amaan_tv/core/utils/app_localiztion.dart';
 import 'package:go_router/go_router.dart';
 import 'package:amaan_tv/core/utils/app_router.dart';
+import 'package:simple_tv_navigation/simple_tv_navigation.dart';
 
 import '../../../../core/injection/injection_imports.dart' as di;
 import '../../../../core/services/signalr_service.dart';
+import '../../../../core/widget/tv_click.dart';
 import '../../../../core/widget/tv_click_button.dart';
 
 class QRLoginScreen extends StatefulWidget {
@@ -69,6 +72,7 @@ class _QRLoginScreenState extends State<QRLoginScreen> {
           _isExpired = true;
         });
         widget.onExpired?.call();
+        context.setFocus(FocusKeys.loginRescan);
       } else {
         setState(() {
           _remainingTime = Duration(seconds: _remainingTime.inSeconds - 1);
@@ -182,9 +186,7 @@ class _QRLoginScreenState extends State<QRLoginScreen> {
                     )
                   else
                     Text(
-                      AppLocalization.strings.qrCodeExpiresIn +
-                          " " +
-                          _formatDuration(_remainingTime),
+                      "${AppLocalization.strings.qrCodeExpiresIn} ${_formatDuration(_remainingTime)}",
                       style: AppTextStylesNew.style18RegularAlmarai.copyWith(
                         color: AppColorsNew.grey1,
                       ),
@@ -193,8 +195,9 @@ class _QRLoginScreenState extends State<QRLoginScreen> {
 
                   // Try Again button (shown when expired)
                   if (_isExpired)
-                    TvClickButton(
-                      onTap: _regenerateQr,
+                    TvClick(
+                      id: FocusKeys.loginRescan,
+                      onSelect: _regenerateQr,
                       child: Container(
                         padding: EdgeInsets.symmetric(
                           horizontal: 24.r,

@@ -44,31 +44,24 @@ class _AnimatedShowButtonState extends State<AnimatedShowButton> {
 
   @override
   Widget build(BuildContext context) {
-    return TvClickButton(
-      onTap: () {
-        widget.onTapShow.call();
-      },
-      builder: (context, hasFocus) {
-        return AnimatedScale(
-          scale: _scale,
-          duration: const Duration(milliseconds: 200),
-          curve: Curves.easeOut,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              ShowButtonWidget(
-                hasFocus: hasFocus,
-                widget: ShowSeriesPoster(
-                  model: widget.model,
-                  isLoading: widget.isLoading,
-                  onTapShow: widget.onTapShow,
-                  refresh: () {},
-                ),
-              ),
-            ],
+    return AnimatedScale(
+      scale: _scale,
+      duration: const Duration(milliseconds: 200),
+      curve: Curves.easeOut,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          ShowButtonWidget(
+            hasFocus: false,
+            widget: ShowSeriesPoster(
+              model: widget.model,
+              isLoading: widget.isLoading,
+              onTapShow: widget.onTapShow,
+              refresh: () {},
+            ),
           ),
-        );
-      },
+        ],
+      ),
     );
   }
 }

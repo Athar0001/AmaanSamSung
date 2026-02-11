@@ -1,7 +1,9 @@
 import 'package:amaan_tv/Features/Auth/provider/user_notifier.dart';
+import 'package:amaan_tv/Features/Home/provider/home_provider.dart';
 import 'package:amaan_tv/Features/Home/provider/time_provider.dart';
 import 'package:amaan_tv/core/languages/app_localizations.dart';
 import 'package:amaan_tv/core/utils/cash_services/cashe_helper.dart';
+import 'package:amaan_tv/core/widget/tv_click.dart';
 import 'package:flutter/material.dart';
 import 'package:amaan_tv/core/widget/tv_click_button.dart';
 import 'package:flutter/services.dart';
@@ -13,6 +15,8 @@ import 'package:amaan_tv/core/widget/SVG_Image/svg_img.dart';
 import 'package:amaan_tv/gen/assets.gen.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+import 'package:simple_tv_navigation/simple_tv_navigation.dart';
+import '../utils/focus_helper.dart';
 
 class AppNavigationBar extends StatefulWidget {
   const AppNavigationBar({
@@ -22,34 +26,19 @@ class AppNavigationBar extends StatefulWidget {
   });
 
   final int selectedIndex;
-  final ValueChanged<int>? onTabChanged;
+  final Function(int)? onTabChanged;
 
   @override
   State<AppNavigationBar> createState() => _AppNavigationBarState();
 }
 
 class _AppNavigationBarState extends State<AppNavigationBar> {
-  late int _selectedTabIndex;
-
-  @override
-  void initState() {
-    super.initState();
-    _selectedTabIndex = widget.selectedIndex;
-  }
-
-  @override
-  void didUpdateWidget(AppNavigationBar oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (widget.selectedIndex != oldWidget.selectedIndex) {
-      _selectedTabIndex = widget.selectedIndex;
-    }
-  }
+   int _selectedTabIndex = 0;
 
   void _onTabSelected(int index) {
     setState(() {
       _selectedTabIndex = index;
     });
-    // Call the callback if provided
     widget.onTabChanged?.call(index);
   }
 
@@ -67,45 +56,120 @@ class _AppNavigationBarState extends State<AppNavigationBar> {
       ),
       child: Row(
         children: [
-          // Logo/App Name (Right side for RTL)
           50.horizontalSpace,
 
-          // Tabs (Right side for RTL)
+          /// HOME
           _HeaderTab(
             title: 'الرئيسية',
             isSelected: _selectedTabIndex == 0,
             onTap: () => _onTabSelected(0),
+            id: FocusKeys.homeTab,
+            autoFocus: true,
+            leftId: FocusKeys.seriesTab,
+            dynamicDownId: () {
+              if (_selectedTabIndex == 0) {
+                return FocusKeys.watchNow;
+              }
+              if (_selectedTabIndex == 1) {
+                return FocusId.list(FocusKeys.seriesCategory, 0);
+              }
+              return FocusId.list(FocusKeys.favCategory, 0);
+            },
           ),
+
+          20.horizontalSpace,
+
+          /// SERIES
           _HeaderTab(
             title: 'مسلسلات',
             isSelected: _selectedTabIndex == 1,
             onTap: () => _onTabSelected(1),
+            id: FocusKeys.seriesTab,
+            rightId: FocusKeys.homeTab,
+            leftId: FocusKeys.favTab,
+            dynamicDownId: () {
+              if (_selectedTabIndex == 0) {
+                return FocusKeys.watchNow;
+              }
+              if (_selectedTabIndex == 1) {
+                return FocusId.list(FocusKeys.seriesCategory, 0);
+              }
+              return FocusId.list(FocusKeys.favCategory, 0);
+            },
           ),
+
+          20.horizontalSpace,
+
+          /// FAVORITES
           _HeaderTab(
             title: AppLocalizations.of(context)!.favorites,
             isSelected: _selectedTabIndex == 2,
             onTap: () => _onTabSelected(2),
+            id: FocusKeys.favTab,
+            rightId: FocusKeys.seriesTab,
+            leftId: FocusKeys.searchTab,
+            dynamicDownId: () {
+              if (_selectedTabIndex == 0) {
+                return FocusKeys.watchNow;
+              }
+              if (_selectedTabIndex == 1) {
+                return FocusId.list(FocusKeys.seriesCategory, 0);
+              }
+              return FocusId.list(FocusKeys.favCategory, 0);
+            },
           ),
 
-          // Spacer
-          Spacer(),
+          const Spacer(),
 
-          // Search Icon (Left side for RTL)
-          TvClickButton(
-            onTap: () {
-              context.pushNamed(AppRoutes.search.routeName);
+          /// SEARCH
+          TvClick(
+            id: FocusKeys.searchTab,
+            leftId: FocusKeys.logoutTab,
+            rightId: FocusKeys.favTab,
+            dynamicDownId: () {
+              if (_selectedTabIndex == 0) {
+                return FocusKeys.watchNow;
+              }
+              if (_selectedTabIndex == 1) {
+                return FocusId.list(FocusKeys.seriesCategory, 0);
+              }
+              return FocusId.list(FocusKeys.favCategory, 0);
+            },
+            onSelect: () {
+              _onTabSelected(3);
+              context.pushNamed(AppRoutes.search.routeName).then((value){
+                if (context.mounted) {
+                  context.setFocus(FocusKeys.homeTab);
+                  _onTabSelected(0);
+                }
+              });
             },
             child: Padding(
               padding: EdgeInsets.all(8.r),
-              child: Icon(Icons.search, color: AppColorsNew.white, size: 24.r),
+              child: Icon(
+                Icons.search,
+                color: AppColorsNew.white,
+                size: 24.r,
+              ),
             ),
           ),
 
           8.horizontalSpace,
 
-          // Logout Icon
-          TvClickButton(
-            onTap: () async {
+          /// LOGOUT
+          TvClick(
+            id: FocusKeys.logoutTab,
+            rightId: FocusKeys.searchTab,
+            dynamicDownId: () {
+              if (_selectedTabIndex == 0) {
+                return FocusKeys.watchNow;
+              }
+              if (_selectedTabIndex == 1) {
+                return FocusId.list(FocusKeys.seriesCategory, 0);
+              }
+              return FocusId.list(FocusKeys.favCategory, 0);
+            },
+            onSelect: () async {
               await context.read<UserNotifier>().logout();
               await CacheHelper.removeAllData();
               context.read<TimeProvider>().resetVideoLogDataAndTime();
@@ -132,43 +196,53 @@ class _AppNavigationBarState extends State<AppNavigationBar> {
 // Header Tab Widget
 class _HeaderTab extends StatelessWidget {
   final String title;
+  final String id;
   final bool isSelected;
   final VoidCallback onTap;
+  final String? leftId;
+  final String? rightId;
+  final String? downId;
+  final bool autoFocus;
+  final String Function()? dynamicDownId;
 
   const _HeaderTab({
     required this.title,
+    required this.id,
     required this.isSelected,
     required this.onTap,
+    this.leftId,
+    this.rightId,
+    this.downId,
+    this.dynamicDownId,
+    this.autoFocus = false,
   });
 
   @override
   Widget build(BuildContext context) {
-    return TvClickButton(
-      onTap: onTap,
-      focusScale: 1.1,
-      builder: (context, focused) {
-        return AnimatedContainer(
-          duration: Duration(milliseconds: 200),
-          margin: EdgeInsets.symmetric(horizontal: 4.w),
-          padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 8.h),
-          decoration: BoxDecoration(
-            color: isSelected ? AppColorsNew.primary : Colors.transparent,
-            borderRadius: BorderRadius.circular(50.r), // Pill shape
-            border: Border.all(
-              color: focused ? AppColorsNew.white : Colors.transparent,
-              width: 1.5,
-            ),
+    print('$isSelected $id');
+    return TvClick(
+      id: id,
+      autoFocus: autoFocus,
+      leftId: leftId,
+      rightId: rightId,
+      dynamicDownId: dynamicDownId,
+      onSelect: onTap,
+      radius: 50.r,
+      child: Container(
+        padding: EdgeInsets.symmetric(horizontal: 30.w, vertical: 8.h),
+        decoration: BoxDecoration(
+          color: isSelected ? AppColorsNew.primary : Colors.transparent,
+          borderRadius: BorderRadius.circular(50.r),
+        ),
+        child: Text(
+          title,
+          style: AppTextStylesNew.style14BoldAlmarai.copyWith(
+            color: AppColorsNew.white,
+            fontSize: 14.r,
+            fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
           ),
-          child: Text(
-            title,
-            style: AppTextStylesNew.style14BoldAlmarai.copyWith(
-              color: AppColorsNew.white,
-              fontSize: 14.r,
-              fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-            ),
-          ),
-        );
-      },
+        ),
+      ),
     );
   }
 }

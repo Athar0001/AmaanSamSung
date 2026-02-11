@@ -1,4 +1,5 @@
 import 'dart:developer';
+import 'package:amaan_tv/Features/Auth/provider/user_notifier.dart';
 import 'package:dio/dio.dart';
 import 'package:dio/io.dart';
 import 'package:flutter/foundation.dart';
@@ -134,10 +135,14 @@ class ApiService {
     // Simplified locale header
     _dio.options.headers['Accept-Language'] =
         'ar'; // Defaulting to Arabic or can be dynamic if we have a provider
+    print(UserNotifier.instance.userData?.token);
+    print("acheHelper.currentUser!.token");
 
-    if (withToken == true && CacheHelper.currentUser != null) {
+    if (withToken == true && UserNotifier.instance.userData != null) {
       _dio.options.headers['Authorization'] =
-          'Bearer ${"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1laWQiOiJiZDcxMjQwMC1hYmZkLTQyOTAtYjBiOC1iZTMxOWIyYmZmN2YiLCJ1bmlxdWVfbmFtZSI6InRlc3QyMDBAZ21haWwuY29tIiwiVXNlclR5cGVJZCI6IjEiLCJQYXJlbnRJZCI6IiIsImp0aSI6IjlkNDJiM2FlLWE4YzUtNDVjMi04ZDQxLTI3NWViYTJkNDkxMiIsIm5vbmNlIjoiZWlEMXV0bXJnc0kwMlA1K2FqZUhLUT09IiwiaHR0cDovL3NjaGVtYXMubWljcm9zb2Z0LmNvbS93cy8yMDA4LzA2L2lkZW50aXR5L2NsYWltcy9zZXJpYWxudW1iZXIiOiJUS1ExLjIyMTExNC4wMDEiLCJuYW1lIjoiQWRtaW4iLCJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9lbWFpbGFkZHJlc3MiOiJ0ZXN0MjAwQGdtYWlsLmNvbSIsImh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vd3MvMjAwOC8wNi9pZGVudGl0eS9jbGFpbXMvcm9sZSI6IlVzZXIiLCJleHAiOjE3Njg5NDgwODEsImlzcyI6IkFtYWFuIiwiYXVkIjoiQW1hYW5Vc2VycyJ9.d-YxhnPLWZAXUZktdudSzyBNnSFqERFHbYrhT1D3TsE"}';
+      'Bearer ${UserNotifier.instance.userData!.token}';
+      print(UserNotifier.instance.userData!.token);
+      print("acheHelper.currentUser!.token");
     } else {
       _dio.options.headers.removeWhere((key, value) => key == 'Authorization');
     }
