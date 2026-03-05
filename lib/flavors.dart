@@ -16,12 +16,13 @@ class AppFlavor {
   static String get title => flavor.title;
 
   static IFlavorData get data {
-    switch (flavor) {
-      case Flavor.production:
-        return ProductionFlavorData();
-      case Flavor.dev:
-        return DevFlavorData();
-    }
+    return ProductionFlavorData();
+    // switch (flavor) {
+    //   case Flavor.production:
+    //     return ProductionFlavorData();
+    //   case Flavor.dev:
+    //     return DevFlavorData();
+    // }
   }
 }
 

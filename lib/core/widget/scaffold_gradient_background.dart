@@ -1,5 +1,6 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:amaan_tv/core/Themes/app_colors_new.dart';
 import 'responsive_app_bar.dart';
@@ -80,7 +81,7 @@ class ScaffoldGradientBackground extends StatelessWidget {
       );
     }
 
-    return Scaffold(
+      return Scaffold(
       appBar: defulteAppBar ? appBar : processedAppBar,
       body: DecoratedBox(
         decoration: BoxDecoration(
@@ -137,6 +138,6 @@ class ScaffoldGradientBackground extends StatelessWidget {
       onDrawerChanged: onDrawerChanged,
       onEndDrawerChanged: onEndDrawerChanged,
       persistentFooterAlignment: persistentFooterAlignment,
-    );
+          );
   }
 }

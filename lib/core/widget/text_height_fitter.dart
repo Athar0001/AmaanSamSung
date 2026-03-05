@@ -27,23 +27,17 @@ class TextHeightFitter extends StatelessWidget {
     textPainter.layout(maxWidth: maxWidth);
 
     // Get the height needed
-    final textHeight = textPainter.height;
+
 
     return SizedBox(
       width: maxWidth,
-      height: textHeight,
-      child: FittedBox(
-        alignment: Alignment.topLeft,
-        child: SizedBox(
-          width: maxWidth,
-          child: Text(
-            text,
-            style: style,
-            maxLines: maxLines,
-            textAlign: textAlign,
-            overflow: TextOverflow.clip,
-          ),
-        ),
+      height: 100,
+      child: Text(
+        text,
+        style: style,
+        maxLines: maxLines,
+        textAlign: textAlign,
+        overflow: TextOverflow.clip,
       ),
     );
   }

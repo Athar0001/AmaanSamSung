@@ -49,7 +49,7 @@
             "request": "attach",
             "type": "dart",
             "cwd": "${workspaceFolder}",
-            "vmServiceUri": "http://127.0.0.1:61390/AtsRg8S5ddY=/"
+            "vmServiceUri": "http://127.0.0.1:59511/AxBsBegHEJE=/"
         }
     ]
 }

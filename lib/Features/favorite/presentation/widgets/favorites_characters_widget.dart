@@ -12,6 +12,7 @@ import 'package:amaan_tv/gen/assets.gen.dart' as assets;
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
+import 'package:simple_tv_navigation/simple_tv_navigation.dart';
 import '../../../../core/Themes/app_text_styles_new.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/utils/enum.dart';
@@ -86,7 +87,9 @@ class _FavoritesCharactersWidgetState extends State<FavoritesCharactersWidget> {
                                 final isFav = await context.pushNamed<bool>(
                                   'character',
                                   extra: character,
-                                );
+                                ).then((value){
+                                  context.setFocus(FocusId.grid(FocusKeys.favCharacters, row, col));
+                                });;
                                 if (isFav == false) {
                                   favoriteProvider.removeCharacter(character);
                                 }

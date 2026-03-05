@@ -16,6 +16,8 @@ class FocusKeys {
   static const String whatIsNew = 'home.whatIsNew';
   static const String topTen = 'home.topTen';
   static const String characters = 'home.characters';
+  static const String exitDialogCancel = 'home.exitDialogCancel';
+  static const String exitDialogOk = 'home.exitDialogOk';
 
   // ---------- SERIES ----------
   static const String seriesCategory = 'series.category';

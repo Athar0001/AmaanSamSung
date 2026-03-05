@@ -16,6 +16,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
+import 'package:simple_tv_navigation/simple_tv_navigation.dart';
 import '../../../../core/utils/enum.dart';
 import '../../../../core/utils/focus_helper.dart';
 import '../../../Home/presentation/widget/repeat_dialog.dart';
@@ -128,7 +129,9 @@ class _FavoriteEpisodesWidgetState extends State<FavoriteEpisodesWidget> {
                                                       .closingDuration ??
                                                   episode.closingDuration,
                                             },
-                                          );
+                                          ).then((value){
+                                            context.setFocus(FocusId.grid(FocusKeys.favEpisodes, row, col));
+                                          });
                                       });
                                     } else {
                                       context.pushNamed(
@@ -154,7 +157,9 @@ class _FavoriteEpisodesWidgetState extends State<FavoriteEpisodesWidget> {
                                                   .closingDuration ??
                                               episode.closingDuration,
                                         },
-                                      );
+                                      ).then((value){
+                                        context.setFocus(FocusId.grid(FocusKeys.favEpisodes, row, col));
+                                      });;
                                     }
                                   }
                                 },

@@ -10,7 +10,7 @@ import 'package:amaan_tv/Features/Home/data/data_source/home_service.dart';
 import 'package:amaan_tv/core/utils/api/api_service.dart';
 import 'package:amaan_tv/core/utils/app_localiztion.dart';
 import 'package:amaan_tv/core/utils/app_router.dart';
-import 'package:amaan_tv/core/utils/tv_focus_manager.dart';
+
 import 'package:amaan_tv/core/utils/cash_services/cashe_helper.dart';
 import 'package:amaan_tv/core/languages/app_localizations.dart';
 import 'package:simple_tv_navigation/simple_tv_navigation.dart';
@@ -25,21 +25,13 @@ import 'package:toastification/toastification.dart';
 import 'package:amaan_tv/core/injection/injection_imports.dart' as di;
 import 'package:amaan_tv/core/services/signalr_service.dart';
 
-const String appFlavor = String.fromEnvironment(
-  'appFlavor',
-  defaultValue: 'dev',
-);
-
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await CacheHelper.init();
   di.init();
   final userNotifier = di.sl<UserNotifier>();
   userNotifier.init();
-  AppFlavor.flavor = Flavor.values.firstWhere(
-    (flavor) => flavor.name == appFlavor,
-    orElse: () => Flavor.dev,
-  );
+  AppFlavor.flavor = Flavor.production;
   runApp( TvNavigationProvider(
     child: MultiProvider(
         providers: [

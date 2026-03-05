@@ -6,6 +6,8 @@ mixin EndPoint {
   static final String baseImageUrl = AppFlavor.data.baseImageUrl;
   static final String baseUrl = AppFlavor.data.baseUrl;
 
+  static final String signalrUrl = '$baseUrl/hub/tv';
+
   ////////////---tasks api (children tasks)---////////////////
   static final String taskPath = 'task/api/';
   static final String taskLookups = '$baseUrl/${taskPath}TaskLookups';

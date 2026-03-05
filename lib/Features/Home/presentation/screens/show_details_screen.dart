@@ -176,7 +176,9 @@ class _ShowDetailsScreenState extends State<ShowDetailsScreen> {
                                     context.setFocus(FocusKeys.detailsWatchButton);
                                   }
                                 },
-                              );
+                              ).then((value){
+                                context.setFocus(FocusKeys.detailsWatchButton);
+                              });
                           });
                           context.setFocus(FocusKeys.detailsWatchButton);
                         } else {
@@ -193,7 +195,9 @@ class _ShowDetailsScreenState extends State<ShowDetailsScreen> {
                                 context.setFocus(FocusKeys.detailsWatchButton);
                               }
                             },
-                          );
+                          ).then((value){
+                            context.setFocus(FocusKeys.detailsWatchButton);
+                          });
                         }
                       } else if (provider.videoId == null) {
                         showDialog<void>(

@@ -17,7 +17,7 @@ class TabletLayout extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final posterWidth = 375.r;
+    final posterWidth = 500.r;
     final posterHeight = 540.r;
     final imageUrl = model.bannerThumbnailImage?.url;
     return Stack(

@@ -1,12 +1,16 @@
 
+import 'dart:io';
+
 import 'package:amaan_tv/Features/Home/presentation/widget/heros_widget.dart';
-import 'package:amaan_tv/Features/characters/presentation/screens/characters_screen.dart';
 import 'package:amaan_tv/Features/favorite/presentation/screens/favorite_screen.dart';
 import 'package:amaan_tv/core/Themes/app_colors_new.dart';
 import 'package:amaan_tv/core/models/characters_model.dart';
 import 'package:amaan_tv/core/utils/app_navigation.dart';
 import 'package:amaan_tv/core/widget/circle_progress_helper.dart';
+import 'package:amaan_tv/core/widget/custom_dialog.dart';
+import 'package:amaan_tv/core/widget/tv_click.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:amaan_tv/Features/Auth/provider/user_notifier.dart';
 import 'package:amaan_tv/core/Themes/app_text_styles_new.dart';
@@ -44,6 +48,7 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
 
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (context.read<UserNotifier>().userData != null) {
         context.read<HomeProvider>().getAllHomeData();
@@ -53,13 +58,21 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   @override
+  void dispose() {
+
+    scrollController.dispose();
+    super.dispose();
+  }
+
+
+
+  @override
   Widget build(BuildContext context) {
     return ScaffoldGradientBackground(
       body: Consumer<HomeProvider>(
         builder: (context, provider, child) {
           return Stack(
             children: [
-              // Content area with padding for navigation bar
               Padding(
                 padding: EdgeInsets.only(
                   top: 60.h + MediaQuery.of(context).padding.top,

@@ -9,6 +9,7 @@ import 'package:amaan_tv/core/widget/tv_click.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
+import 'package:simple_tv_navigation/simple_tv_navigation.dart';
 import '../../../../core/Themes/app_colors_new.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/injection/injection_imports.dart' as di;
@@ -89,7 +90,9 @@ class _FavoriteShowsWidgetState extends State<FavoriteShowsWidget> {
                                     pathParameters: {
                                       'id': show.showId.toString()
                                     },
-                                  );
+                                  ).then((value){
+                                    context.setFocus(FocusId.grid(FocusKeys.favShows, row, col));
+                                  });;
                                   if (isFav == false) {
                                     log(
                                       isFav.toString(),

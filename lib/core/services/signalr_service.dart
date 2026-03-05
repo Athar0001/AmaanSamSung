@@ -5,12 +5,13 @@ import 'package:logging/logging.dart';
 import 'package:signalr_netcore/signalr_client.dart';
 
 import '../../Features/Auth/data/models/login_model.dart';
+import '../utils/api/end_point.dart';
 
 class SignalRService {
   late HubConnection hubConnection;
   final Logger hubProtLogger = Logger("SignalR - hub");
   final Logger transportProtLogger = Logger("SignalR - transport");
-  final String serverUrl = "https://dev-be.amaantv.com/hub/tv";
+  final String serverUrl = EndPoint.signalrUrl;
 
   SignalRService() {
     // Configure the logging

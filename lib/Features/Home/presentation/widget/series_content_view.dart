@@ -1,15 +1,20 @@
 
+import 'package:amaan_tv/Features/Home/presentation/widget/repeat_dialog.dart';
 import 'package:amaan_tv/core/widget/tv_click.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:amaan_tv/Features/Home/provider/home_provider.dart';
 import 'package:amaan_tv/Features/Home/presentation/widget/listview_header_widget.dart';
 import 'package:amaan_tv/Features/Home/presentation/widget/show_category_item.dart';
 import 'package:amaan_tv/core/widget/circle_progress_helper.dart';
 import 'package:amaan_tv/core/utils/enum.dart';
+import 'package:simple_tv_navigation/simple_tv_navigation.dart';
 
+import '../../../../core/utils/app_router.dart';
 import '../../../../core/utils/focus_helper.dart';
+import '../../../../core/widget/custom_dialog.dart';
 
 class SeriesContentView extends StatefulWidget {
   const SeriesContentView({super.key});
@@ -167,6 +172,17 @@ class _SeriesContentViewState extends State<SeriesContentView> {
                               ((row + 1) * columns + col) < totalItems
                               ? FocusId.grid(FocusKeys.seriesEpisodes, row + 1, col)
                               : null,
+                          onSelect: () async {
+                            final id =
+                                provider.showsModel?.data?[index].id;
+                            if (id == null) return;
+                            context.pushNamed(
+                              AppRoutes.showDetails.routeName,
+                              pathParameters: {'id': id},
+                            ).then((value){
+                              context.setFocus(FocusId.grid(FocusKeys.seriesEpisodes, row, col));
+                            });
+                          },
                           child: ShowCategoryItemWidget(
                             model: show,
                             height: double.infinity,

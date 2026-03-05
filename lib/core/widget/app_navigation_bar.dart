@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:amaan_tv/Features/Auth/provider/user_notifier.dart';
 import 'package:amaan_tv/Features/Home/provider/home_provider.dart';
 import 'package:amaan_tv/Features/Home/provider/time_provider.dart';
@@ -16,7 +18,9 @@ import 'package:amaan_tv/gen/assets.gen.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:simple_tv_navigation/simple_tv_navigation.dart';
+import '../../Features/Home/provider/show_player_provider.dart';
 import '../utils/focus_helper.dart';
+import 'custom_dialog.dart';
 
 class AppNavigationBar extends StatefulWidget {
   const AppNavigationBar({
@@ -33,13 +37,163 @@ class AppNavigationBar extends StatefulWidget {
 }
 
 class _AppNavigationBarState extends State<AppNavigationBar> {
-   int _selectedTabIndex = 0;
+  int _selectedTabIndex = 0;
+  bool popupOpen = false;
 
   void _onTabSelected(int index) {
     setState(() {
       _selectedTabIndex = index;
     });
     widget.onTabChanged?.call(index);
+  }
+
+  bool _handleKey(KeyEvent event) {
+    if (event is KeyDownEvent) {
+      print(
+          "Key Pressed: ${event.logicalKey.debugName} | ID: ${event.logicalKey.keyId}");
+      if (event.logicalKey == LogicalKeyboardKey.escape ||
+          event.logicalKey == LogicalKeyboardKey.goBack ||
+          event.logicalKey == LogicalKeyboardKey.browserBack ||
+          event.logicalKey.keyId == 0x100000009) {
+        if(context.tvState.currentlyFocusedElement!.id
+            .contains('player') ) {
+          final provider = context.read<ShowPlayerProvider>();
+          provider.stopAndDispose();
+          Navigator.pop(context);
+          return true;
+        }
+        if (
+            context.tvState.currentlyFocusedElement!.id.contains('details') ||
+            context.tvState.currentlyFocusedElement!.id.contains('rate') ||
+            context.tvState.currentlyFocusedElement!.id.contains('kb.') ||
+            context.tvState.currentlyFocusedElement!.id.contains('1') ||
+            context.tvState.currentlyFocusedElement!.id.contains('3') ||
+            context.tvState.currentlyFocusedElement!.id.contains('5') ||
+            context.tvState.currentlyFocusedElement!.id.contains('7') ||
+            context.tvState.currentlyFocusedElement!.id
+                .contains('characters')) {
+          Navigator.pop(context);
+        }
+        else if (popupOpen) {
+          Navigator.of(context).pop();
+          setState(() {
+            popupOpen = false;
+          });
+          context.setFocus(FocusKeys.homeTab);
+        } else if (_selectedTabIndex == 0 ||
+            context.tvState.currentlyFocusedElement!.id.contains('login')) {
+          setState(() {
+            popupOpen = true;
+          });
+          _showExitConfirmationDialog();
+        }  else if (_selectedTabIndex == 3) {
+          Navigator.pop(context);
+          context.setFocus(FocusKeys.homeTab);
+        } else {
+          context.setFocus(FocusKeys.homeTab);
+          _onTabSelected(0);
+        }
+        return false;
+      }
+    }
+    return false;
+  }
+
+  void _showExitConfirmationDialog() {
+    showDialog<void>(
+      context: context,
+      builder: (context) {
+        context.setFocus(FocusKeys.exitDialogOk);
+        return CustomDialog(
+          content: Container(
+            padding: EdgeInsets.all(24.r),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  'هل تريد مغادرة التطبيق؟',
+                  style: AppTextStylesNew.style14RegularAlmarai,
+                  textAlign: TextAlign.center,
+                ),
+                50.verticalSpace,
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    TvClick(
+                      id: FocusKeys.exitDialogOk,
+                      rightId: FocusKeys.exitDialogCancel,
+                      leftId: FocusKeys.exitDialogCancel,
+                      onSelect: () {
+                        Navigator.of(context).pop();
+                        setState(() {
+                          popupOpen = false;
+                        });
+                        context.setFocus(FocusKeys.homeTab);
+                        exit(0);
+                      },
+                      child: Container(
+                        decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(12),
+                            color: AppColorsNew.primary),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                              vertical: 5.0, horizontal: 16),
+                          child: Text(
+                            'خروج',
+                            style: AppTextStylesNew.style14RegularAlmarai
+                                .copyWith(color: Colors.white),
+                          ),
+                        ),
+                      ),
+                    ),
+                    50.horizontalSpace,
+                    TvClick(
+                      id: FocusKeys.exitDialogCancel,
+                      rightId: FocusKeys.exitDialogOk,
+                      leftId: FocusKeys.exitDialogOk,
+                      onSelect: () {
+                        Navigator.of(context).pop();
+                        setState(() {
+                          popupOpen = false;
+                        });
+                        context.setFocus(FocusKeys.homeTab);
+                      },
+                      child: Container(
+                        decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(12)),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                              vertical: 5.0, horizontal: 16),
+                          child: Text(
+                            'الغاء',
+                            style: AppTextStylesNew.style14RegularAlmarai
+                                .copyWith(color: Colors.white),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      HardwareKeyboard.instance.addHandler(_handleKey);
+    });
+  }
+
+  @override
+  void dispose() {
+    HardwareKeyboard.instance.removeHandler(_handleKey);
+    super.dispose();
   }
 
   @override
@@ -139,7 +293,7 @@ class _AppNavigationBarState extends State<AppNavigationBar> {
               },
               onSelect: () {
                 _onTabSelected(3);
-                context.pushNamed(AppRoutes.search.routeName).then((value){
+                context.pushNamed(AppRoutes.search.routeName).then((value) {
                   if (context.mounted) {
                     context.setFocus(FocusKeys.homeTab);
                     _onTabSelected(0);
@@ -237,7 +391,9 @@ class _HeaderTab extends StatelessWidget {
         onSelect: onTap,
         radius: 50.r,
         child: Container(
-          padding: EdgeInsets.symmetric(horizontal: 30.w,),
+          padding: EdgeInsets.symmetric(
+            horizontal: 30.w,
+          ),
           decoration: BoxDecoration(
             color: isSelected ? AppColorsNew.primary : Colors.transparent,
             borderRadius: BorderRadius.circular(50.r),

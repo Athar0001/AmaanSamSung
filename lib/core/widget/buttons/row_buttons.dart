@@ -74,11 +74,11 @@ class RowButtonsWidget extends StatelessWidget {
                     child: Text(
                       items[index],
                       style: index == selectedIndex
-                          ? AppTextStylesNew.style14BoldAlmarai.copyWith(
+                          ? AppTextStylesNew.style12BoldAlmarai.copyWith(
                               color: AppColorsNew.white,
                               height: 1,
                             )
-                          : AppTextStylesNew.style14BoldAlmarai.copyWith(
+                          : AppTextStylesNew.style12BoldAlmarai.copyWith(
                               color:
                                   Theme.of(context).textTheme.bodyMedium?.color,
                               height: 1,

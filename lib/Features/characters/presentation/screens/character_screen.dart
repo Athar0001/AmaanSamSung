@@ -76,8 +76,8 @@ class _CharacterScreenState extends State<CharacterScreen> {
               child: Row(
                 children: [
                   Container(
-                    height: 208.r,
-                    width: 160.r,
+                    height: 200,
+                    width: 150,
                     decoration: BoxDecoration(
                       // border: Border.all(color: AppColorsNew.blue1),
                       borderRadius: BorderRadius.circular(20.r),
@@ -91,8 +91,8 @@ class _CharacterScreenState extends State<CharacterScreen> {
                     child: Hero(
                       tag: widget.character.id.toString(),
                       child: Container(
-                        height: 262.r,
-                        width: 162.r,
+                        height: 200,
+                        width: 150,
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(20.r),
                         ),
@@ -105,7 +105,7 @@ class _CharacterScreenState extends State<CharacterScreen> {
                       ),
                     ),
                   ),
-                  16.horizontalSpace,
+                  35.horizontalSpace,
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -113,11 +113,11 @@ class _CharacterScreenState extends State<CharacterScreen> {
                         TextHeightFitter(
                           text: widget.character.name ?? '',
                           maxWidth: context.width * 0.60,
+                          textAlign: TextAlign.start,
                           maxLines: 5,
                           style: AppTextStylesNew.style40ExtraBoldAlmarai
                               .copyWith(color: AppColorsNew.blue4),
                         ),
-                        24.verticalSpace,
                         Text(
                           widget.character.description ?? '',
                           style: AppTextStylesNew.style14RegularAlmarai,
@@ -132,7 +132,7 @@ class _CharacterScreenState extends State<CharacterScreen> {
           ),
           24.verticalSpace,
           SizedBox(
-            height: 50,
+            height: 40,
             child: RowButtonsWidget(
               selectedIndex: currentIndex,
               focusKeyBase: FocusKeys.charactersTab,
