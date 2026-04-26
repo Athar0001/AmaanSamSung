@@ -4,6 +4,7 @@ import 'package:amaan_tv/Features/Home/provider/time_provider.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_state_provider/flutter_state_provider.dart';
+import 'package:internet_connection_checker_plus/internet_connection_checker_plus.dart';
 import 'package:provider/provider.dart';
 import 'package:video_player/video_player.dart';
 
@@ -53,12 +54,16 @@ class ShowPlayerProvider extends ChangeNotifier {
   Timer? _timer;
   bool _isLoading = false;
   bool get isLoading => _isLoading;
+  InternetStatus? _connectionStatus;
+  InternetStatus? get connectionStatus => _connectionStatus;
+  late StreamSubscription<InternetStatus> _subscription;
 
   @override
   void dispose() {
     _stopTimer();
     videoPlayerController?.removeListener(_videoListener);
     videoPlayerController?.dispose();
+    _subscription.cancel();
     super.dispose();
   }
 
@@ -81,7 +86,7 @@ class ShowPlayerProvider extends ChangeNotifier {
     isFinished = false;
     _isLoading = true;
     notifyListeners();
-
+    checkConnection();
     this.showTitle = showTitle;
     this.showId = showId;
     this.videoId = videoId;
@@ -136,14 +141,14 @@ class ShowPlayerProvider extends ChangeNotifier {
 
     notifyListeners();
   }
+
   void _videoListener() {
     final controller = videoPlayerController;
     if (controller == null) return;
 
     final value = controller.value;
 
-    final loadingNow =
-        !value.isInitialized || value.isBuffering ;
+    final loadingNow = !value.isInitialized || value.isBuffering;
 
     if (_isLoading != loadingNow) {
       _isLoading = loadingNow;
@@ -244,7 +249,7 @@ class ShowPlayerProvider extends ChangeNotifier {
   }
 
   void repeat() {
-    if (!(videoPlayerController?.value.isInitialized ?? false) ) return;
+    if (!(videoPlayerController?.value.isInitialized ?? false)) return;
     _hasTriggeredClosingDuration = false;
     isFinished = false;
     // videoPlayerController?.seekTo(Duration.zero);
@@ -254,7 +259,7 @@ class ShowPlayerProvider extends ChangeNotifier {
   }
 
   void play() {
-    if (!(videoPlayerController?.value.isInitialized ?? false) ) return;
+    if (!(videoPlayerController?.value.isInitialized ?? false)) return;
     videoPlayerController?.play();
     notifyListeners();
   }
@@ -297,7 +302,6 @@ class ShowPlayerProvider extends ChangeNotifier {
       log('Tizen seekForward failed (ignored): $e');
     }
   }
-
 
   Future<void> seekBackward({int seconds = 10}) async {
     final controller = videoPlayerController;
@@ -369,7 +373,6 @@ class ShowPlayerProvider extends ChangeNotifier {
   Future<VideoTransactionModel> getForTransaction(
     VideoTransactionType type,
   ) async {
-
     final videoController = videoPlayerController;
     final fromMinute = videoController?.value.position.toString();
 
@@ -384,7 +387,7 @@ class ShowPlayerProvider extends ChangeNotifier {
   }
 
   Future sendVideoTransaction(VideoTransactionType type) async {
-    if (!(videoPlayerController?.value.isInitialized ?? false) ) return;
+    if (!(videoPlayerController?.value.isInitialized ?? false)) return;
     isTransactionCompleted = type == VideoTransactionType.completeVideo;
     stateVideoTrans = const StateProvider.loading();
     notifyListeners();
@@ -559,5 +562,26 @@ class ShowPlayerProvider extends ChangeNotifier {
       },
     );
     addRate = true;
+  }
+
+  void checkConnection() async {
+    _connectionStatus = await InternetConnection().internetStatus;
+    notifyListeners();
+    _subscription = InternetConnection().onStatusChange.listen((status) {
+      if (status == InternetStatus.disconnected &&
+          (videoPlayerController?.value.isPlaying ?? false)) {
+        Future.delayed(Duration(seconds: 5), () {
+          _connectionStatus = status;
+          videoPlayerController?.pause();
+        });
+      }
+      if (status == InternetStatus.connected) {
+        _connectionStatus = status;
+        if (!(videoPlayerController?.value.isPlaying ?? false)) {
+          videoPlayerController?.play();
+        }
+      }
+      notifyListeners();
+    });
   }
 }

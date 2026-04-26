@@ -1,6 +1,7 @@
 class FocusKeys {
   // ---------- LOGIN ----------
   static const String loginRescan = 'login.scan';
+  static const String loginScreen = 'login.screen';
 
   // ---------- TABS ----------
   static const String homeTab = 'home.tab';
@@ -74,6 +75,8 @@ class FocusKeys {
 // ---------- RATE DIALOG ----------
   static const String rateDialogOk = 'rate.ok';
   static const String rateDialogCancel = 'rate.cancel';
+  static const String rate = 'rate';
+
 
 
   // ---------- CHARACTERS ----------

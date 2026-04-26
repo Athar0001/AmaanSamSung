@@ -55,15 +55,13 @@ class _AppNavigationBarState extends State<AppNavigationBar> {
           event.logicalKey == LogicalKeyboardKey.goBack ||
           event.logicalKey == LogicalKeyboardKey.browserBack ||
           event.logicalKey.keyId == 0x100000009) {
-        if(context.tvState.currentlyFocusedElement!.id
-            .contains('player') ) {
+        if (context.tvState.currentlyFocusedElement!.id.contains('player')) {
           final provider = context.read<ShowPlayerProvider>();
           provider.stopAndDispose();
           Navigator.pop(context);
           return true;
         }
-        if (
-            context.tvState.currentlyFocusedElement!.id.contains('details') ||
+        if (context.tvState.currentlyFocusedElement!.id.contains('details') ||
             context.tvState.currentlyFocusedElement!.id.contains('rate') ||
             context.tvState.currentlyFocusedElement!.id.contains('kb.') ||
             context.tvState.currentlyFocusedElement!.id.contains('1') ||
@@ -73,8 +71,7 @@ class _AppNavigationBarState extends State<AppNavigationBar> {
             context.tvState.currentlyFocusedElement!.id
                 .contains('characters')) {
           Navigator.pop(context);
-        }
-        else if (popupOpen) {
+        } else if (popupOpen) {
           Navigator.of(context).pop();
           setState(() {
             popupOpen = false;
@@ -86,7 +83,7 @@ class _AppNavigationBarState extends State<AppNavigationBar> {
             popupOpen = true;
           });
           _showExitConfirmationDialog();
-        }  else if (_selectedTabIndex == 3) {
+        } else if (_selectedTabIndex == 3) {
           Navigator.pop(context);
           context.setFocus(FocusKeys.homeTab);
         } else {

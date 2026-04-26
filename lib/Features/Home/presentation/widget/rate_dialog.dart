@@ -107,6 +107,7 @@ class _RateDialogState extends State<RateDialog> {
                         children: [
                           for (final rate in VideoRate.values.reversed)
                             _RateEmojiWidget(
+                              rateIndex: VideoRate.values.reversed.toList().indexOf(rate),
                               onTap: () {
                                 setState(() {
                                   videoRate = rate;
@@ -153,9 +154,15 @@ class _RateDialogState extends State<RateDialog> {
                       id: FocusKeys.rateDialogCancel,
                       rightId: FocusKeys.rateDialogOk,
                       onSelect: () => Navigator.pop(context),
-                      child: Text(
-                        AppLocalization.strings.noThanks,
-                        style: AppTextStylesNew.style14BoldAlmarai,
+                      child: Container(
+                        width: 500,
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Text(
+                            AppLocalization.strings.noThanks,
+                            style: AppTextStylesNew.style14BoldAlmarai,
+                          ),
+                        ),
                       ),
                     ),
                   ],
@@ -179,48 +186,58 @@ class _RateEmojiWidget extends StatelessWidget {
   const _RateEmojiWidget({
     required this.onTap,
     required this.rate,
+    required this.rateIndex,
     this.selectedRate,
   });
 
   final VoidCallback onTap;
   final VideoRate rate;
   final VideoRate? selectedRate;
+  final int rateIndex;
 
   @override
   Widget build(BuildContext context) {
     final isSelected = rate == selectedRate;
-    return AnimatedContainer(
-      width: isSelected ? 84.r : 60.r,
-      height: isSelected ? 84.r : 60.r,
-      duration: Durations.medium1,
-      child:  ColorFiltered(
-          colorFilter: isSelected
-              ? ColorFilter.mode(Colors.transparent, BlendMode.multiply)
-              : ColorFilter.matrix([
-                  0.2126,
-                  0.7152,
-                  0.0722,
-                  0,
-                  0,
-                  0.2126,
-                  0.7152,
-                  0.0722,
-                  0,
-                  0,
-                  0.2126,
-                  0.7152,
-                  0.0722,
-                  0,
-                  0,
-                  0,
-                  0,
-                  0,
-                  1,
-                  0,
-                ]),
-          child: rate.image,
-        ),
 
+    return TvClick(
+      id: '${FocusKeys.rate}_$rateIndex',
+      rightId: rateIndex != 4 ? '${FocusKeys.rate}_${rateIndex + 1}' : null,
+      leftId: rateIndex != 0 ? '${FocusKeys.rate}_${rateIndex - 1}' : null,
+      downId: FocusKeys.rateDialogOk,
+      onSelect: onTap,
+      child: AnimatedContainer(
+        width: isSelected ? 84.r : 60.r,
+        height: isSelected ? 84.r : 60.r,
+        duration: Durations.medium1,
+        child:  ColorFiltered(
+            colorFilter: isSelected
+                ? ColorFilter.mode(Colors.transparent, BlendMode.multiply)
+                : ColorFilter.matrix([
+                    0.2126,
+                    0.7152,
+                    0.0722,
+                    0,
+                    0,
+                    0.2126,
+                    0.7152,
+                    0.0722,
+                    0,
+                    0,
+                    0.2126,
+                    0.7152,
+                    0.0722,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    1,
+                    0,
+                  ]),
+            child: rate.image,
+          ),
+
+      ),
     );
   }
 }

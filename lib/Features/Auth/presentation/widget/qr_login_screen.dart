@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 import 'package:amaan_tv/Features/Auth/provider/auth_provider.dart';
 import 'package:amaan_tv/core/Themes/app_colors_new.dart';
 import 'package:amaan_tv/core/Themes/app_text_styles_new.dart';
@@ -6,6 +7,7 @@ import 'package:amaan_tv/core/utils/focus_helper.dart';
 import 'package:amaan_tv/core/widget/buttons/main_button.dart';
 import 'package:amaan_tv/core/widget/scaffold_gradient_background.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -48,6 +50,7 @@ class _QRLoginScreenState extends State<QRLoginScreen> {
     _remainingTime = widget.expiryDuration;
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final authProvider = context.read<AuthProvider>();
+      HardwareKeyboard.instance.addHandler(_handleKey);
       authProvider.generateQr((user) {
         context.goNamed(AppRoutes.home.routeName);
       }).then((_) {
@@ -98,7 +101,22 @@ class _QRLoginScreenState extends State<QRLoginScreen> {
   @override
   void dispose() {
     _timer?.cancel();
+    HardwareKeyboard.instance.removeHandler(_handleKey);
     super.dispose();
+  }
+
+  bool _handleKey(KeyEvent event) {
+    if (event is KeyDownEvent) {
+      print(
+          "Key Pressed: ${event.logicalKey.debugName} | ID: ${event.logicalKey.keyId}");
+      if (event.logicalKey == LogicalKeyboardKey.escape ||
+          event.logicalKey == LogicalKeyboardKey.goBack ||
+          event.logicalKey == LogicalKeyboardKey.browserBack ||
+          event.logicalKey.keyId == 0x100000009) {
+        exit(0);
+      }
+    }
+    return false;
   }
 
   String _formatDuration(Duration duration) {
@@ -198,6 +216,7 @@ class _QRLoginScreenState extends State<QRLoginScreen> {
                     TvClick(
                       id: FocusKeys.loginRescan,
                       onSelect: _regenerateQr,
+                      radius: 16.r,
                       child: Container(
                         padding: EdgeInsets.symmetric(
                           horizontal: 24.r,
@@ -205,7 +224,7 @@ class _QRLoginScreenState extends State<QRLoginScreen> {
                         ),
                         decoration: BoxDecoration(
                           color: AppColorsNew.primary,
-                          borderRadius: BorderRadius.circular(8.r),
+                          borderRadius: BorderRadius.circular(16.r,),
                         ),
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
@@ -213,7 +232,7 @@ class _QRLoginScreenState extends State<QRLoginScreen> {
                             Icon(
                               Icons.refresh,
                               color: Colors.white,
-                              size: 20.r,
+                              size: 22,
                             ),
                             SizedBox(width: 8.r),
                             Text(

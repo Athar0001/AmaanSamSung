@@ -128,6 +128,9 @@ class _FavoriteEpisodesWidgetState extends State<FavoriteEpisodesWidget> {
                                                       )
                                                       .closingDuration ??
                                                   episode.closingDuration,
+                                              'onNavigateBack': (){
+                                                context.setFocus(FocusId.grid(FocusKeys.favEpisodes, row, col));
+                                              }
                                             },
                                           ).then((value){
                                             context.setFocus(FocusId.grid(FocusKeys.favEpisodes, row, col));
@@ -156,6 +159,9 @@ class _FavoriteEpisodesWidgetState extends State<FavoriteEpisodesWidget> {
                                                   )
                                                   .closingDuration ??
                                               episode.closingDuration,
+                                          'onNavigateBack': (){
+                                            context.setFocus(FocusId.grid(FocusKeys.favEpisodes, row, col));
+                                          }
                                         },
                                       ).then((value){
                                         context.setFocus(FocusId.grid(FocusKeys.favEpisodes, row, col));

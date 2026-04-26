@@ -5,6 +5,7 @@ import 'package:amaan_tv/core/widget/tv_click_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:internet_connection_checker_plus/internet_connection_checker_plus.dart';
 import 'package:provider/provider.dart';
 import 'package:simple_tv_navigation/simple_tv_navigation.dart';
 import 'package:video_player/video_player.dart';
@@ -65,7 +66,7 @@ class _ShowPlayerScreenState extends State<ShowPlayerScreen>
     //
     // _hideControlsTimer?.cancel();
 
-    Future.delayed(Duration(seconds: 5),(){
+    Future.delayed(Duration(seconds: 5), () {
       if (!mounted) return;
       // context.setFocus(FocusKeys.playerScreen);
       setState(() => _controlsVisible = false);
@@ -78,14 +79,14 @@ class _ShowPlayerScreenState extends State<ShowPlayerScreen>
     // });
   }
 
-
-
   @override
   void dispose() {
     _controlsFocusScope.dispose();
     _hideControlsTimer?.cancel();
+    HardwareKeyboard.instance.removeHandler(_handleKey);
     super.dispose();
   }
+
   @override
   void initState() {
     super.initState();
@@ -122,8 +123,38 @@ class _ShowPlayerScreenState extends State<ShowPlayerScreen>
         showRate: widget.showRate,
         repeatTimes: widget.repeatTimes,
       );
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      HardwareKeyboard.instance.addHandler(_handleKey);
+    });
     context.setFocus(FocusKeys.playerScreen);
   }
+
+  bool _handleKey(KeyEvent event) {
+    if (event is KeyDownEvent) {
+      if (context.tvState.currentlyFocusedElement!.id.contains('player')) {
+        if (event.logicalKey == LogicalKeyboardKey.mediaPlay ||
+            event.logicalKey == LogicalKeyboardKey.play ||
+            event.logicalKey == LogicalKeyboardKey.mediaPlayPause ||
+            event.logicalKey == LogicalKeyboardKey.pause ||
+            event.logicalKey == LogicalKeyboardKey.mediaPause ||
+            event.logicalKey == LogicalKeyboardKey.mediaStop) {
+          showPlayerProvider.togglePlay();
+        }
+        if (event.logicalKey == LogicalKeyboardKey.mediaRewind ||
+            event.logicalKey == LogicalKeyboardKey.mediaTrackPrevious ||
+            event.logicalKey == LogicalKeyboardKey.navigatePrevious) {
+          showPlayerProvider.seekBackward();
+        }
+        if (event.logicalKey == LogicalKeyboardKey.navigateNext ||
+            event.logicalKey == LogicalKeyboardKey.mediaTrackNext ||
+            event.logicalKey == LogicalKeyboardKey.mediaFastForward ||
+            event.logicalKey == LogicalKeyboardKey.mediaStepForward) {
+          showPlayerProvider.seekForward();
+        }
+      }
+    }
+      return false;
+    }
 
   @override
   Widget build(BuildContext context) {
@@ -141,32 +172,32 @@ class _ShowPlayerScreenState extends State<ShowPlayerScreen>
                 provider.stopAndDispose();
                 if (endTime != null) {
                   context.read<TimeProvider>().continueWatching(
-                    widget.videoId,
-                    endTime,
-                  );
+                        widget.videoId,
+                        endTime,
+                      );
                 }
                 provider.sendVideoTransaction(VideoTransactionType.closePage);
               }
-            widget.onNavigateBack.call();
+              widget.onNavigateBack.call();
               // SystemChrome.setPreferredOrientations([
               //   DeviceOrientation.portraitUp,
               // ]);
             },
-            child:  Scaffold(
+            child: Scaffold(
               backgroundColor: Colors.black,
               body: TvClick(
                 id: FocusKeys.playerScreen,
                 upId: FocusKeys.playerBack,
                 hasBorder: false,
-                dynamicDownId: (){
+                dynamicDownId: () {
                   _showControls();
                   return FocusKeys.playerPlayPause;
                 },
-                dynamicRightId: (){
+                dynamicRightId: () {
                   _showControls();
                   return FocusKeys.playerForward;
                 },
-                dynamicLeftId: (){
+                dynamicLeftId: () {
                   _showControls();
                   return FocusKeys.playerBackward;
                 },
@@ -176,11 +207,28 @@ class _ShowPlayerScreenState extends State<ShowPlayerScreen>
                     children: [
                       if (provider.videoPlayerController != null)
                         VideoPlayer(provider.videoPlayerController!),
-
-                      if (provider.isLoading)
+                      if (provider.isLoading && provider.connectionStatus ==
+                          InternetStatus.connected)
                         const Center(
                           child: CircularProgressIndicator(
                             color: AppColorsNew.primary,
+                          ),
+                        ),
+                      if (provider.connectionStatus != null &&
+                          provider.connectionStatus == InternetStatus.disconnected)
+                        Center(
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(Icons.wifi_off, color: Colors.red, size: 30),
+                              SizedBox(
+                                width: 10,
+                              ),
+                              Text(
+                                  'انقطع الاتصال بالإنترنت. يرجى التحقق من اتصال الشبكة',
+                                  style: AppTextStylesNew.style16BoldAlmarai
+                                      .copyWith(color: Colors.red)),
+                            ],
                           ),
                         ),
                       Align(
@@ -192,7 +240,8 @@ class _ShowPlayerScreenState extends State<ShowPlayerScreen>
                           onNavigateBack: widget.onNavigateBack,
                         ),
                       ),
-                      if (provider.videoPlayerController != null && !provider.isLoading)
+                      if (provider.videoPlayerController != null &&
+                          !provider.isLoading)
                         Align(
                             alignment: Alignment.center,
                             child: AnimatedOpacity(
@@ -255,28 +304,30 @@ class _PlayerControls extends StatelessWidget {
                     id: FocusKeys.playerBackward,
                     rightId: FocusKeys.playerPlayPause,
                     upId: FocusKeys.playerBack,
-                    dynamicDownId: (){
-                      final position = provider.videoPlayerController!.value.position;
-                      final duration = provider.videoPlayerController!.value.duration;
+                    dynamicDownId: () {
+                      final position =
+                          provider.videoPlayerController!.value.position;
+                      final duration =
+                          provider.videoPlayerController!.value.duration;
                       final trailerDuration = provider.trailerDuration;
                       final isNearEnd = duration.inSeconds > 0 &&
                           (duration.inSeconds - position.inSeconds) < 20;
 
                       final nextEpisode =
-                      isNearEnd ? _findNextEpisode(provider) : null;
+                          isNearEnd ? _findNextEpisode(provider) : null;
                       final showNextEpisode = nextEpisode != null;
-                      if(trailerDuration != null &&
+                      if (trailerDuration != null &&
                           position.inSeconds < trailerDuration &&
                           trailerDuration > 0) {
                         return FocusKeys.playerSkipIntro;
-                      } else if(showNextEpisode) {
+                      } else if (showNextEpisode) {
                         return FocusKeys.playerNextEpisode;
                       } else {
                         return FocusKeys.playerProgress;
                       }
                     },
-                    child: Icon(Icons.replay_10_outlined, size: 40.r,
-                        color: AppColorsNew.white),
+                    child: Icon(Icons.replay_10_outlined,
+                        size: 40.r, color: AppColorsNew.white),
                   ),
                   SizedBox(width: 20.w),
                   // Play/Pause
@@ -286,61 +337,64 @@ class _PlayerControls extends StatelessWidget {
                     leftId: FocusKeys.playerBackward,
                     onSelect: () => provider.togglePlay(),
                     upId: FocusKeys.playerBack,
-                    dynamicDownId: (){
-                      final position = provider.videoPlayerController!.value.position;
-                      final duration = provider.videoPlayerController!.value.duration;
+                    dynamicDownId: () {
+                      final position =
+                          provider.videoPlayerController!.value.position;
+                      final duration =
+                          provider.videoPlayerController!.value.duration;
                       final trailerDuration = provider.trailerDuration;
                       final isNearEnd = duration.inSeconds > 0 &&
                           (duration.inSeconds - position.inSeconds) < 20;
 
                       final nextEpisode =
-                      isNearEnd ? _findNextEpisode(provider) : null;
+                          isNearEnd ? _findNextEpisode(provider) : null;
                       final showNextEpisode = nextEpisode != null;
-                      if(trailerDuration != null &&
+                      if (trailerDuration != null &&
                           position.inSeconds < trailerDuration &&
                           trailerDuration > 0) {
                         return FocusKeys.playerSkipIntro;
-                      } else if(showNextEpisode) {
+                      } else if (showNextEpisode) {
                         return FocusKeys.playerNextEpisode;
                       }
                       return FocusKeys.playerProgress;
                     },
                     child: provider.isFinished
-                        ? Icon(Icons.replay, size: 42,
-                        color: AppColorsNew.white)
+                        ? Icon(Icons.replay,
+                            size: 42, color: AppColorsNew.white)
                         : Container(
-                      height: 0.15.sh,
-                      width: 0.15.sh,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: !provider.isPlaying?
-                        AppColorsNew.primary:
-                        Colors.transparent,
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.all(5),
-                        child: Builder(
-                          builder: (context) {
-                            try {
-                              return SVGImage(
-                                noTheme: true,
-                                path: provider.isPlaying
-                                    ? Assets.imagesPauseVideo
-                                    : Assets.imagesCirclePause,
-                              );
-                            } catch (e) {
-                              // Fallback to Material Icons if SVG fails
-                              return Icon(
-                                provider.isPlaying ? Icons.pause : Icons.play_arrow,
-                                color:
-                                AppColorsNew.white,
-                                size: 30,
-                              );
-                            }
-                          },
-                        ),
-                      ),
-                    ),
+                            height: 0.15.sh,
+                            width: 0.15.sh,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: !provider.isPlaying
+                                  ? AppColorsNew.primary
+                                  : Colors.transparent,
+                            ),
+                            child: Padding(
+                              padding: const EdgeInsets.all(5),
+                              child: Builder(
+                                builder: (context) {
+                                  try {
+                                    return SVGImage(
+                                      noTheme: true,
+                                      path: provider.isPlaying
+                                          ? Assets.imagesPauseVideo
+                                          : Assets.imagesCirclePause,
+                                    );
+                                  } catch (e) {
+                                    // Fallback to Material Icons if SVG fails
+                                    return Icon(
+                                      provider.isPlaying
+                                          ? Icons.pause
+                                          : Icons.play_arrow,
+                                      color: AppColorsNew.white,
+                                      size: 30,
+                                    );
+                                  }
+                                },
+                              ),
+                            ),
+                          ),
                   ),
                   SizedBox(width: 20.w),
                   // Forward
@@ -349,29 +403,30 @@ class _PlayerControls extends StatelessWidget {
                     leftId: FocusKeys.playerPlayPause,
                     onSelect: () => provider.seekForward(),
                     upId: FocusKeys.playerBack,
-                    dynamicDownId: (){
-                      final position = provider.videoPlayerController!.value.position;
-                      final duration = provider.videoPlayerController!.value.duration;
+                    dynamicDownId: () {
+                      final position =
+                          provider.videoPlayerController!.value.position;
+                      final duration =
+                          provider.videoPlayerController!.value.duration;
                       final trailerDuration = provider.trailerDuration;
                       final isNearEnd = duration.inSeconds > 0 &&
                           (duration.inSeconds - position.inSeconds) < 20;
 
                       final nextEpisode =
-                      isNearEnd ? _findNextEpisode(provider) : null;
+                          isNearEnd ? _findNextEpisode(provider) : null;
                       final showNextEpisode = nextEpisode != null;
-                      if(trailerDuration != null &&
+                      if (trailerDuration != null &&
                           position.inSeconds < trailerDuration &&
                           trailerDuration > 0) {
                         return FocusKeys.playerSkipIntro;
-                      } else if(showNextEpisode) {
+                      } else if (showNextEpisode) {
                         return FocusKeys.playerNextEpisode;
                       } else {
                         return FocusKeys.playerProgress;
                       }
                     },
-                    child: Icon(Icons.forward_10_outlined, size: 40.r,
-                        color:
-                        AppColorsNew.white),
+                    child: Icon(Icons.forward_10_outlined,
+                        size: 40.r, color: AppColorsNew.white),
                   ),
                 ],
               ),
@@ -398,7 +453,7 @@ class _PlayerControls extends StatelessWidget {
                       (duration.inSeconds - position.inSeconds) < 20;
 
                   final nextEpisode =
-                  isNearEnd ? _findNextEpisode(provider) : null;
+                      isNearEnd ? _findNextEpisode(provider) : null;
                   final showNextEpisode = nextEpisode != null;
 
                   if (!showSkipIntro && !showNextEpisode) {
@@ -412,7 +467,8 @@ class _PlayerControls extends StatelessWidget {
                         padding: EdgeInsets.only(bottom: 80.h, right: 40.w),
                         child: _SkipIntroButton(
                           onSkip: () {
-                            controller.seekTo(Duration(seconds: trailerDuration));
+                            controller
+                                .seekTo(Duration(seconds: trailerDuration));
                           },
                         ),
                       ),
@@ -431,9 +487,9 @@ class _PlayerControls extends StatelessWidget {
                               context: context,
                               showId: provider.showId,
                               videoId: nextEpisode.episodeVideos
-                                  ?.firstWhere(
-                                      (element) => element.videoTypeId == '1')
-                                  .id ??
+                                      ?.firstWhere((element) =>
+                                          element.videoTypeId == '1')
+                                      .id ??
                                   '',
                               showTitle: nextEpisode.title,
                               addQuiz: nextEpisode.hasExam &&
@@ -501,8 +557,8 @@ class _NextEpisodeOverlay extends StatelessWidget {
 
   const _NextEpisodeOverlay(
       {required this.nextEpisode,
-        required this.onPlayNext,
-        required this.onCancel});
+      required this.onPlayNext,
+      required this.onCancel});
 
   @override
   Widget build(BuildContext context) {
@@ -560,7 +616,7 @@ class _FocusableVideoProgressBarState
     _seekTimer?.cancel();
     _seekTimer = Timer.periodic(
       const Duration(milliseconds: 200),
-          (_) {
+      (_) {
         if (_seekingForward) {
           widget.provider.seekForward(seconds: 1);
         } else {
@@ -595,8 +651,6 @@ class _FocusableVideoProgressBarState
     return KeyboardListener(
       focusNode: _focusNode,
       onKeyEvent: (event) {
-
-
         /// RIGHT pressed
         if (event.logicalKey == LogicalKeyboardKey.arrowRight) {
           if (event is KeyDownEvent && _seekTimer == null) {
@@ -622,15 +676,14 @@ class _FocusableVideoProgressBarState
       child: TvClick(
         id: FocusKeys.playerProgress,
         upId: FocusKeys.playerPlayPause,
-        dynamicRightId: (){
+        dynamicRightId: () {
           _startSeeking(true);
           return null;
         },
-        dynamicLeftId: (){
+        dynamicLeftId: () {
           _startSeeking(true);
           return null;
         },
-
         child: Directionality(
           textDirection: TextDirection.ltr,
           child: VideoProgressIndicator(
@@ -639,8 +692,7 @@ class _FocusableVideoProgressBarState
             colors: VideoProgressColors(
               playedColor: AppColorsNew.primary,
               bufferedColor: Colors.white24,
-              backgroundColor:
-              Colors.white10.withOpacity(0.3),
+              backgroundColor: Colors.white10.withOpacity(0.3),
             ),
           ),
         ),
@@ -649,15 +701,18 @@ class _FocusableVideoProgressBarState
   }
 }
 
-
-
 class VideoTitleWidget extends StatefulWidget {
-  VideoTitleWidget({required this.title, required this.url,required this.onNavigateBack,required this.onShowControllers, super.key});
+  VideoTitleWidget(
+      {required this.title,
+      required this.url,
+      required this.onNavigateBack,
+      required this.onShowControllers,
+      super.key});
 
   final String title;
   final String url;
   final VoidCallback onShowControllers;
-  final VoidCallback  onNavigateBack;
+  final VoidCallback onNavigateBack;
 
   @override
   State<VideoTitleWidget> createState() => _VideoTitleWidgetState();
@@ -672,42 +727,38 @@ class _VideoTitleWidgetState extends State<VideoTitleWidget> {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-             Row(
-               crossAxisAlignment: CrossAxisAlignment.start,
-               children: [
-                 Container(
-                   padding: EdgeInsets.only(
-                     top: 10,
-                     bottom: 10,
-                     right: 20,
-                     left: 10,
-                   ),
-                   // child: Icon(
-                   //   Icons.arrow_back_ios,
-                   //   size: 30.r,
-                   //   color: isLandscape
-                   //       ? AppColorsNew.white
-                   //       : Theme.of(context).textTheme.bodyMedium?.color,
-                   // ),
-                 ),
-                 Container(
-                   width: 0.9.sw,
-                   child: Text(
-                     widget.title,
-                     style: AppTextStylesNew.style16BoldAlmarai.copyWith(
-                         fontSize: 20,
-                         color: AppColorsNew.white ),
-                   ),
-                 ),
-
-               ],
-             ),
-
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  padding: EdgeInsets.only(
+                    top: 10,
+                    bottom: 10,
+                    right: 20,
+                    left: 10,
+                  ),
+                  // child: Icon(
+                  //   Icons.arrow_back_ios,
+                  //   size: 30.r,
+                  //   color: isLandscape
+                  //       ? AppColorsNew.white
+                  //       : Theme.of(context).textTheme.bodyMedium?.color,
+                  // ),
+                ),
+                Container(
+                  width: 0.9.sw,
+                  child: Text(
+                    widget.title,
+                    style: AppTextStylesNew.style16BoldAlmarai
+                        .copyWith(fontSize: 20, color: AppColorsNew.white),
+                  ),
+                ),
+              ],
+            ),
             Spacer(),
-
             TvClick(
                 id: FocusKeys.playerBack,
-                dynamicDownId: (){
+                dynamicDownId: () {
                   widget.onShowControllers.call();
                   return FocusKeys.playerPlayPause;
                 },
@@ -718,8 +769,11 @@ class _VideoTitleWidgetState extends State<VideoTitleWidget> {
                   Navigator.pop(context);
                   widget.onNavigateBack.call();
                 },
-                child: Icon(Icons.arrow_forward_ios, size: 30.r, color: AppColorsNew.white,))
-
+                child: Icon(
+                  Icons.arrow_forward_ios,
+                  size: 30.r,
+                  color: AppColorsNew.white,
+                ))
           ],
         ),
       ),
